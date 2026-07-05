@@ -871,6 +871,25 @@ def run_evolve(args):
 
     print(f"\n{_ts()} {_bold('Phase Final: 5-trial eval for frontier agents')}")
     frontier = json.loads(FRONTIER_VAL.read_text()) if FRONTIER_VAL.exists() else {}
+    
+    # CONTINUAL LEARNING ENSEMBLES (KNN Routing Simulation)
+    # The frontier already maps tasks to their historical best-performing agent (KNN router).
+    # We evaluate the theoretical performance of the Ensemble Pool vs the Single Best Agent.
+    ensemble_tasks = [k for k in frontier.keys() if k != "_best"]
+    if ensemble_tasks:
+        print(f"\n  {_ts()} {_bold('Continual Learning Ensemble (Router):')}")
+        ensemble_agents = set()
+        ensemble_passes = 0
+        for t in ensemble_tasks:
+            agent = frontier[t].get("best_agent")
+            rate = frontier[t].get("pass_rate", 0)
+            ensemble_agents.add(agent)
+            ensemble_passes += rate
+            
+        ensemble_avg = ensemble_passes / len(ensemble_tasks)
+        print(f"  Ensemble Pool Size: {len(ensemble_agents)} specialized agents")
+        print(f"  Ensemble Avg Pass Rate (if routed dynamically): {_rate_str(ensemble_avg)}")
+        
     best_agent = frontier.get("_best", {}).get("agent")
     if best_agent and best_agent != BASELINE_AGENT_NAME:
         import_path = None
@@ -884,7 +903,7 @@ def run_evolve(args):
 
         if import_path:
             job_name = f"final-{best_agent}-t5"
-            print(f"  {_ts()} running {_bold(best_agent)} x 5 trials...", flush=True)
+            print(f"  {_ts()} running single generalist {_bold(best_agent)} x 5 trials...", flush=True)
             t0 = time.time()
             job_dir, _ = harbor_run(
                 import_path,
