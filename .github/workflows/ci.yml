@@ -57,7 +57,8 @@ jobs:
           python-version: '3.11'
 
       - name: Install Linting & Typing Tools
-        run: pip install ruff mypy pandas pandas-stubs matplotlib
+        # Pin ruff to match the local version (0.4.4) to prevent notebook formatting discrepancies
+        run: pip install ruff==0.4.4 mypy pandas pandas-stubs matplotlib
 
       - name: Lint Python Code
         run: ruff check .
