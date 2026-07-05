@@ -36,7 +36,7 @@ enum LineKind {
 }
 
 impl App {
-    fn new(startup_mode: AgentMode) -> Self {
+    fn new(startup_mode: AgentMode, port: u16) -> Self {
         Self {
             input: String::new(),
             output: vec![
@@ -53,7 +53,7 @@ impl App {
                 ),
                 (
                     LineKind::System,
-                    "  • Port  : http://localhost:8765 (Remote UI)".into(),
+                    format!("  • Port  : http://localhost:{} (Remote UI)", port),
                 ),
                 (
                     LineKind::System,
@@ -181,12 +181,13 @@ pub async fn run(
     mut rx: broadcast::Receiver<AgentEvent>,
     input_tx: mpsc::UnboundedSender<String>,
     startup_mode: AgentMode,
+    port: u16,
 ) -> anyhow::Result<()> {
     enable_raw_mode()?;
     stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
-    let mut app = App::new(startup_mode);
+    let mut app = App::new(startup_mode, port);
 
     loop {
         terminal.draw(|frame| draw(frame, &app))?;

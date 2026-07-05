@@ -19,6 +19,7 @@ struct AppState {
 }
 
 pub async fn start(
+    port: u16,
     input_tx: mpsc::UnboundedSender<String>,
     event_tx: broadcast::Sender<AgentEvent>,
 ) {
@@ -29,7 +30,9 @@ pub async fn start(
         .route("/ws", get(ws_handler))
         .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8765").await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
+        .await
+        .unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 

@@ -28,9 +28,13 @@ struct Cli {
     #[arg(long, default_value_t = 24000)]
     max_tokens: usize,
 
-    /// Initial mode (coder, cpe, eval, research)
+    /// Initial mode (coder, cpe, eval, research, librarian)
     #[arg(long, default_value = "coder")]
     mode: String,
+
+    /// Port for the remote web server UI
+    #[arg(long, default_value_t = 8765)]
+    port: u16,
 }
 
 #[tokio::main]
@@ -73,11 +77,12 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
+    let port = cli.port;
     let tx_server = tx.clone();
     let input_tx_server = input_tx.clone();
     tokio::spawn(async move {
-        server::start(input_tx_server, tx_server).await;
+        server::start(port, input_tx_server, tx_server).await;
     });
 
-    tui::run(rx1, input_tx, startup_mode).await
+    tui::run(rx1, input_tx, startup_mode, port).await
 }
