@@ -96,6 +96,23 @@ N_EVAL_TASKS = 89  # full official TB2 dataset used in the paper runs
 SMOKE_TEST_TASK = "extract-elf"  # simple task, reliably fast
 
 DATASET = "terminal-bench@2.0"
+
+# --- OPEN-SOURCE PROPOSER MODEL CONFIGURATIONS ---
+# To use DeepSeek or GLM-4 as the Proposer, replace `claude_wrapper.py` in `propose_claude()`
+# with a generic OpenAI-compatible agent loop (like Kota itself) using these endpoints:
+
+# 1. DeepSeek-Coder-V3 (Cloud API or local vLLM)
+DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+DEEPSEEK_MODEL = "deepseek-coder"
+
+# 2. GLM-4 (Cloud API or local vLLM)
+GLM_BASE_URL = "https://open.bigmodel.cn/api/paas/v4/"
+GLM_MODEL = "glm-4"
+
+# 3. Local Ollama (Quantized Air-gapped Execution)
+OLLAMA_BASE_URL = "http://localhost:11434/v1"
+
+# Currently Active Meta-Harness Evaluator Model
 MODEL = "anthropic/claude-opus-4-6"
 DEFAULT_SEARCH_TRIALS = 2
 DEFAULT_CONCURRENCY = 50
