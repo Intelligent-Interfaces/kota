@@ -84,35 +84,32 @@ The agent loop:
 
 All events flow through a typed channel. The TUI subscribes and renders them.
 
-## Models tested
+## Hardware & Inference Guide
 
-| Model               | Backend | Architecture                  | Status |
-| ------------------- | ------- | ----------------------------- | ------ |
-| qwen3:8b            | Ollama  | Dense, GQA                    | ✓      |
-| qwen3.6:27b         | Ollama  | Dense Transformer             | target |
-| gemma4:e4b          | Ollama  | Dense Transformer             | target |
-| gemma4:31b          | Ollama  | Dense Transformer             | target |
-| nemotron3-nano-omni | vLLM    | Mamba2-Transformer Hybrid MoE | target |
+To achieve the best latency and context stability with Kota, you must align your model selection and backend with your hardware constraints.
 
-### A note on Qwen 3 and Quantization
+### 1. Local Hardware Tiers (RAM vs Context Limits)
 
-Recent research indicates that the Qwen 3 family (e.g., Qwen3-8B) utilizes a Dense architecture with Grouped-Query Attention (GQA) that exhibits strong, consistent gate structure. Because its MLP layers are highly structured, Qwen 3 is uniquely amenable to aggressive 4-bit block quantization. For local execution with `kota`, using 4-bit quantized GGUF variants (like `q4_K_M`) will deliver near-unquantized reasoning performance while drastically reducing your memory footprint.
+When running models locally, memory bandwidth and VRAM/RAM capacity are your primary bottlenecks. To prevent Out-Of-Memory (OOM) errors during long agentic context windows, we strongly recommend **4-bit block quantization (e.g., `q4_K_M` GGUFs)**.
+- **8GB RAM (e.g. Base M-series Mac):** Stick to highly optimized Dense models under 4B parameters.
+- **16GB RAM (e.g. M1/M2 Pro):** Recommended sweet spot. Use 7B-9B parameter models. Dense architectures with Grouped-Query Attention (GQA) excel here.
+- **32GB+ RAM / Dedicated GPU:** You can explore massive 27B-35B parameter Dense models or hybrid MoEs.
 
-### A note on Gemma
+### 2. Backend Recommendations
 
-Google's Gemma family (specifically Gemma 3 4B/27B and Gemma 4 architectures) are highly optimized for local agentic execution. Due to advanced architecture designs (such as grouped-query attention and sliding window mechanisms), Gemma models deliver class-leading reasoning and tool-calling capabilities at lower parameter counts. For consumer devices like an M1 Pro Mac, a quantized Gemma model (such as Gemma 3 9B) is highly recommended for coding and research tasks, offering excellent accuracy without exhausting the 16GB Unified Memory buffer.
+Kota is backend-agnostic, but your infrastructure dictates the optimal engine:
+- **Use Ollama / llama.cpp (GGUF):** If you are running on Apple Silicon (M-series) or standard consumer x86 CPUs. Ollama heavily optimizes memory mapping for quantized GGUF weights, allowing you to squeeze massive logic into tight RAM constraints.
+- **Use vLLM / TensorRT-LLM:** If you are running on dedicated NVIDIA GPUs (e.g. RTX 4090s or Datacenter GPUs). These backends natively support cutting-edge architectures like Selective State Space Models (Mamba2) and provide massive throughput for unquantized BF16 execution.
 
-### A note on Nemotron 3 Nano Omni
+### 3. Recommended Architectures by Use Case
 
-NVIDIA's Nemotron 3 Nano Omni (30B-A3B) is a multimodal model that processes video, audio, images, and text through a unified Mamba2-Transformer hybrid MoE architecture. It activates ~3B parameters per token (same as Qwen 3.6-35B-A3B) but uses a fundamentally different backbone — selective state space models (Mamba2) for some layers, attention for others.
+| Primary Use Case | Recommended Architecture Type | Example Models | Best Backend |
+| ---------------- | --------------------------- | -------------- | ------------ |
+| **Coding & Agents** | Dense Transformer with GQA | Qwen 3 (8B), Gemma (4B-9B) | Ollama (GGUF) |
+| **Multimodal & Research** | Hybrid MoE / Mamba2 | Nemotron 3 Nano Omni | vLLM (BF16) |
 
-Nemotron requires NVIDIA GPU hardware and runs best via vLLM or TensorRT-LLM (not yet available as GGUF for llama.cpp/Ollama). To benchmark it alongside the other models through kota, serve it via vLLM on an NVIDIA GPU and point kota at the vLLM endpoint:
-
+*To connect Kota to a custom vLLM endpoint, simply override the API URL:*
 ```bash
-# Serve Nemotron via vLLM (requires NVIDIA GPU)
-vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16
-
-# Point kota at it
 cargo run -- --model Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16 \
   --api-url http://localhost:8000/v1 --workdir ~/myproject
 ```
