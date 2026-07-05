@@ -8,7 +8,7 @@ A TUI agent coder & computing assistant that runs on local LLMs.
   | ' // _ \ | __|/ _` |
   | . \ (_) || |_| (_| |
   |_|\_\___/  \__|\__,_|
-   [ COMPUTING ASSISTANT ]
+  [ COMPUTING ASSISTANT ]
 
 ╭─ kota ──────────────────────────────────────────────╮
 │  ▶ read the main.rs file and add error handling     │
