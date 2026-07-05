@@ -39,7 +39,7 @@ uuid = { version = "1", features = ["v4"] }
 anyhow = "1"
 
 # Turso / SQLite Persistent Memory
-libsql = "0.3"
+libsql = "0.9"
 
 # Web Server (Remote Controller)
 axum = { version = "0.7", features = ["ws"] }

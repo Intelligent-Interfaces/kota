@@ -74,7 +74,7 @@ impl MemoryStore {
         conversation_id: &str,
         limit: usize,
     ) -> Result<Vec<(String, Option<String>)>> {
-        let mut stmt = self
+        let stmt = self
             .conn
             .prepare(
                 "
@@ -108,7 +108,7 @@ impl MemoryStore {
         query_keyword: &str,
         limit: usize,
     ) -> Result<Vec<String>> {
-        let mut stmt = self
+        let stmt = self
             .conn
             .prepare(
                 "

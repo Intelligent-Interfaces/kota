@@ -55,7 +55,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Linting & Typing Tools
-        run: pip install ruff mypy pandas types-pandas matplotlib types-matplotlib
+        run: pip install ruff mypy pandas pandas-stubs matplotlib
 
       - name: Lint Python Code
         run: ruff check .

@@ -1,0 +1,7 @@
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0104", # Reachable panic in certificate revocation list parsing (webpki v0.102)
+    "RUSTSEC-2026-0049", # CRLs not considered authoritative by Distribution Point (webpki v0.102)
+    "RUSTSEC-2026-0099", # Name constraints wildcard check (webpki v0.102)
+    "RUSTSEC-2026-0098", # Name constraints URI check (webpki v0.102)
+]
