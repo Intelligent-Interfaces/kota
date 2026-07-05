@@ -49,10 +49,7 @@ pub enum AgentEvent {
     Error { message: String },
 
     /// Telemetry Update
-    TelemetryUpdate {
-        rx_kbps: f64,
-        tx_kbps: f64,
-    },
+    TelemetryUpdate { rx_kbps: f64, tx_kbps: f64 },
 
     /// Network Threat Detected
     NetworkThreatDetected {

@@ -5,10 +5,10 @@ use tokio::time::{sleep, Duration};
 
 pub async fn run_telemetry_loop(tx: broadcast::Sender<AgentEvent>) {
     let mut networks = Networks::new_with_refreshed_list();
-    
+
     loop {
         networks.refresh(true);
-        
+
         let mut total_rx = 0;
         let mut total_tx = 0;
 
@@ -24,13 +24,13 @@ pub async fn run_telemetry_loop(tx: broadcast::Sender<AgentEvent>) {
         if tx_kbps > 500_000.0 {
             let _ = tx.send(AgentEvent::NetworkThreatDetected {
                 severity: "CRITICAL".to_string(),
-                description: format!("Massive outbound bandwidth spike detected: {:.2} Kbps", tx_kbps),
+                description: format!(
+                    "Massive outbound bandwidth spike detected: {:.2} Kbps",
+                    tx_kbps
+                ),
             });
         } else {
-            let _ = tx.send(AgentEvent::TelemetryUpdate {
-                rx_kbps,
-                tx_kbps,
-            });
+            let _ = tx.send(AgentEvent::TelemetryUpdate { rx_kbps, tx_kbps });
         }
 
         sleep(Duration::from_millis(1000)).await;

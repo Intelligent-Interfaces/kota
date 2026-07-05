@@ -181,8 +181,14 @@ impl App {
                 self.rx_kbps = rx_kbps;
                 self.tx_kbps = tx_kbps;
             }
-            AgentEvent::NetworkThreatDetected { severity, description } => {
-                self.push_line(LineKind::Error, format!("🚨 THREAT [{}]: {}", severity, description));
+            AgentEvent::NetworkThreatDetected {
+                severity,
+                description,
+            } => {
+                self.push_line(
+                    LineKind::Error,
+                    format!("🚨 THREAT [{}]: {}", severity, description),
+                );
             }
         }
     }
