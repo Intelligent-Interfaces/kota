@@ -39,11 +39,18 @@ impl App {
         Self {
             input: String::new(),
             output: vec![
-                (LineKind::System, "╭─ kota ─────────────────────────────────────╮".into()),
-                (LineKind::System, "│  Local AI coding assistant                 │".into()),
-                (LineKind::System, "│  Type a message and press Enter.           │".into()),
-                (LineKind::System, "│  Ctrl+C to quit. Ctrl+R to reset.         │".into()),
-                (LineKind::System, "╰────────────────────────────────────────────╯".into()),
+                (LineKind::System, "  _  __      _".into()),
+                (LineKind::System, " | |/ /___  | |_  __ _   🦎".into()),
+                (LineKind::System, " | ' // _ \\ | __|/ _` |".into()),
+                (LineKind::System, " | . \\ (_) || |_| (_| |".into()),
+                (LineKind::System, " |_|\\_\\___/  \\__|\\__,_|".into()),
+                (LineKind::System, "  [ LOCAL AI CO-PILOT ]".into()),
+                (LineKind::System, "".into()),
+                (LineKind::System, " ── SYSTEM LOADED ──────────────────────────────────────────".into()),
+                (LineKind::System, "  • Port  : http://localhost:8765 (Remote UI)".into()),
+                (LineKind::System, "  • Keys  : Ctrl+C (Quit) | Ctrl+R (Reset)".into()),
+                (LineKind::System, " ───────────────────────────────────────────────────────────".into()),
+                (LineKind::System, "".into()),
             ],
             scroll: 0,
             busy: false,
@@ -243,23 +250,37 @@ fn draw(frame: &mut Frame, app: &App) {
         })
         .collect();
 
+    // Output Border Style
+    let output_style = if app.busy {
+        Style::default().fg(Color::Yellow)
+    } else {
+        Style::default().fg(Color::Cyan)
+    };
+
     let output_widget = Paragraph::new(output_lines)
-        .block(Block::default().borders(Borders::ALL).title(" kota "))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+                .border_style(output_style)
+                .title(Span::styled(" kota ", Style::default().bold().fg(Color::Cyan)))
+        )
         .wrap(Wrap { trim: false })
         .scroll((app.scroll, 0));
     frame.render_widget(output_widget, chunks[0]);
 
     // Input
-    let input_title = if app.busy { " working... " } else { " > " };
+    let input_title = if app.busy { " working... " } else { " prompt " };
     let input_style = if app.busy {
-        Style::default().fg(Color::Yellow)
+        Style::default().fg(Color::DarkGray)
     } else {
         Style::default().fg(Color::Cyan)
     };
     let input_widget = Paragraph::new(app.input.as_str()).block(
         Block::default()
             .borders(Borders::ALL)
-            .title(input_title)
+            .border_type(BorderType::Rounded)
+            .title(Span::styled(input_title, Style::default().bold().fg(Color::Cyan)))
             .border_style(input_style),
     );
     frame.render_widget(input_widget, chunks[1]);

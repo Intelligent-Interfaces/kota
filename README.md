@@ -2,20 +2,26 @@
 
 A TUI agent coder & computer assistant that runs on local LLMs.
 
-```
-╭─ kota ──────────────────────────────────────────╮
-│ ▶ read the main.rs file and add error handling  │
-│   ── step 1 (342 tokens) ──                     │
-│   💭 I need to read the file first...           │
-│   🔧 read_file({"path": "src/main.rs"})         │
-│   ✓ read_file (12ms)                            │
-│     → use std::io;                              │
-│   ── step 2 (1204 tokens) ──                    │
-│   Here's the updated file with error handling:  |
-│   🔧 write_file({"path": "src/main.rs", ...})   |
-│   ✓ write_file (3ms)                            │
-│   ── done (2340ms) ──                           │
-╰─────────────────────────────────────────────────╯
+   _  __      _
+  | |/ /___  | |_  __ _   🦎
+  | ' // _ \ | __|/ _` |
+  | . \ (_) || |_| (_| |
+  |_|\_\___/  \__|\__,_|
+   [ LOCAL AI CO-PILOT ]
+
+╭─ kota ──────────────────────────────────────────────╮
+│  ▶ read the main.rs file and add error handling     │
+│  ── step 1 (342 tokens) ──                          │
+│  💭 I need to read the file first...                │
+│  🔧 read_file({"path": "src/main.rs"})              │
+│  ✓ read_file (12ms)                                 │
+│    → use std::io;                                   │
+│  ── step 2 (1204 tokens) ──                         │
+│  Here's the updated file with error handling:       │
+│  🔧 write_file({"path": "src/main.rs", ...})        │
+│  ✓ write_file (3ms)                                 │
+│  ── done (2340ms) ──                                │
+╰─────────────────────────────────────────────────────╯
 ```
 
 ## What it does
@@ -110,6 +116,4 @@ cargo run -- --model Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16 \
   --api-url http://localhost:8000/v1 --workdir ~/myproject
 ```
 
-## Built for
 
-Sundai Club × Open Accelerator (Red Hat) Hackathon — May 3, 2026
