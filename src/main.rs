@@ -1,11 +1,11 @@
 mod agent;
-mod llm;
-mod tools;
-mod tui;
 mod events;
+mod llm;
+pub mod memory;
 mod server;
 mod skills;
-pub mod memory;
+mod tools;
+mod tui;
 
 use clap::Parser;
 
@@ -39,7 +39,8 @@ async fn main() -> anyhow::Result<()> {
 
     let llm_client = llm::LlmClient::new(&cli.api_url, &cli.model);
     let startup_mode = agent::AgentMode::from_str(&cli.mode);
-    let mut agent = agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode).await?;
+    let mut agent =
+        agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode).await?;
 
     let (tx, rx1) = tokio::sync::broadcast::channel::<events::AgentEvent>(100);
     let (input_tx, mut input_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
@@ -52,7 +53,10 @@ async fn main() -> anyhow::Result<()> {
                 let new_mode = agent::AgentMode::from_str(mode_str);
                 agent.set_mode(new_mode);
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
-                    text: format!("SYSTEM: Mode changed to {}", new_mode.to_str().to_uppercase()),
+                    text: format!(
+                        "SYSTEM: Mode changed to {}",
+                        new_mode.to_str().to_uppercase()
+                    ),
                 });
                 continue;
             }

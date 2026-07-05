@@ -1,9 +1,9 @@
 use crate::events::AgentEvent;
 use crate::llm::{LlmClient, Message};
-use crate::tools;
 use crate::skills::SkillComposer;
-use std::path::PathBuf;
+use crate::tools;
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tokio::sync::broadcast;
@@ -11,11 +11,11 @@ use tokio::sync::broadcast;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AgentMode {
     Coder,
-    Cpe,      // Client Platform Engineering
-    Eval,     // Safety Evaluation
-    Research, // Literature Review & Writing
-    Architect,// System Design & Infrastructure
-    Librarian,// LLM Wiki Maintenance & Knowledge Compiling
+    Cpe,       // Client Platform Engineering
+    Eval,      // Safety Evaluation
+    Research,  // Literature Review & Writing
+    Architect, // System Design & Infrastructure
+    Librarian, // LLM Wiki Maintenance & Knowledge Compiling
 }
 
 impl AgentMode {
@@ -89,10 +89,15 @@ pub struct Agent {
 }
 
 impl Agent {
-    pub async fn new(llm: LlmClient, max_tokens: usize, workdir: &str, mode: AgentMode) -> anyhow::Result<Self> {
+    pub async fn new(
+        llm: LlmClient,
+        max_tokens: usize,
+        workdir: &str,
+        mode: AgentMode,
+    ) -> anyhow::Result<Self> {
         let memory = MemoryStore::new(".kota_memory.db").await?;
         let session_id = uuid::Uuid::new_v4().to_string();
-        
+
         memory.save_conversation(&session_id, mode.to_str()).await?;
 
         let sys_prompt = mode.system_prompt();
@@ -102,8 +107,10 @@ impl Agent {
             tool_calls: None,
             tool_call_id: None,
         };
-        
-        memory.save_message(&session_id, "system", &sys_prompt).await?;
+
+        memory
+            .save_message(&session_id, "system", &sys_prompt)
+            .await?;
 
         let messages = vec![sys_msg];
 
@@ -135,17 +142,25 @@ impl Agent {
         user_input: &str,
         tx: broadcast::Sender<AgentEvent>,
     ) -> anyhow::Result<()> {
-        
         // Save to Turso DB
-        self.memory.save_message(&self.session_id, "user", user_input).await?;
+        self.memory
+            .save_message(&self.session_id, "user", user_input)
+            .await?;
 
         // Episodic Memory Retrieval (Mental Time Travel)
         // Extract a salient keyword (longest word) to retrieve distant memory context
-        let keyword = user_input.split_whitespace().max_by_key(|w| w.len()).unwrap_or("");
+        let keyword = user_input
+            .split_whitespace()
+            .max_by_key(|w| w.len())
+            .unwrap_or("");
         if keyword.len() > 4 {
             if let Ok(memories) = self.memory.query_episodic_memory(keyword, 2).await {
                 if !memories.is_empty() {
-                    let episodic_context = format!("EPISODIC MEMORY RECALL (Past context regarding '{}'):\n{}", keyword, memories.join("\n---\n"));
+                    let episodic_context = format!(
+                        "EPISODIC MEMORY RECALL (Past context regarding '{}'):\n{}",
+                        keyword,
+                        memories.join("\n---\n")
+                    );
                     self.messages.push(Message {
                         role: "system".to_string(),
                         content: Some(episodic_context),
@@ -196,28 +211,28 @@ impl Agent {
 
             let messages = self.messages.clone();
             let tool_defs = tools::tool_definitions();
-            
+
             let tc_clone = pending_tool_calls.clone();
             let cb_clone = content_buf.clone();
 
             self.llm
-                .chat_stream(
-                    messages,
-                    Some(tool_defs),
-                    move |event| match event {
-                        crate::llm::StreamEvent::Content(text) => {
-                            cb_clone.lock().unwrap().push_str(&text);
-                            let _ = tx_clone.send(AgentEvent::Token { text });
-                        }
-                        crate::llm::StreamEvent::Thinking(text) => {
-                            let _ = tx_clone.send(AgentEvent::Thinking { text });
-                        }
-                        crate::llm::StreamEvent::ToolCall { id, name, arguments } => {
-                            tc_clone.lock().unwrap().push((id, name, arguments));
-                        }
-                        crate::llm::StreamEvent::Done => {}
-                    },
-                )
+                .chat_stream(messages, Some(tool_defs), move |event| match event {
+                    crate::llm::StreamEvent::Content(text) => {
+                        cb_clone.lock().unwrap().push_str(&text);
+                        let _ = tx_clone.send(AgentEvent::Token { text });
+                    }
+                    crate::llm::StreamEvent::Thinking(text) => {
+                        let _ = tx_clone.send(AgentEvent::Thinking { text });
+                    }
+                    crate::llm::StreamEvent::ToolCall {
+                        id,
+                        name,
+                        arguments,
+                    } => {
+                        tc_clone.lock().unwrap().push((id, name, arguments));
+                    }
+                    crate::llm::StreamEvent::Done => {}
+                })
                 .await?;
 
             let pending_tool_calls = pending_tool_calls.lock().unwrap().clone();
@@ -241,9 +256,16 @@ impl Agent {
                 let content_str = if content_buf.is_empty() {
                     serde_json::to_string(&tool_call_responses).unwrap_or_default()
                 } else {
-                    format!("{}\nTool Calls: {}", content_buf, serde_json::to_string(&tool_call_responses).unwrap_or_default())
+                    format!(
+                        "{}\nTool Calls: {}",
+                        content_buf,
+                        serde_json::to_string(&tool_call_responses).unwrap_or_default()
+                    )
                 };
-                let _ = self.memory.save_message(&self.session_id, "assistant", &content_str).await;
+                let _ = self
+                    .memory
+                    .save_message(&self.session_id, "assistant", &content_str)
+                    .await;
 
                 self.messages.push(Message {
                     role: "assistant".to_string(),
@@ -289,8 +311,11 @@ impl Agent {
                     });
 
                     // Add tool result to conversation
-                    let _ = self.memory.save_message(&self.session_id, "tool", &result.output).await;
-                    
+                    let _ = self
+                        .memory
+                        .save_message(&self.session_id, "tool", &result.output)
+                        .await;
+
                     self.messages.push(Message {
                         role: "tool".to_string(),
                         content: Some(result.output),
@@ -305,8 +330,11 @@ impl Agent {
 
             // No tool calls — we're done
             if !content_buf.is_empty() {
-                let _ = self.memory.save_message(&self.session_id, "assistant", &content_buf).await;
-                
+                let _ = self
+                    .memory
+                    .save_message(&self.session_id, "assistant", &content_buf)
+                    .await;
+
                 self.messages.push(Message {
                     role: "assistant".to_string(),
                     content: Some(content_buf),
