@@ -2,8 +2,6 @@ import json
 import os
 import subprocess
 import tempfile
-import time
-import uuid
 
 # Topological prompt conditions
 ECM_PROMPT = """[Topology: Ectomycorrhizal (ECM)]

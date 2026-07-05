@@ -830,8 +830,8 @@ def run_evolve(args):
                 print(f"\n{_bold('--- HITL REVIEW FOR: ' + name + ' ---')}")
                 print(f"Avg Pass Rate: {_rate_str(avg)}")
                 print(f"Energy Score (Hardware Proxy - lower is better): {energy_score:.2f}")
-                print(f"Topological Entropy ($H_T$) proxy active via candidate diversity.")
-                print(f"\nSkill Tree Diffs:")
+                print("Topological Entropy ($H_T$) proxy active via candidate diversity.")
+                print("\nSkill Tree Diffs:")
                 os.system("git diff .kota_skills/")
                 
                 resp = input("\nApprove this skill tree mutation? [y/N/custom_feedback]: ").strip()

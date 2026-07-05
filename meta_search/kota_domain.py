@@ -1,7 +1,6 @@
-import os
 import subprocess
 import json
-from meta_harness import MetaHarness, HarnessCandidate
+from meta_harness import MetaHarness
 
 class KotaForestDewDomain(MetaHarness):
     """

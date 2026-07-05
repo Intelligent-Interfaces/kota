@@ -1,4 +1,4 @@
-
+use crate::agent::AgentMode;
 use crate::events::AgentEvent;
 use crossterm::event::{self, Event, KeyCode, KeyModifiers};
 use crossterm::terminal::{
@@ -8,9 +8,8 @@ use crossterm::ExecutableCommand;
 use ratatui::prelude::*;
 use ratatui::widgets::*;
 use std::io::stdout;
-use tokio::sync::mpsc;
 use tokio::sync::broadcast;
-use crate::agent::AgentMode;
+use tokio::sync::mpsc;
 
 /// Application state
 struct App {
@@ -48,10 +47,22 @@ impl App {
                 (LineKind::System, " |_|\\_\\___/  \\__|\\__,_|".into()),
                 (LineKind::System, " [ COMPUTING ASSISTANT ]".into()),
                 (LineKind::System, "".into()),
-                (LineKind::System, " ── SYSTEM LOADED ──────────────────────────────────────────".into()),
-                (LineKind::System, "  • Port  : http://localhost:8765 (Remote UI)".into()),
-                (LineKind::System, "  • Keys  : Ctrl+C (Quit) | Ctrl+R (Reset)".into()),
-                (LineKind::System, " ───────────────────────────────────────────────────────────".into()),
+                (
+                    LineKind::System,
+                    " ── SYSTEM LOADED ──────────────────────────────────────────".into(),
+                ),
+                (
+                    LineKind::System,
+                    "  • Port  : http://localhost:8765 (Remote UI)".into(),
+                ),
+                (
+                    LineKind::System,
+                    "  • Keys  : Ctrl+C (Quit) | Ctrl+R (Reset)".into(),
+                ),
+                (
+                    LineKind::System,
+                    " ───────────────────────────────────────────────────────────".into(),
+                ),
                 (LineKind::System, "".into()),
             ],
             scroll: 0,
@@ -275,7 +286,10 @@ fn draw(frame: &mut Frame, app: &App) {
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(output_style)
-                .title(Span::styled(" kota ", Style::default().bold().fg(Color::Cyan)))
+                .title(Span::styled(
+                    " kota ",
+                    Style::default().bold().fg(Color::Cyan),
+                )),
         )
         .wrap(Wrap { trim: false })
         .scroll((app.scroll, 0));
@@ -292,16 +306,16 @@ fn draw(frame: &mut Frame, app: &App) {
         Block::default()
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
-            .title(Span::styled(input_title, Style::default().bold().fg(Color::Cyan)))
+            .title(Span::styled(
+                input_title,
+                Style::default().bold().fg(Color::Cyan),
+            ))
             .border_style(input_style),
     );
     frame.render_widget(input_widget, chunks[1]);
 
     if !app.busy {
-        frame.set_cursor_position((
-            chunks[1].x + app.input.len() as u16 + 1,
-            chunks[1].y + 1,
-        ));
+        frame.set_cursor_position((chunks[1].x + app.input.len() as u16 + 1, chunks[1].y + 1));
     }
 
     // Status bar
@@ -312,7 +326,10 @@ fn draw(frame: &mut Frame, app: &App) {
     };
     let status = format!(
         " mode: {} | step {} | last: {}ms{} | Ctrl+C quit | Ctrl+R reset",
-        app.mode.to_str().to_uppercase(), app.step_count, app.last_duration_ms, tools_str
+        app.mode.to_str().to_uppercase(),
+        app.step_count,
+        app.last_duration_ms,
+        tools_str
     );
     let status_widget =
         Paragraph::new(status).style(Style::default().fg(Color::DarkGray).bg(Color::Black));

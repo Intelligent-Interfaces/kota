@@ -79,11 +79,18 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
                 Ok(content) => {
                     // Truncate large files
                     let preview = if content.len() > 8000 {
-                        format!("{}...\n[truncated, {} total bytes]", &content[..8000], content.len())
+                        format!(
+                            "{}...\n[truncated, {} total bytes]",
+                            &content[..8000],
+                            content.len()
+                        )
                     } else {
                         content
                     };
-                    ToolResult { success: true, output: preview }
+                    ToolResult {
+                        success: true,
+                        output: preview,
+                    }
                 }
                 Err(e) => ToolResult {
                     success: false,
@@ -109,39 +116,33 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
             }
         }
 
-        ToolCall::ListDir { path } => {
-            match tokio::fs::read_dir(path).await {
-                Ok(mut entries) => {
-                    let mut listing = Vec::new();
-                    while let Ok(Some(entry)) = entries.next_entry().await {
-                        let name = entry.file_name().to_string_lossy().to_string();
-                        let meta = entry.metadata().await.ok();
-                        let kind = if meta.as_ref().map_or(false, |m| m.is_dir()) {
-                            "dir"
-                        } else {
-                            "file"
-                        };
-                        listing.push(format!("{:4} {}", kind, name));
-                    }
-                    listing.sort();
-                    ToolResult {
-                        success: true,
-                        output: listing.join("\n"),
-                    }
+        ToolCall::ListDir { path } => match tokio::fs::read_dir(path).await {
+            Ok(mut entries) => {
+                let mut listing = Vec::new();
+                while let Ok(Some(entry)) = entries.next_entry().await {
+                    let name = entry.file_name().to_string_lossy().to_string();
+                    let meta = entry.metadata().await.ok();
+                    let kind = if meta.as_ref().is_some_and(|m| m.is_dir()) {
+                        "dir"
+                    } else {
+                        "file"
+                    };
+                    listing.push(format!("{:4} {}", kind, name));
                 }
-                Err(e) => ToolResult {
-                    success: false,
-                    output: format!("Error listing {}: {}", path.display(), e),
-                },
+                listing.sort();
+                ToolResult {
+                    success: true,
+                    output: listing.join("\n"),
+                }
             }
-        }
+            Err(e) => ToolResult {
+                success: false,
+                output: format!("Error listing {}: {}", path.display(), e),
+            },
+        },
 
         ToolCall::RunCommand { command } => {
-            let result = Command::new("bash")
-                .arg("-c")
-                .arg(command)
-                .output()
-                .await;
+            let result = Command::new("bash").arg("-c").arg(command).output().await;
 
             match result {
                 Ok(output) => {
@@ -201,15 +202,16 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
             }
         }
 
-        ToolCall::FetchNews { query } => {
-            match fetch_arxiv(query).await {
-                Ok(content) => ToolResult { success: true, output: content },
-                Err(e) => ToolResult {
-                    success: false,
-                    output: format!("Error fetching news: {}", e),
-                },
-            }
-        }
+        ToolCall::FetchNews { query } => match fetch_arxiv(query).await {
+            Ok(content) => ToolResult {
+                success: true,
+                output: content,
+            },
+            Err(e) => ToolResult {
+                success: false,
+                output: format!("Error fetching news: {}", e),
+            },
+        },
     }
 }
 
@@ -313,7 +315,9 @@ pub fn tool_definitions() -> Vec<ToolDef> {
             tool_type: "function".to_string(),
             function: ToolFunction {
                 name: "fetch_news".to_string(),
-                description: "Query arXiv to retrieve the latest research papers and summaries for a topic".to_string(),
+                description:
+                    "Query arXiv to retrieve the latest research papers and summaries for a topic"
+                        .to_string(),
                 parameters: serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -337,7 +341,7 @@ async fn fetch_arxiv(query: &str) -> anyhow::Result<String> {
         encoded_query
     );
     let res = client.get(&url).send().await?.text().await?;
-    
+
     let mut results = Vec::new();
     for entry in res.split("<entry>") {
         if !entry.contains("</entry>") {
@@ -348,10 +352,15 @@ async fn fetch_arxiv(query: &str) -> anyhow::Result<String> {
         let author = extract_tag(entry, "author")
             .and_then(|a| extract_tag(&a, "name"))
             .unwrap_or_else(|_| "Unknown".to_string());
-        
-        results.push(format!("Title: {}\nAuthor: {}\nSummary: {}\n", title.trim(), author.trim(), summary.trim()));
+
+        results.push(format!(
+            "Title: {}\nAuthor: {}\nSummary: {}\n",
+            title.trim(),
+            author.trim(),
+            summary.trim()
+        ));
     }
-    
+
     if results.is_empty() {
         Ok("No papers found on arXiv.".to_string())
     } else {
