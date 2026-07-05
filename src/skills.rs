@@ -51,3 +51,35 @@ impl SkillComposer {
         composed_prompt
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+
+    #[test]
+    fn test_compose_skills() {
+        let temp_dir = std::env::temp_dir().join("kota_test_skills");
+        let _ = fs::create_dir_all(&temp_dir);
+
+        // Create mock skill files
+        let mut base_file = File::create(temp_dir.join("base.md")).unwrap();
+        writeln!(base_file, "Base Instructions").unwrap();
+
+        let mut coder_file = File::create(temp_dir.join("coder.md")).unwrap();
+        writeln!(coder_file, "Coder Instructions").unwrap();
+
+        let composer = SkillComposer::new(temp_dir.to_str().unwrap());
+
+        let mut weights = HashMap::new();
+        weights.insert("coder", 1.0);
+
+        let prompt = composer.compose(&weights);
+        assert!(prompt.contains("Base Instructions"));
+        assert!(prompt.contains("--- SKILL: coder (Weight: 1.00) ---"));
+        assert!(prompt.contains("Coder Instructions"));
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+}
