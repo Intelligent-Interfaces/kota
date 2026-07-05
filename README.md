@@ -1,6 +1,6 @@
 # kota 🦎
 
-A TUI agent coder & computer assistant that runs on local LLMs.
+A TUI agent coder & computing assistant that runs on local LLMs.
 
 ```
    _  __      _
@@ -8,7 +8,7 @@ A TUI agent coder & computer assistant that runs on local LLMs.
   | ' // _ \ | __|/ _` |
   | . \ (_) || |_| (_| |
   |_|\_\___/  \__|\__,_|
-   [ LOCAL AI CO-PILOT ]
+   [ COMPUTING ASSISTANT ]
 
 ╭─ kota ──────────────────────────────────────────────╮
 │  ▶ read the main.rs file and add error handling     │

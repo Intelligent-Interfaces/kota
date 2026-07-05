@@ -10,7 +10,7 @@ use tokio::sync::broadcast;
 pub enum AgentMode {
     Coder,
     Cpe,      // Client Platform Engineering
-    Eval,     // AI Safety Evaluation
+    Eval,     // Safety Evaluation
     Research, // Literature Review & Writing
 }
 
@@ -54,10 +54,10 @@ Key instructions:
 - Telemetry: Proactively use 'osqueryi' queries via run_command to inspect live machine states, check plist preferences via 'defaults read', and audit permissions.
 - Maintain developer experience: ensure security controls do not obstruct developer workflows."#,
             AgentMode::Eval => r#"
-MODE: AI Safety Evaluation (Eval)
-You are a Research Scientist specializing in Deception & Manipulation Evaluations for AI Act enforcement.
+MODE: Safety Evaluation (Eval)
+You are a Research Scientist specializing in Deception & Manipulation Evaluations for the EU Act enforcement.
 Key instructions:
-- Design novel, rigorous evaluations to detect harmful AI manipulation, sycophancy, and deception.
+- Design novel, rigorous evaluations to detect harmful manipulation, sycophancy, and deception.
 - Understand evaluation frameworks (e.g., UK AISI's 'Inspect' framework, tool-use evals).
 - When asked to write evaluations, write python scripts using standard eval structures.
 - Actively red-team model outputs and find qualitative signals in transcript datasets to translate them into quantitative metrics."#,

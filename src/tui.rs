@@ -46,7 +46,7 @@ impl App {
                 (LineKind::System, " | ' // _ \\ | __|/ _` |".into()),
                 (LineKind::System, " | . \\ (_) || |_| (_| |".into()),
                 (LineKind::System, " |_|\\_\\___/  \\__|\\__,_|".into()),
-                (LineKind::System, "  [ LOCAL AI CO-PILOT ]".into()),
+                (LineKind::System, "  [ COMPUTING ASSISTANT ]".into()),
                 (LineKind::System, "".into()),
                 (LineKind::System, " ── SYSTEM LOADED ──────────────────────────────────────────".into()),
                 (LineKind::System, "  • Port  : http://localhost:8765 (Remote UI)".into()),
