@@ -68,4 +68,26 @@ impl MemoryStore {
         
         Ok(messages)
     }
+
+    /// Episodic Memory Retrieval (Mental Time Travel)
+    /// Performs a lightweight keyword search across all past conversations to recall distant reasoning traces.
+    pub async fn query_episodic_memory(&self, query_keyword: &str, limit: usize) -> Result<Vec<String>> {
+        let mut stmt = self.conn.prepare("
+            SELECT content FROM messages 
+            WHERE role IN ('assistant', 'user') AND content LIKE ?1 
+            ORDER BY timestamp DESC LIMIT ?2
+        ").await?;
+        
+        let search_pattern = format!("%{}%", query_keyword);
+        let mut rows = stmt.query((search_pattern, limit as i64)).await?;
+        let mut memories = Vec::new();
+        
+        while let Some(row) = rows.next().await? {
+            if let Ok(Some(content)) = row.get::<Option<String>>(0) {
+                memories.push(content);
+            }
+        }
+        
+        Ok(memories)
+    }
 }
