@@ -2,6 +2,7 @@
 
 A TUI agent coder & computer assistant that runs on local LLMs.
 
+```
    _  __      _
   | |/ /___  | |_  __ _   🦎
   | ' // _ \ | __|/ _` |
