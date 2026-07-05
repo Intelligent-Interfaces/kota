@@ -47,6 +47,18 @@ pub enum AgentEvent {
 
     /// Error
     Error { message: String },
+
+    /// Telemetry Update
+    TelemetryUpdate {
+        rx_kbps: f64,
+        tx_kbps: f64,
+    },
+
+    /// Network Threat Detected
+    NetworkThreatDetected {
+        severity: String,
+        description: String,
+    },
 }
 
 /// A timestamped event for logging

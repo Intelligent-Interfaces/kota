@@ -22,6 +22,8 @@ struct App {
     last_duration_ms: u64,
     step_count: usize,
     mode: AgentMode,
+    rx_kbps: f64,
+    tx_kbps: f64,
 }
 
 #[derive(Clone)]
@@ -72,6 +74,8 @@ impl App {
             last_duration_ms: 0,
             step_count: 0,
             mode: startup_mode,
+            rx_kbps: 0.0,
+            tx_kbps: 0.0,
         }
     }
 
@@ -170,8 +174,15 @@ impl App {
             }
 
             AgentEvent::Error { message } => {
-                self.push_line(LineKind::Error, format!("  ✗ {}", message));
+                self.push_line(LineKind::Error, format!("❌ {}", message));
                 self.busy = false;
+            }
+            AgentEvent::TelemetryUpdate { rx_kbps, tx_kbps } => {
+                self.rx_kbps = rx_kbps;
+                self.tx_kbps = tx_kbps;
+            }
+            AgentEvent::NetworkThreatDetected { severity, description } => {
+                self.push_line(LineKind::Error, format!("🚨 THREAT [{}]: {}", severity, description));
             }
         }
     }
@@ -326,10 +337,12 @@ fn draw(frame: &mut Frame, app: &App) {
         format!(" | 🔧 {}", app.active_tools.join(", "))
     };
     let status = format!(
-        " mode: {} | step {} | last: {}ms{} | Ctrl+C quit | Ctrl+R reset",
+        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps{} | Ctrl+C quit",
         app.mode.to_str().to_uppercase(),
         app.step_count,
         app.last_duration_ms,
+        app.tx_kbps,
+        app.rx_kbps,
         tools_str
     );
     let status_widget =

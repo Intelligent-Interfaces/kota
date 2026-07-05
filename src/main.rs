@@ -3,6 +3,7 @@ mod events;
 mod llm;
 pub mod memory;
 mod server;
+mod sensing;
 mod skills;
 mod tools;
 mod tui;
@@ -82,6 +83,11 @@ async fn main() -> anyhow::Result<()> {
     let input_tx_server = input_tx.clone();
     tokio::spawn(async move {
         server::start(port, input_tx_server, tx_server).await;
+    });
+
+    let tx_telemetry = tx.clone();
+    tokio::spawn(async move {
+        sensing::run_telemetry_loop(tx_telemetry).await;
     });
 
     tui::run(rx1, input_tx, startup_mode, port).await

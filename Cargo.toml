@@ -44,3 +44,6 @@ libsql = "0.3"
 # Web Server (Remote Controller)
 axum = { version = "0.7", features = ["ws"] }
 tower-http = { version = "0.5", features = ["fs", "cors"] }
+
+# Cognitive Network Sensing
+sysinfo = "0.33"
