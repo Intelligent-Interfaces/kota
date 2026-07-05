@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kota Remote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            background: linear-gradient(135deg, #1f2022 0%, #151618 100%);
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hardware-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #232528;
+            border: 2px solid #333;
+            border-radius: 12px;
+            margin: 10px;
+            box-shadow: 
+                inset 0 1px 1px rgba(255,255,255,0.1),
+                0 10px 20px rgba(0,0,0,0.5);
+            padding: 16px;
+        }
+
+        .lcd-display {
+            background: #111a13;
+            border: 4px solid #000;
+            border-radius: 8px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #64ffda;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 0 0 5px rgba(100,255,218,0.5);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .lcd-display::-webkit-scrollbar {
+            width: 8px;
+        }
+        .lcd-display::-webkit-scrollbar-track {
+            background: #0a0f0b;
+        }
+        .lcd-display::-webkit-scrollbar-thumb {
+            background: #2b4d3f;
+            border-radius: 4px;
+        }
+
+        .control-area {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .hardware-input {
+            flex: 1;
+            background: #111;
+            border: 2px solid #000;
+            border-radius: 4px;
+            color: #fff;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .hardware-input:focus {
+            outline: none;
+            border-color: #444;
+        }
+
+        .tactile-btn {
+            background: linear-gradient(to bottom, #444, #222);
+            border: 1px solid #111;
+            border-radius: 6px;
+            color: #ccc;
+            font-weight: bold;
+            padding: 0 24px;
+            text-transform: uppercase;
+            box-shadow: 
+                0 4px 0 #111,
+                0 5px 10px rgba(0,0,0,0.4),
+                inset 0 1px 1px rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .tactile-btn:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 0 0 #111,
+                0 1px 2px rgba(0,0,0,0.4),
+                inset 0 1px 1px rgba(255,255,255,0.2);
+        }
+
+        .led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+        }
+        .led.active {
+            background: #ff3e00;
+            box-shadow: inset 0 0 4px #ff3e00, 0 0 10px #ff3e00;
+        }
+        .led.connected {
+            background: #64ffda;
+            box-shadow: inset 0 0 4px #64ffda, 0 0 10px #64ffda;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #555;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .message { margin-bottom: 8px; }
+        .message.user { color: #facc15; }
+        .message.assistant { color: #64ffda; }
+        .message.system { color: #888; }
+        .message.tool { color: #ff3e00; }
+        .message.thinking { color: #6b7280; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="hardware-panel">
+        <div class="panel-header">
+            <div class="brand">KOTA REMOTE ///</div>
+            <div class="flex gap-4">
+                <div class="flex flex-col items-center">
+                    <div id="led-conn" class="led"></div>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase">Link</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div id="led-busy" class="led"></div>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase">Busy</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="lcd-display" id="output">
+            <div class="message system">KOTA SYSTEM INITIALIZED...</div>
+            <div class="message system">WAITING FOR CONNECTION...</div>
+        </div>
+
+        <form id="input-form" class="control-area">
+            <input type="text" id="cmd-input" class="hardware-input" placeholder="ENTER COMMAND..." autocomplete="off">
+            <button type="submit" class="tactile-btn">SEND</button>
+        </form>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const form = document.getElementById('input-form');
+        const input = document.getElementById('cmd-input');
+        const ledConn = document.getElementById('led-conn');
+        const ledBusy = document.getElementById('led-busy');
+        
+        let ws;
+        let isBusy = false;
+        let thinkingLine = null;
+        let currentAssistantLine = null;
+
+        function connect() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+            
+            ws.onopen = () => {
+                ledConn.classList.add('connected');
+                appendLine('system', 'CONNECTION ESTABLISHED.');
+            };
+            
+            ws.onclose = () => {
+                ledConn.classList.remove('connected');
+                appendLine('system', 'CONNECTION LOST. RECONNECTING...');
+                setTimeout(connect, 2000);
+            };
+
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                handleEvent(data.event || data);
+            };
+        }
+
+        function appendLine(type, text) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerText = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            return div;
+        }
+
+        function setBusy(state) {
+            isBusy = state;
+            if (state) {
+                ledBusy.classList.add('active');
+            } else {
+                ledBusy.classList.remove('active');
+            }
+        }
+
+        function handleEvent(ev) {
+            switch (ev.type) {
+                case 'UserMessage':
+                    appendLine('user', `> ${ev.text}`);
+                    break;
+                case 'StepStarted':
+                    appendLine('system', `--- STEP ${ev.step} (${ev.tokens_in} TOKENS) ---`);
+                    thinkingLine = null;
+                    currentAssistantLine = null;
+                    setBusy(true);
+                    break;
+                case 'Thinking':
+                    if (!thinkingLine) {
+                        thinkingLine = appendLine('thinking', '> ' + ev.text);
+                    } else {
+                        thinkingLine.innerText += ev.text;
+                    }
+                    output.scrollTop = output.scrollHeight;
+                    break;
+                case 'Token':
+                    if (!currentAssistantLine) {
+                        currentAssistantLine = appendLine('assistant', ev.text);
+                    } else {
+                        currentAssistantLine.innerText += ev.text;
+                    }
+                    output.scrollTop = output.scrollHeight;
+                    break;
+                case 'ToolCallStarted':
+                    appendLine('tool', `> EXEC: ${ev.tool}(...)`);
+                    break;
+                case 'ToolCallFinished':
+                    const icon = ev.success ? 'OK' : 'ERR';
+                    appendLine('tool', `> ${icon} ${ev.tool} (${ev.duration_ms}ms)`);
+                    break;
+                case 'Done':
+                    appendLine('system', `--- DONE (${ev.duration_ms}ms) ---`);
+                    setBusy(false);
+                    thinkingLine = null;
+                    currentAssistantLine = null;
+                    break;
+                case 'Error':
+                    appendLine('tool', `> ERROR: ${ev.message}`);
+                    setBusy(false);
+                    break;
+            }
+        }
+
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const val = input.value.trim();
+            if (val && ws.readyState === WebSocket.OPEN) {
+                ws.send(val);
+                input.value = '';
+            }
+        };
+
+        connect();
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+[package]
+name = "kota"
+version = "0.1.0"
+edition = "2021"
+description = "A TUI agent coder & computer assistant for local LLMs"
+
+[dependencies]
+# TUI
+ratatui = "0.30"
+crossterm = "0.28"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for local LLM API
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# JSON
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Streaming response parsing
+futures-util = "0.3"
+
+# File watching
+notify = "7"
+notify-debouncer-mini = "0.5"
+
+# CLI args
+clap = { version = "4", features = ["derive"] }
+
+# Timestamps
+chrono = { version = "0.4", features = ["serde"] }
+
+# Unique IDs for steps
+uuid = { version = "1", features = ["v4"] }
+
+# Error handling
+anyhow = "1"
+
+# Web Server (Remote Controller)
+axum = { version = "0.7", features = ["ws"] }
+tower-http = { version = "0.5", features = ["fs", "cors"] }
