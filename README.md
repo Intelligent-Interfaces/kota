@@ -1,5 +1,7 @@
 # kota 🦎
 
+[![Kota CI](https://github.com/Intelligent-Interfaces/kota/actions/workflows/ci.yml/badge.svg)](https://github.com/Intelligent-Interfaces/kota/actions/workflows/ci.yml)
+
 A TUI agent coder & computing assistant that runs on local LLMs.
 
 ```
