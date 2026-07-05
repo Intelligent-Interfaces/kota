@@ -1,0 +1,48 @@
+name: Kota CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  rust-check:
+    name: Rust Checks & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Lint with clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run cargo tests
+        run: cargo test --all-features
+
+  python-check:
+    name: Python Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Linting Tools
+        run: pip install ruff
+
+      - name: Lint Python Code
+        run: ruff check .
