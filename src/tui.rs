@@ -10,6 +10,7 @@ use ratatui::widgets::*;
 use std::io::stdout;
 use tokio::sync::mpsc;
 use tokio::sync::broadcast;
+use crate::agent::AgentMode;
 
 /// Application state
 struct App {
@@ -21,6 +22,7 @@ struct App {
     active_tools: Vec<String>,
     last_duration_ms: u64,
     step_count: usize,
+    mode: AgentMode,
 }
 
 #[derive(Clone)]
@@ -35,7 +37,7 @@ enum LineKind {
 }
 
 impl App {
-    fn new() -> Self {
+    fn new(startup_mode: AgentMode) -> Self {
         Self {
             input: String::new(),
             output: vec![
@@ -58,6 +60,7 @@ impl App {
             active_tools: Vec::new(),
             last_duration_ms: 0,
             step_count: 0,
+            mode: startup_mode,
         }
     }
 
@@ -69,7 +72,15 @@ impl App {
     fn handle_event(&mut self, event: AgentEvent) {
         match event {
             AgentEvent::UserMessage { text } => {
-                self.push_line(LineKind::User, format!("▶ {}", text));
+                if text.starts_with("SYSTEM: ") {
+                    if text.starts_with("SYSTEM: Mode changed to ") {
+                        let mode_str = text.trim_start_matches("SYSTEM: Mode changed to ").trim();
+                        self.mode = AgentMode::from_str(mode_str);
+                    }
+                    self.push_line(LineKind::System, text);
+                } else {
+                    self.push_line(LineKind::User, format!("▶ {}", text));
+                }
             }
 
             AgentEvent::StepStarted { step, tokens_in } => {
@@ -158,12 +169,13 @@ impl App {
 pub async fn run(
     mut rx: broadcast::Receiver<AgentEvent>,
     input_tx: mpsc::UnboundedSender<String>,
+    startup_mode: AgentMode,
 ) -> anyhow::Result<()> {
     enable_raw_mode()?;
     stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
-    let mut app = App::new();
+    let mut app = App::new(startup_mode);
 
     loop {
         terminal.draw(|frame| draw(frame, &app))?;
@@ -299,8 +311,8 @@ fn draw(frame: &mut Frame, app: &App) {
         format!(" | 🔧 {}", app.active_tools.join(", "))
     };
     let status = format!(
-        " step {} | last: {}ms{} | Ctrl+C quit | Ctrl+R reset",
-        app.step_count, app.last_duration_ms, tools_str
+        " mode: {} | step {} | last: {}ms{} | Ctrl+C quit | Ctrl+R reset",
+        app.mode.to_str().to_uppercase(), app.step_count, app.last_duration_ms, tools_str
     );
     let status_widget =
         Paragraph::new(status).style(Style::default().fg(Color::DarkGray).bg(Color::Black));

@@ -12,6 +12,7 @@ pub enum ToolCall {
     ListDir { path: PathBuf },
     RunCommand { command: String },
     Search { pattern: String, path: PathBuf },
+    FetchNews { query: String },
 }
 
 #[derive(Debug)]
@@ -58,6 +59,12 @@ pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::R
             Ok(ToolCall::Search {
                 pattern: pattern.to_string(),
                 path: workdir.join(path),
+            })
+        }
+        "fetch_news" => {
+            let query = args["query"].as_str().unwrap_or("");
+            Ok(ToolCall::FetchNews {
+                query: query.to_string(),
             })
         }
         _ => anyhow::bail!("Unknown tool: {}", name),
@@ -193,6 +200,16 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
                 },
             }
         }
+
+        ToolCall::FetchNews { query } => {
+            match fetch_arxiv(query).await {
+                Ok(content) => ToolResult { success: true, output: content },
+                Err(e) => ToolResult {
+                    success: false,
+                    output: format!("Error fetching news: {}", e),
+                },
+            }
+        }
     }
 }
 
@@ -292,5 +309,85 @@ pub fn tool_definitions() -> Vec<ToolDef> {
                 }),
             },
         },
+        ToolDef {
+            tool_type: "function".to_string(),
+            function: ToolFunction {
+                name: "fetch_news".to_string(),
+                description: "Query arXiv to retrieve the latest research papers and summaries for a topic".to_string(),
+                parameters: serde_json::json!({
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The research query (e.g. 'psycholinguistics' or 'quantum computing')"
+                        }
+                    },
+                    "required": ["query"]
+                }),
+            },
+        },
     ]
+}
+
+async fn fetch_arxiv(query: &str) -> anyhow::Result<String> {
+    let client = reqwest::Client::new();
+    let encoded_query = query.replace(" ", "+");
+    let url = format!(
+        "http://export.arxiv.org/api/query?search_query=all:{}&max_results=3",
+        encoded_query
+    );
+    let res = client.get(&url).send().await?.text().await?;
+    
+    let mut results = Vec::new();
+    for entry in res.split("<entry>") {
+        if !entry.contains("</entry>") {
+            continue;
+        }
+        let title = extract_tag(entry, "title").unwrap_or_else(|_| "No Title".to_string());
+        let summary = extract_tag(entry, "summary").unwrap_or_else(|_| "No Summary".to_string());
+        let author = extract_tag(entry, "author")
+            .and_then(|a| extract_tag(&a, "name"))
+            .unwrap_or_else(|_| "Unknown".to_string());
+        
+        results.push(format!("Title: {}\nAuthor: {}\nSummary: {}\n", title.trim(), author.trim(), summary.trim()));
+    }
+    
+    if results.is_empty() {
+        Ok("No papers found on arXiv.".to_string())
+    } else {
+        Ok(results.join("\n---\n\n"))
+    }
+}
+
+fn extract_tag(source: &str, tag: &str) -> anyhow::Result<String> {
+    let start_tag = format!("<{}>", tag);
+    let end_tag = format!("</{}>", tag);
+    if let Some(start_idx) = source.find(&start_tag) {
+        if let Some(end_idx) = source.find(&end_tag) {
+            let content = &source[start_idx + start_tag.len()..end_idx];
+            return Ok(content.to_string());
+        }
+    }
+    anyhow::bail!("Tag not found: {}", tag)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_tag() {
+        let xml = "<entry><title>Test Title</title><summary>Test Abstract</summary></entry>";
+        let title = extract_tag(xml, "title").unwrap();
+        assert_eq!(title, "Test Title");
+        let summary = extract_tag(xml, "summary").unwrap();
+        assert_eq!(summary, "Test Abstract");
+    }
+
+    #[test]
+    fn test_extract_tag_missing() {
+        let xml = "<entry><summary>Test Abstract</summary></entry>";
+        let res = extract_tag(xml, "title");
+        assert!(res.is_err());
+    }
 }

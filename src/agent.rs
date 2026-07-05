@@ -6,19 +6,78 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tokio::sync::broadcast;
 
-const SYSTEM_PROMPT: &str = r#"You are Kota, a local coding assistant running on the user's machine.
-You help with day-to-day coding tasks: reading files, writing code, running commands, and reviewing changes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AgentMode {
+    Coder,
+    Cpe,      // Client Platform Engineering
+    Eval,     // AI Safety Evaluation
+    Research, // Literature Review & Writing
+}
 
-You have access to these tools:
-- read_file: Read a file's contents
-- write_file: Create or overwrite a file
-- list_dir: List directory contents
-- run_command: Execute a shell command
-- search: Search for patterns in files
+impl AgentMode {
+    pub fn from_str(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "cpe" => AgentMode::Cpe,
+            "eval" => AgentMode::Eval,
+            "research" => AgentMode::Research,
+            _ => AgentMode::Coder,
+        }
+    }
+
+    pub fn to_str(self) -> &'static str {
+        match self {
+            AgentMode::Coder => "coder",
+            AgentMode::Cpe => "cpe",
+            AgentMode::Eval => "eval",
+            AgentMode::Research => "research",
+        }
+    }
+
+    pub fn system_prompt(self) -> String {
+        let base = r#"You are Kota, a local agent running on the user's machine.
+
+GIT BRANCHING RULES:
+Before writing code or implementing a new feature, you must proactively checkout a new Git branch.
+Use run_command({"command": "git checkout -b <branch_name>"}) to create a clean branch before staging your edits. Make sure branch names are lowercase, hyphenated, and descriptive (e.g. feat/add-log-parser).
 
 Be direct and concise. When you need to understand the codebase, use tools to look at it rather than guessing.
-When writing code, write the complete file — don't use placeholders or ellipsis.
-"#;
+When writing code, write the complete file — don't use placeholders or ellipsis."#;
+
+        let mode_prompt = match self {
+            AgentMode::Coder => "",
+            AgentMode::Cpe => r#"
+MODE: Client Platform Engineering (CPE)
+You are an expert macOS/Windows Endpoint and Client Platform Engineer. You manage fleet configurations as code (GitOps) and deeply understand OS internals.
+Key instructions:
+- Treat devices as a distributed product fleet. Avoid graphical menus — write configuration as code (plists, YAML, shell scripts).
+- Master macOS internals: launchd daemons, MDM protocols, and TCC permissions.
+- Telemetry: Proactively use 'osqueryi' queries via run_command to inspect live machine states, check plist preferences via 'defaults read', and audit permissions.
+- Maintain developer experience: ensure security controls do not obstruct developer workflows."#,
+            AgentMode::Eval => r#"
+MODE: AI Safety Evaluation (Eval)
+You are a Research Scientist specializing in Deception & Manipulation Evaluations for AI Act enforcement.
+Key instructions:
+- Design novel, rigorous evaluations to detect harmful AI manipulation, sycophancy, and deception.
+- Understand evaluation frameworks (e.g., UK AISI's 'Inspect' framework, tool-use evals).
+- When asked to write evaluations, write python scripts using standard eval structures.
+- Actively red-team model outputs and find qualitative signals in transcript datasets to translate them into quantitative metrics."#,
+            AgentMode::Research => r#"
+MODE: Advanced Research & Writing
+You are a Research Scientist optimized for academic drafting and literature synthesis. You specialize in the following fields:
+1. Physics: Statistical Physics, Quantum Computing.
+2. Linguistics: Computational, Developmental, and Architecture.
+3. Architecture: Design & Computation, Media Technology.
+4. Math: Algebra, Statistics, Logic.
+5. Brain + Cognitive Sciences: Psycholinguistics, Philosophy, Psychiatry.
+
+Key instructions:
+- Maintain extreme academic rigor. Formulate problems using statistical, logical, or physical analogies.
+- Synthesize complex datasets and papers into clean, regulatory-grade reports."#,
+        };
+
+        format!("{}\n{}", base, mode_prompt)
+    }
+}
 
 pub struct Agent {
     llm: LlmClient,
@@ -26,13 +85,14 @@ pub struct Agent {
     max_tokens: usize,
     workdir: PathBuf,
     step: usize,
+    mode: AgentMode,
 }
 
 impl Agent {
-    pub fn new(llm: LlmClient, max_tokens: usize, workdir: &str) -> Self {
+    pub fn new(llm: LlmClient, max_tokens: usize, workdir: &str, mode: AgentMode) -> Self {
         let messages = vec![Message {
             role: "system".to_string(),
-            content: Some(SYSTEM_PROMPT.to_string()),
+            content: Some(mode.system_prompt()),
             tool_calls: None,
             tool_call_id: None,
         }];
@@ -43,6 +103,16 @@ impl Agent {
             max_tokens,
             workdir: PathBuf::from(workdir),
             step: 0,
+            mode,
+        }
+    }
+
+    pub fn set_mode(&mut self, mode: AgentMode) {
+        self.mode = mode;
+        if let Some(sys_msg) = self.messages.first_mut() {
+            if sys_msg.role == "system" {
+                sys_msg.content = Some(mode.system_prompt());
+            }
         }
     }
 
@@ -219,5 +289,30 @@ impl Agent {
     pub fn reset(&mut self) {
         self.messages.truncate(1);
         self.step = 0;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_agent_mode_parsing() {
+        assert_eq!(AgentMode::from_str("cpe"), AgentMode::Cpe);
+        assert_eq!(AgentMode::from_str("EVAL"), AgentMode::Eval);
+        assert_eq!(AgentMode::from_str("research"), AgentMode::Research);
+        assert_eq!(AgentMode::from_str("unknown"), AgentMode::Coder);
+    }
+
+    #[test]
+    fn test_mode_prompts_contain_fields() {
+        let cpe = AgentMode::Cpe.system_prompt();
+        assert!(cpe.contains("launchd"));
+        assert!(cpe.contains("osqueryi"));
+
+        let research = AgentMode::Research.system_prompt();
+        assert!(research.contains("Statistical Physics"));
+        assert!(research.contains("Psycholinguistics"));
+        assert!(research.contains("Quantum Computing"));
     }
 }

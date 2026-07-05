@@ -119,6 +119,41 @@
             background: #64ffda;
             box-shadow: inset 0 0 4px #64ffda, 0 0 10px #64ffda;
         }
+        .led.coder {
+            background: #64ffda;
+            box-shadow: inset 0 0 4px #64ffda, 0 0 10px #64ffda;
+        }
+        .led.cpe {
+            background: #fbbf24;
+            box-shadow: inset 0 0 4px #fbbf24, 0 0 10px #fbbf24;
+        }
+        .led.eval {
+            background: #ec4899;
+            box-shadow: inset 0 0 4px #ec4899, 0 0 10px #ec4899;
+        }
+        .led.research {
+            background: #3b82f6;
+            box-shadow: inset 0 0 4px #3b82f6, 0 0 10px #3b82f6;
+        }
+        
+        .mode-btn {
+            background: #222;
+            border: 1px solid #333;
+            color: #777;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .mode-btn.active {
+            border-color: #64ffda;
+            color: #64ffda;
+            background: #0f1c18;
+            box-shadow: 0 0 5px rgba(100,255,218,0.2);
+        }
 
         .panel-header {
             display: flex;
@@ -157,7 +192,19 @@
                     <div id="led-busy" class="led"></div>
                     <span class="text-[10px] text-gray-500 font-bold uppercase">Busy</span>
                 </div>
+                <div class="flex flex-col items-center">
+                    <div id="led-mode" class="led coder"></div>
+                    <span id="label-mode" class="text-[10px] text-gray-500 font-bold uppercase">Coder</span>
+                </div>
             </div>
+        </div>
+
+        <!-- Mode selector row -->
+        <div class="flex gap-2 mb-4 justify-between bg-[#111] p-2 border border-black rounded">
+            <button type="button" onclick="changeMode('coder')" class="mode-btn active" id="btn-coder">CODER</button>
+            <button type="button" onclick="changeMode('cpe')" class="mode-btn" id="btn-cpe">CPE</button>
+            <button type="button" onclick="changeMode('eval')" class="mode-btn" id="btn-eval">EVAL</button>
+            <button type="button" onclick="changeMode('research')" class="mode-btn" id="btn-research">RESEARCH</button>
         </div>
         
         <div class="lcd-display" id="output">
@@ -177,6 +224,8 @@
         const input = document.getElementById('cmd-input');
         const ledConn = document.getElementById('led-conn');
         const ledBusy = document.getElementById('led-busy');
+        const ledMode = document.getElementById('led-mode');
+        const labelMode = document.getElementById('label-mode');
         
         let ws;
         let isBusy = false;
@@ -226,6 +275,10 @@
             switch (ev.type) {
                 case 'UserMessage':
                     appendLine('user', `> ${ev.text}`);
+                    if (ev.text.startsWith("SYSTEM: Mode changed to ")) {
+                        const m = ev.text.replace("SYSTEM: Mode changed to ", "").trim().toLowerCase();
+                        updateModeUI(m);
+                    }
                     break;
                 case 'StepStarted':
                     appendLine('system', `--- STEP ${ev.step} (${ev.tokens_in} TOKENS) ---`);
@@ -277,6 +330,24 @@
                 input.value = '';
             }
         };
+
+        function changeMode(mode) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(`/mode ${mode}`);
+            }
+        }
+
+        function updateModeUI(mode) {
+            ['coder', 'cpe', 'eval', 'research'].forEach(m => {
+                const btn = document.getElementById(`btn-${m}`);
+                if (btn) btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`btn-${mode}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            ledMode.className = 'led ' + mode;
+            labelMode.innerText = mode;
+        }
 
         connect();
     </script>

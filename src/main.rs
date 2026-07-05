@@ -25,6 +25,10 @@ struct Cli {
     /// Max context tokens before budget warning
     #[arg(long, default_value_t = 24000)]
     max_tokens: usize,
+
+    /// Initial mode (coder, cpe, eval, research)
+    #[arg(long, default_value = "coder")]
+    mode: String,
 }
 
 #[tokio::main]
@@ -32,7 +36,8 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let llm_client = llm::LlmClient::new(&cli.api_url, &cli.model);
-    let mut agent = agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir);
+    let startup_mode = agent::AgentMode::from_str(&cli.mode);
+    let mut agent = agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode);
 
     let (tx, rx1) = tokio::sync::broadcast::channel::<events::AgentEvent>(100);
     let (input_tx, mut input_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
@@ -40,6 +45,16 @@ async fn main() -> anyhow::Result<()> {
     let tx_clone = tx.clone();
     tokio::spawn(async move {
         while let Some(user_input) = input_rx.recv().await {
+            if user_input.starts_with("/mode ") {
+                let mode_str = user_input.trim_start_matches("/mode ").trim();
+                let new_mode = agent::AgentMode::from_str(mode_str);
+                agent.set_mode(new_mode);
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM: Mode changed to {}", new_mode.to_str().to_uppercase()),
+                });
+                continue;
+            }
+
             let _ = tx_clone.send(events::AgentEvent::UserMessage {
                 text: user_input.clone(),
             });
@@ -58,5 +73,5 @@ async fn main() -> anyhow::Result<()> {
         server::start(input_tx_server, tx_server).await;
     });
 
-    tui::run(rx1, input_tx).await
+    tui::run(rx1, input_tx, startup_mode).await
 }
