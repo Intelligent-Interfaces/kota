@@ -1,7 +1,9 @@
 use crate::events::AgentEvent;
 use crate::llm::{LlmClient, Message};
 use crate::tools;
+use crate::skills::SkillComposer;
 use std::path::PathBuf;
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tokio::sync::broadcast;
@@ -13,6 +15,7 @@ pub enum AgentMode {
     Eval,     // Safety Evaluation
     Research, // Literature Review & Writing
     Architect,// System Design & Infrastructure
+    Librarian,// LLM Wiki Maintenance & Knowledge Compiling
 }
 
 impl AgentMode {
@@ -22,6 +25,7 @@ impl AgentMode {
             "eval" => AgentMode::Eval,
             "research" => AgentMode::Research,
             "architect" => AgentMode::Architect,
+            "librarian" => AgentMode::Librarian,
             _ => AgentMode::Coder,
         }
     }
@@ -33,27 +37,41 @@ impl AgentMode {
             AgentMode::Eval => "eval",
             AgentMode::Research => "research",
             AgentMode::Architect => "architect",
+            AgentMode::Librarian => "librarian",
         }
     }
 
     pub fn system_prompt(self) -> String {
-        let skills_dir = PathBuf::from(".kota_skills");
-        
-        let base_path = skills_dir.join("base.md");
-        let base = std::fs::read_to_string(base_path).unwrap_or_else(|_| "You are Kota.".to_string());
+        let composer = SkillComposer::new(".kota_skills");
+        let mut weights = HashMap::new();
 
-        let mode_file = match self {
-            AgentMode::Coder => "coder.md",
-            AgentMode::Cpe => "cpe.md",
-            AgentMode::Eval => "eval.md",
-            AgentMode::Research => "research.md",
-            AgentMode::Architect => "architect.md",
+        match self {
+            AgentMode::Coder => {
+                weights.insert("coder", 1.0);
+                weights.insert("eval", 0.2); // Option keyboard: mix in evaluation skills
+            }
+            AgentMode::Cpe => {
+                weights.insert("cpe", 1.0);
+                weights.insert("architect", 0.4);
+            }
+            AgentMode::Eval => {
+                weights.insert("eval", 1.0);
+            }
+            AgentMode::Research => {
+                weights.insert("research", 1.0);
+                weights.insert("coder", 0.3); // Mix in coding for empirical research
+            }
+            AgentMode::Architect => {
+                weights.insert("architect", 1.0);
+                weights.insert("cpe", 0.5);
+            }
+            AgentMode::Librarian => {
+                weights.insert("librarian", 1.0);
+                weights.insert("research", 0.4); // Mix in research skills for synthesis
+            }
         };
 
-        let mode_path = skills_dir.join(mode_file);
-        let mode_prompt = std::fs::read_to_string(mode_path).unwrap_or_else(|_| "".to_string());
-
-        format!("{}\n{}", base, mode_prompt)
+        composer.compose(&weights)
     }
 }
 
@@ -120,6 +138,23 @@ impl Agent {
         
         // Save to Turso DB
         self.memory.save_message(&self.session_id, "user", user_input).await?;
+
+        // Episodic Memory Retrieval (Mental Time Travel)
+        // Extract a salient keyword (longest word) to retrieve distant memory context
+        let keyword = user_input.split_whitespace().max_by_key(|w| w.len()).unwrap_or("");
+        if keyword.len() > 4 {
+            if let Ok(memories) = self.memory.query_episodic_memory(keyword, 2).await {
+                if !memories.is_empty() {
+                    let episodic_context = format!("EPISODIC MEMORY RECALL (Past context regarding '{}'):\n{}", keyword, memories.join("\n---\n"));
+                    self.messages.push(Message {
+                        role: "system".to_string(),
+                        content: Some(episodic_context),
+                        tool_calls: None,
+                        tool_call_id: None,
+                    });
+                }
+            }
+        }
 
         // Add user message to local cache
         self.messages.push(Message {
@@ -311,6 +346,7 @@ mod tests {
         assert_eq!(AgentMode::from_str("EVAL"), AgentMode::Eval);
         assert_eq!(AgentMode::from_str("research"), AgentMode::Research);
         assert_eq!(AgentMode::from_str("architect"), AgentMode::Architect);
+        assert_eq!(AgentMode::from_str("librarian"), AgentMode::Librarian);
         assert_eq!(AgentMode::from_str("unknown"), AgentMode::Coder);
     }
 

@@ -4,6 +4,7 @@ mod tools;
 mod tui;
 mod events;
 mod server;
+mod skills;
 pub mod memory;
 
 use clap::Parser;
