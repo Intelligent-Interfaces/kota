@@ -8,8 +8,12 @@ on:
 
 jobs:
   rust-check:
-    name: Rust Checks, Docs & Tests
-    runs-on: ubuntu-latest
+    name: Rust Checks, Docs & Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +24,9 @@ jobs:
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          # Use os in cache key so macOS and Linux caches are isolated
+          key: ${{ matrix.os }}
 
       - name: Check formatting
         run: cargo fmt --all -- --check
@@ -70,8 +77,12 @@ jobs:
         run: mypy . --ignore-missing-imports
 
   go-check:
-    name: Go Checks & Tests
-    runs-on: ubuntu-latest
+    name: Go Checks & Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
