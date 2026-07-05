@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# pre-commit hook
+
+echo "Running pre-commit checks..."
+
+# Check Python files
+if command -v ruff &> /dev/null; then
+    echo "Running ruff check..."
+    ruff check .
+    if [ $? -ne 0 ]; then
+        echo "❌ Python linting failed (ruff). Please fix the errors."
+        exit 1
+    fi
+else
+    echo "⚠️ ruff not installed, skipping Python linting."
+fi
+
+# Check Rust files
+if command -v cargo &> /dev/null; then
+    echo "Running cargo fmt..."
+    cargo fmt --all -- --check
+    if [ $? -ne 0 ]; then
+        echo "❌ Rust formatting failed (cargo fmt). Run 'cargo fmt' to fix."
+        exit 1
+    fi
+
+    echo "Running cargo clippy..."
+    cargo clippy --all-targets -- -D warnings
+    if [ $? -ne 0 ]; then
+        echo "❌ Rust linting failed (cargo clippy). Please fix the warnings."
+        exit 1
+    fi
+else
+    echo "⚠️ cargo not installed, skipping Rust checks."
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0

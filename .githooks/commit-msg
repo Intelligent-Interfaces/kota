@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# commit-msg hook for Conventional Commits
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Regex for Conventional Commits (e.g., feat(scope): message)
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\([a-z0-9\-]+\))?: .+"
+
+# Exclude merge commits
+if [[ "$COMMIT_MSG" =~ ^Merge.* ]]; then
+    exit 0
+fi
+
+if ! [[ "$COMMIT_MSG" =~ $PATTERN ]]; then
+    echo "❌ Invalid commit message format."
+    echo "Commit messages must follow the Conventional Commits format:"
+    echo "  <type>[optional scope]: <description>"
+    echo "Allowed types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+    echo "Example: feat(sensing): add network telemetry"
+    echo "Actual message: $COMMIT_MSG"
+    exit 1
+fi
+
+exit 0
