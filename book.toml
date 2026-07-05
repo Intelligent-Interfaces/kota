@@ -1,0 +1,5 @@
+[book]
+title = "Kota Documentation"
+author = "Erick Oduniyi"
+description = "A guide to the Kota TUI agent coder and computing assistant."
+src = "docs"

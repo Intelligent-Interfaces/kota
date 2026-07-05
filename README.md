@@ -4,28 +4,7 @@
 
 A TUI agent coder & computing assistant that runs on local LLMs.
 
-```
-   _  __      _
-  | |/ /___  | |_  __ _   🦎
-  | ' // _ \ | __|/ _` |
-  | . \ (_) || |_| (_| |
-  |_|\_\___/  \__|\__,_|
-  [  COMPUTING ASSIST  ]
-
-╭─ kota ──────────────────────────────────────────────╮
-│  ▶ read the main.rs file and add error handling     │
-│  ── step 1 (342 tokens) ──                          │
-│  💭 I need to read the file first...                │
-│  🔧 read_file({"path": "src/main.rs"})              │
-│  ✓ read_file (12ms)                                 │
-│    → use std::io;                                   │
-│  ── step 2 (1204 tokens) ──                         │
-│  Here's the updated file with error handling:       │
-│  🔧 write_file({"path": "src/main.rs", ...})        │
-│  ✓ write_file (3ms)                                 │
-│  ── done (2340ms) ──                                │
-╰─────────────────────────────────────────────────────╯
-```
+![Kota TUI](docs/kota-tui-dark-ravenwood.png)
 
 ## What it does
 
