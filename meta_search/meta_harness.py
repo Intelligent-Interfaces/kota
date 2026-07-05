@@ -824,23 +824,33 @@ def run_evolve(args):
             for name in list(results.keys()):
                 avg = results[name][1]
                 metrics_dict = all_metrics.get(name, {})
-                energy_score = (metrics_dict.get('total_input_tokens', 0) * 0.00001) + (metrics_dict.get('total_output_tokens', 0) * 0.00003) + (bench_time * 0.1)
-                metrics_dict['energy_score'] = energy_score
-                
+                energy_score = (
+                    (metrics_dict.get("total_input_tokens", 0) * 0.00001)
+                    + (metrics_dict.get("total_output_tokens", 0) * 0.00003)
+                    + (bench_time * 0.1)
+                )
+                metrics_dict["energy_score"] = energy_score
+
                 print(f"\n{_bold('--- HITL REVIEW FOR: ' + name + ' ---')}")
                 print(f"Avg Pass Rate: {_rate_str(avg)}")
-                print(f"Energy Score (Hardware Proxy - lower is better): {energy_score:.2f}")
-                print("Topological Entropy ($H_T$) proxy active via candidate diversity.")
+                print(
+                    f"Energy Score (Hardware Proxy - lower is better): {energy_score:.2f}"
+                )
+                print(
+                    "Topological Entropy ($H_T$) proxy active via candidate diversity."
+                )
                 print("\nSkill Tree Diffs:")
                 os.system("git diff .kota_skills/")
-                
-                resp = input("\nApprove this skill tree mutation? [y/N/custom_feedback]: ").strip()
-                if not resp.lower().startswith('y'):
+
+                resp = input(
+                    "\nApprove this skill tree mutation? [y/N/custom_feedback]: "
+                ).strip()
+                if not resp.lower().startswith("y"):
                     print(f"  {_red('Rejected by human arbiter.')}")
                     del results[name]
                     if name in all_metrics:
                         del all_metrics[name]
-                    os.system("git checkout -- .kota_skills/") # Rollback
+                    os.system("git checkout -- .kota_skills/")  # Rollback
 
         update_frontier(results, metrics=all_metrics)
         update_evolution_summary(
@@ -871,7 +881,7 @@ def run_evolve(args):
 
     print(f"\n{_ts()} {_bold('Phase Final: 5-trial eval for frontier agents')}")
     frontier = json.loads(FRONTIER_VAL.read_text()) if FRONTIER_VAL.exists() else {}
-    
+
     # CONTINUAL LEARNING ENSEMBLES (KNN Routing Simulation)
     # The frontier already maps tasks to their historical best-performing agent (KNN router).
     # We evaluate the theoretical performance of the Ensemble Pool vs the Single Best Agent.
@@ -885,11 +895,13 @@ def run_evolve(args):
             rate = frontier[t].get("pass_rate", 0)
             ensemble_agents.add(agent)
             ensemble_passes += rate
-            
+
         ensemble_avg = ensemble_passes / len(ensemble_tasks)
         print(f"  Ensemble Pool Size: {len(ensemble_agents)} specialized agents")
-        print(f"  Ensemble Avg Pass Rate (if routed dynamically): {_rate_str(ensemble_avg)}")
-        
+        print(
+            f"  Ensemble Avg Pass Rate (if routed dynamically): {_rate_str(ensemble_avg)}"
+        )
+
     best_agent = frontier.get("_best", {}).get("agent")
     if best_agent and best_agent != BASELINE_AGENT_NAME:
         import_path = None
@@ -903,7 +915,10 @@ def run_evolve(args):
 
         if import_path:
             job_name = f"final-{best_agent}-t5"
-            print(f"  {_ts()} running single generalist {_bold(best_agent)} x 5 trials...", flush=True)
+            print(
+                f"  {_ts()} running single generalist {_bold(best_agent)} x 5 trials...",
+                flush=True,
+            )
             t0 = time.time()
             job_dir, _ = harbor_run(
                 import_path,

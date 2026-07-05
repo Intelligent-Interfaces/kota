@@ -3,7 +3,7 @@
 
 echo "Running pre-commit checks..."
 
-# Check Python files
+# 1. Check Python files (Ruff Lint & Format)
 if command -v ruff &> /dev/null; then
     echo "Running ruff check..."
     ruff check .
@@ -11,11 +11,30 @@ if command -v ruff &> /dev/null; then
         echo "❌ Python linting failed (ruff). Please fix the errors."
         exit 1
     fi
+
+    echo "Running ruff format check..."
+    ruff format --check .
+    if [ $? -ne 0 ]; then
+        echo "❌ Python formatting failed (ruff format). Run 'ruff format .' to fix."
+        exit 1
+    fi
 else
-    echo "⚠️ ruff not installed, skipping Python linting."
+    echo "⚠️ ruff not installed, skipping Python linting & formatting."
 fi
 
-# Check Rust files
+# 2. Check Python types (Mypy)
+if command -v mypy &> /dev/null; then
+    echo "Running mypy type checking..."
+    mypy . --ignore-missing-imports
+    if [ $? -ne 0 ]; then
+        echo "❌ Python static type checks failed (mypy). Please fix the type errors."
+        exit 1
+    fi
+else
+    echo "⚠️ mypy not installed, skipping Python static type checking."
+fi
+
+# 3. Check Rust files (fmt, clippy, doc, tests)
 if command -v cargo &> /dev/null; then
     echo "Running cargo fmt..."
     cargo fmt --all -- --check
@@ -30,8 +49,46 @@ if command -v cargo &> /dev/null; then
         echo "❌ Rust linting failed (cargo clippy). Please fix the warnings."
         exit 1
     fi
+
+    echo "Running cargo doc check..."
+    cargo doc --no-deps --document-private-items
+    if [ $? -ne 0 ]; then
+        echo "❌ Rust documentation build failed (cargo doc). Please fix doc issues."
+        exit 1
+    fi
+
+    echo "Running cargo test..."
+    cargo test --all-features
+    if [ $? -ne 0 ]; then
+        echo "❌ Rust unit tests failed. Please fix test issues."
+        exit 1
+    fi
+
+    # Cargo Audit (Security vulnerabilities)
+    if cargo audit --version &> /dev/null; then
+        echo "Running cargo audit..."
+        cargo audit
+        if [ $? -ne 0 ]; then
+            echo "❌ Cargo audit detected security vulnerabilities in dependencies!"
+            exit 1
+        fi
+    else
+        echo "⚠️ cargo-audit not installed, skipping security vulnerability check."
+    fi
 else
     echo "⚠️ cargo not installed, skipping Rust checks."
+fi
+
+# 4. Check Go files (Tests)
+if command -v go &> /dev/null; then
+    echo "Running Go tests..."
+    (cd go && go test -v ./...)
+    if [ $? -ne 0 ]; then
+        echo "❌ Go unit tests failed. Please fix Go test issues."
+        exit 1
+    fi
+else
+    echo "⚠️ go not installed, skipping Go checks."
 fi
 
 echo "✅ All pre-commit checks passed!"

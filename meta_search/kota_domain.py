@@ -2,25 +2,25 @@ import subprocess
 import json
 from meta_harness import MetaHarness
 
+
 class KotaForestDewDomain(MetaHarness):
     """
     Meta-Harness domain specification for optimizing Kota on the Forest Dew Computing benchmark.
     This optimizer rewrites Kota's Rust harness (src/agent.rs) to improve its resilience and
     coordination on complex decentralized tasks.
     """
-    
+
     def __init__(self):
         super().__init__()
         self.target_files = ["src/agent.rs", "src/tools.rs"]
-        self.workdir = "/Users/erickoduniyi/Desktop/hpc/agents/development/local-model/kota"
+        self.workdir = (
+            "/Users/erickoduniyi/Desktop/hpc/agents/development/local-model/kota"
+        )
 
     def compile_kota(self):
         print("Compiling Kota...")
         result = subprocess.run(
-            ["cargo", "build"],
-            cwd=self.workdir,
-            capture_output=True,
-            text=True
+            ["cargo", "build"], cwd=self.workdir, capture_output=True, text=True
         )
         if result.returncode != 0:
             return False, result.stderr
@@ -42,17 +42,18 @@ class KotaForestDewDomain(MetaHarness):
             ["python", "meta_search/forest_dew_benchmark.py"],
             cwd=self.workdir,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         try:
             # Benchmark script should print a JSON summary on the last line
-            lines = result.stdout.strip().split('\n')
+            lines = result.stdout.strip().split("\n")
             metrics = json.loads(lines[-1])
-            score = metrics.get('score', 0.0)
+            score = metrics.get("score", 0.0)
             return score, result.stdout
         except Exception as e:
             return 0.0, f"Benchmark parsing failed: {e}\nOutput: {result.stdout}"
+
 
 if __name__ == "__main__":
     domain = KotaForestDewDomain()

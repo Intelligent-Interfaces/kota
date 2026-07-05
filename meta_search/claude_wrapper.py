@@ -304,8 +304,7 @@ def _extract_json_blocks(text):
     results = []
     # Match: optional bold/backtick filename hint, then ```json block
     pattern = re.compile(
-        r"(?:\*\*`?([^`*\n]+\.json)`?\*\*[: \t]*\n)?"
-        r"```json\s*\n(.*?)```",
+        r"(?:\*\*`?([^`*\n]+\.json)`?\*\*[: \t]*\n)?" r"```json\s*\n(.*?)```",
         re.DOTALL,
     )
     for m in pattern.finditer(text):
