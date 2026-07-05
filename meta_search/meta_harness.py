@@ -519,12 +519,11 @@ def smoke_test(name, import_path, timeout=1800):
 def render_task_prompt(iteration, n_trials):
     """Build the prompt for the proposer Claude session."""
     return (
-        f"Run iteration {iteration} of the scaffold evolution loop (KIRA track). "
-        f"Model: {MODEL} (Opus). "
-        f"Start from agents/baseline_kira.py as the parent.\n\n"
+        f"Run iteration {iteration} of the scaffold evolution loop for Kota. "
+        f"Model: {MODEL}. "
+        f"Mutate the Kota agent by growing, pruning, or editing the Markdown files in the `.kota_skills/` directory.\n\n"
         f"## Eval split: {N_EVAL_TASKS} official TB2 tasks x {n_trials} trials\n\n"
-        f"This reference example uses the full TB2 dataset from the paper runs. "
-        f"Focus on scaffold changes that help the agent solve complex, long-horizon tasks.\n\n"
+        f"Focus on managing the skill tree. If Energy Score is constrained, aggressively prune heavy skills (e.g. deep research or complex testing) to save tokens.\n\n"
         f"## Run directories\n"
         f"All logs and results for this run are under `{LOGS_DIR}/`.\n"
         f"- `{LOGS_DIR / 'evolution_summary.jsonl'}` — past results\n"
@@ -821,6 +820,28 @@ def run_evolve(args):
 
         bench_time = time.time() - bench_start
 
+        if getattr(args, "hitl", True) and results:
+            for name in list(results.keys()):
+                avg = results[name][1]
+                metrics_dict = all_metrics.get(name, {})
+                energy_score = (metrics_dict.get('total_input_tokens', 0) * 0.00001) + (metrics_dict.get('total_output_tokens', 0) * 0.00003) + (bench_time * 0.1)
+                metrics_dict['energy_score'] = energy_score
+                
+                print(f"\n{_bold('--- HITL REVIEW FOR: ' + name + ' ---')}")
+                print(f"Avg Pass Rate: {_rate_str(avg)}")
+                print(f"Energy Score (Hardware Proxy - lower is better): {energy_score:.2f}")
+                print(f"Topological Entropy ($H_T$) proxy active via candidate diversity.")
+                print(f"\nSkill Tree Diffs:")
+                os.system("git diff .kota_skills/")
+                
+                resp = input("\nApprove this skill tree mutation? [y/N/custom_feedback]: ").strip()
+                if not resp.lower().startswith('y'):
+                    print(f"  {_red('Rejected by human arbiter.')}")
+                    del results[name]
+                    if name in all_metrics:
+                        del all_metrics[name]
+                    os.system("git checkout -- .kota_skills/") # Rollback
+
         update_frontier(results, metrics=all_metrics)
         update_evolution_summary(
             iteration,
@@ -908,6 +929,12 @@ def main():
         type=str,
         default=None,
         help="Run name for isolated output dirs (jobs/<run>/*, logs/<run>/*). Auto-generated if not set.",
+    )
+    parser.add_argument(
+        "--hitl",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enable Human-in-the-loop (HITL) review gateway before mutating frontier (default: True, use --no-hitl to disable)",
     )
     parser.add_argument(
         "--fresh", action="store_true", help="Clear proposed agents and reset logs"
