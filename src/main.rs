@@ -4,6 +4,7 @@ mod tools;
 mod tui;
 mod events;
 mod server;
+pub mod memory;
 
 use clap::Parser;
 
@@ -37,7 +38,7 @@ async fn main() -> anyhow::Result<()> {
 
     let llm_client = llm::LlmClient::new(&cli.api_url, &cli.model);
     let startup_mode = agent::AgentMode::from_str(&cli.mode);
-    let mut agent = agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode);
+    let mut agent = agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode).await?;
 
     let (tx, rx1) = tokio::sync::broadcast::channel::<events::AgentEvent>(100);
     let (input_tx, mut input_rx) = tokio::sync::mpsc::unbounded_channel::<String>();

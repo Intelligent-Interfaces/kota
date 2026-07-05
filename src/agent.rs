@@ -57,6 +57,8 @@ impl AgentMode {
     }
 }
 
+use crate::memory::MemoryStore;
+
 pub struct Agent {
     llm: LlmClient,
     messages: Vec<Message>,
@@ -64,25 +66,39 @@ pub struct Agent {
     workdir: PathBuf,
     step: usize,
     mode: AgentMode,
+    memory: MemoryStore,
+    session_id: String,
 }
 
 impl Agent {
-    pub fn new(llm: LlmClient, max_tokens: usize, workdir: &str, mode: AgentMode) -> Self {
-        let messages = vec![Message {
+    pub async fn new(llm: LlmClient, max_tokens: usize, workdir: &str, mode: AgentMode) -> anyhow::Result<Self> {
+        let memory = MemoryStore::new(".kota_memory.db").await?;
+        let session_id = uuid::Uuid::new_v4().to_string();
+        
+        memory.save_conversation(&session_id, mode.to_str()).await?;
+
+        let sys_prompt = mode.system_prompt();
+        let sys_msg = Message {
             role: "system".to_string(),
-            content: Some(mode.system_prompt()),
+            content: Some(sys_prompt.clone()),
             tool_calls: None,
             tool_call_id: None,
-        }];
+        };
+        
+        memory.save_message(&session_id, "system", &sys_prompt).await?;
 
-        Self {
+        let messages = vec![sys_msg];
+
+        Ok(Self {
             llm,
             messages,
             max_tokens,
             workdir: PathBuf::from(workdir),
             step: 0,
             mode,
-        }
+            memory,
+            session_id,
+        })
     }
 
     pub fn set_mode(&mut self, mode: AgentMode) {
@@ -101,7 +117,11 @@ impl Agent {
         user_input: &str,
         tx: broadcast::Sender<AgentEvent>,
     ) -> anyhow::Result<()> {
-        // Add user message
+        
+        // Save to Turso DB
+        self.memory.save_message(&self.session_id, "user", user_input).await?;
+
+        // Add user message to local cache
         self.messages.push(Message {
             role: "user".to_string(),
             content: Some(user_input.to_string()),
@@ -183,6 +203,13 @@ impl Agent {
                     })
                     .collect();
 
+                let content_str = if content_buf.is_empty() {
+                    serde_json::to_string(&tool_call_responses).unwrap_or_default()
+                } else {
+                    format!("{}\nTool Calls: {}", content_buf, serde_json::to_string(&tool_call_responses).unwrap_or_default())
+                };
+                let _ = self.memory.save_message(&self.session_id, "assistant", &content_str).await;
+
                 self.messages.push(Message {
                     role: "assistant".to_string(),
                     content: if content_buf.is_empty() {
@@ -227,6 +254,8 @@ impl Agent {
                     });
 
                     // Add tool result to conversation
+                    let _ = self.memory.save_message(&self.session_id, "tool", &result.output).await;
+                    
                     self.messages.push(Message {
                         role: "tool".to_string(),
                         content: Some(result.output),
@@ -241,6 +270,8 @@ impl Agent {
 
             // No tool calls — we're done
             if !content_buf.is_empty() {
+                let _ = self.memory.save_message(&self.session_id, "assistant", &content_buf).await;
+                
                 self.messages.push(Message {
                     role: "assistant".to_string(),
                     content: Some(content_buf),
