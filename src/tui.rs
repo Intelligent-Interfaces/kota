@@ -40,12 +40,12 @@ impl App {
         Self {
             input: String::new(),
             output: vec![
-                (LineKind::System, "  _  __      _".into()),
-                (LineKind::System, " | |/ /___  | |_  __ _   🦎".into()),
-                (LineKind::System, " | ' // _ \\ | __|/ _` |".into()),
-                (LineKind::System, " | . \\ (_) || |_| (_| |".into()),
-                (LineKind::System, " |_|\\_\\___/  \\__|\\__,_|".into()),
-                (LineKind::System, " [ COMPUTING ASSISTANT ]".into()),
+                (LineKind::System, "   _  __      _".into()),
+                (LineKind::System, "  | |/ /___  | |_  __ _   🦎".into()),
+                (LineKind::System, "  | ' // _ \\ | __|/ _` |".into()),
+                (LineKind::System, "  | . \\ (_) || |_| (_| |".into()),
+                (LineKind::System, "  |_|\\_\\___/  \\__|\\__,_|".into()),
+                (LineKind::System, "  [  COMPUTING ASSIST  ]".into()),
                 (LineKind::System, "".into()),
                 (
                     LineKind::System,
