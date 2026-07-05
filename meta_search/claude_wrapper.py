@@ -69,12 +69,12 @@ class SessionResult:
     exit_code: int
     cost_usd: float
     raw_events: list
-    command: list = None
-    cwd: str = None
+    command: list | None = None
+    cwd: str | None = None
     stderr: str = ""
-    skill: dict = None
-    name: str = None
-    log_dir: str = None
+    skill: dict | None = None
+    name: str | None = None
+    log_dir: str | None = None
 
     def show(self):
         """Print compact one-line-per-event summary."""

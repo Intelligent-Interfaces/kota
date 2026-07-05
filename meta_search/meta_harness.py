@@ -997,3 +997,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+class MetaHarness:
+    """Base class for agent evolution domains."""
+
+    def __init__(self) -> None:
+        self.target_files: list[str] = []
+        self.workdir: str = ""
