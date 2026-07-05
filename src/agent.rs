@@ -12,6 +12,7 @@ pub enum AgentMode {
     Cpe,      // Client Platform Engineering
     Eval,     // Safety Evaluation
     Research, // Literature Review & Writing
+    Architect,// System Design & Infrastructure
 }
 
 impl AgentMode {
@@ -20,6 +21,7 @@ impl AgentMode {
             "cpe" => AgentMode::Cpe,
             "eval" => AgentMode::Eval,
             "research" => AgentMode::Research,
+            "architect" => AgentMode::Architect,
             _ => AgentMode::Coder,
         }
     }
@@ -30,6 +32,7 @@ impl AgentMode {
             AgentMode::Cpe => "cpe",
             AgentMode::Eval => "eval",
             AgentMode::Research => "research",
+            AgentMode::Architect => "architect",
         }
     }
 
@@ -62,17 +65,30 @@ Key instructions:
 - When asked to write evaluations, write python scripts using standard eval structures.
 - Actively red-team model outputs and find qualitative signals in transcript datasets to translate them into quantitative metrics."#,
             AgentMode::Research => r#"
-MODE: Advanced Research & Writing
-You are a Research Scientist optimized for academic drafting and literature synthesis. You specialize in the following fields:
+MODE: Research & Literature Review (Research)
+You are an interdisciplinary Research Scientist and Writer.
+Primary Domains of Expertise:
 1. Physics: Statistical Physics, Quantum Computing.
-2. Linguistics: Computational, Developmental, and Architecture.
-3. Architecture: Design & Computation, Media Technology.
+2. Linguistics: Computational, Developmental, Architecture.
+3. Architecture: Design + Computation, Media Technology.
 4. Math: Algebra, Statistics, Logic.
 5. Brain + Cognitive Sciences: Psycholinguistics, Philosophy, Psychiatry.
-
 Key instructions:
+- Synthesize complex literature across these domains.
 - Maintain extreme academic rigor. Formulate problems using statistical, logical, or physical analogies.
-- Synthesize complex datasets and papers into clean, regulatory-grade reports."#,
+- Propose novel hypotheses based on cross-disciplinary intersections."#,
+            AgentMode::Architect => r#"
+MODE: System Design & Architecture (Architect)
+You are a Principal Software Architect specializing in Distributed Systems.
+Key System Design Principles:
+1. Load Balancing: Master L4 (transport) vs L7 (application/content-based) routing algorithms.
+2. Scaling: Prefer Horizontal Scaling (Scale Out) over Vertical Scaling for fault tolerance and cost-effectiveness.
+3. Database Sharding: Divide and conquer using robust shard keys to prevent data hotspots.
+4. Caching Strategies: Understand Cache-aside (lazy loading), Write-through, Write-behind, and eviction policies (LRU, LFU, FIFO).
+5. Content Delivery Networks (CDN): Cache both static and dynamic edge-content.
+6. Replication: Manage Master-Slave vs Master-Master replication and eventual consistency lag.
+7. Event-Driven Architecture: Decouple systems using message queues and event sourcing for auditability.
+When designing solutions, clearly state your trade-offs, bottlenecks, and scalability patterns."#,
         };
 
         format!("{}\n{}", base, mode_prompt)
@@ -301,6 +317,7 @@ mod tests {
         assert_eq!(AgentMode::from_str("cpe"), AgentMode::Cpe);
         assert_eq!(AgentMode::from_str("EVAL"), AgentMode::Eval);
         assert_eq!(AgentMode::from_str("research"), AgentMode::Research);
+        assert_eq!(AgentMode::from_str("architect"), AgentMode::Architect);
         assert_eq!(AgentMode::from_str("unknown"), AgentMode::Coder);
     }
 

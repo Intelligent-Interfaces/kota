@@ -135,6 +135,10 @@
             background: #3b82f6;
             box-shadow: inset 0 0 4px #3b82f6, 0 0 10px #3b82f6;
         }
+        .led.architect {
+            background: #a855f7;
+            box-shadow: inset 0 0 4px #a855f7, 0 0 10px #a855f7;
+        }
         
         .mode-btn {
             background: #222;
@@ -205,6 +209,7 @@
             <button type="button" onclick="changeMode('cpe')" class="mode-btn" id="btn-cpe">CPE</button>
             <button type="button" onclick="changeMode('eval')" class="mode-btn" id="btn-eval">EVAL</button>
             <button type="button" onclick="changeMode('research')" class="mode-btn" id="btn-research">RESEARCH</button>
+            <button type="button" onclick="changeMode('architect')" class="mode-btn" id="btn-architect">ARCH</button>
         </div>
         
         <div class="lcd-display" id="output">
@@ -338,7 +343,7 @@
         }
 
         function updateModeUI(mode) {
-            ['coder', 'cpe', 'eval', 'research'].forEach(m => {
+            ['coder', 'cpe', 'eval', 'research', 'architect'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
                 if (btn) btn.classList.remove('active');
             });
