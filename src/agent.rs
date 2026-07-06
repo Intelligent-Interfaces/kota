@@ -287,12 +287,89 @@ impl Agent {
                     });
 
                     let tool_start = Instant::now();
-                    let result = match tools::parse_tool_call(name, args, &self.workdir) {
-                        Ok(call) => tools::execute(&call).await,
-                        Err(e) => tools::ToolResult {
-                            success: false,
-                            output: format!("Failed to parse tool call: {}", e),
-                        },
+                    let result = if name == "delegate_task" {
+                        match serde_json::from_str::<serde_json::Value>(args) {
+                            Ok(args_val) => {
+                                let task_desc = args_val["task"].as_str().unwrap_or("");
+                                let mode_str = args_val["mode"].as_str().unwrap_or("coder");
+                                let sub_mode = AgentMode::from_str(mode_str);
+                                let sub_llm = self.llm.clone();
+                                match Agent::new(
+                                    sub_llm,
+                                    self.max_tokens,
+                                    &self.workdir.to_string_lossy(),
+                                    sub_mode,
+                                )
+                                .await
+                                {
+                                    Ok(mut sub_agent) => {
+                                        let (sub_tx, mut sub_rx) = broadcast::channel(100);
+                                        let _ = tx.send(AgentEvent::Token {
+                                            text: format!("\n[Spawning sub-agent in mode: {} to run task...]\n", mode_str)
+                                        });
+                                        let task_desc_clone = task_desc.to_string();
+                                        let tx_clone = tx.clone();
+                                        let mode_clone = mode_str.to_string();
+                                        tokio::spawn(async move {
+                                            while let Ok(event) = sub_rx.recv().await {
+                                                match event {
+                                                    AgentEvent::Token { text } => {
+                                                        let _ = tx_clone.send(AgentEvent::Token {
+                                                            text: format!(
+                                                                "Sub[{}]> {}",
+                                                                mode_clone, text
+                                                            ),
+                                                        });
+                                                    }
+                                                    _ => {}
+                                                }
+                                            }
+                                        });
+                                        match Box::pin(sub_agent.process(&task_desc_clone, sub_tx))
+                                            .await
+                                        {
+                                            Ok(()) => {
+                                                let final_response = sub_agent
+                                                    .messages
+                                                    .iter()
+                                                    .rfind(|m| {
+                                                        m.role == "assistant" && m.content.is_some()
+                                                    })
+                                                    .and_then(|m| m.content.clone())
+                                                    .unwrap_or_else(|| {
+                                                        "Subagent finished with no response."
+                                                            .to_string()
+                                                    });
+                                                tools::ToolResult {
+                                                    success: true,
+                                                    output: final_response,
+                                                }
+                                            }
+                                            Err(e) => tools::ToolResult {
+                                                success: false,
+                                                output: format!("Subagent failed: {}", e),
+                                            },
+                                        }
+                                    }
+                                    Err(e) => tools::ToolResult {
+                                        success: false,
+                                        output: format!("Failed to create subagent: {}", e),
+                                    },
+                                }
+                            }
+                            Err(e) => tools::ToolResult {
+                                success: false,
+                                output: format!("Failed to parse delegate_task arguments: {}", e),
+                            },
+                        }
+                    } else {
+                        match tools::parse_tool_call(name, args, &self.workdir) {
+                            Ok(call) => tools::execute(&call).await,
+                            Err(e) => tools::ToolResult {
+                                success: false,
+                                output: format!("Failed to parse tool call: {}", e),
+                            },
+                        }
                     };
                     let duration = tool_start.elapsed().as_millis() as u64;
 
