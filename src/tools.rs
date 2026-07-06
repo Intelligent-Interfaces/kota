@@ -13,6 +13,7 @@ pub enum ToolCall {
     RunCommand { command: String },
     Search { pattern: String, path: PathBuf },
     FetchNews { query: String },
+    DelegateTask { task: String, mode: String },
 }
 
 #[derive(Debug)]
@@ -27,6 +28,14 @@ pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::R
         .unwrap_or_else(|_| serde_json::Value::Object(serde_json::Map::new()));
 
     match name {
+        "delegate_task" => {
+            let task = args["task"].as_str().unwrap_or("");
+            let mode = args["mode"].as_str().unwrap_or("coder");
+            Ok(ToolCall::DelegateTask {
+                task: task.to_string(),
+                mode: mode.to_string(),
+            })
+        }
         "read_file" => {
             let path = args["path"].as_str().unwrap_or("");
             Ok(ToolCall::ReadFile {
@@ -212,12 +221,37 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
                 output: format!("Error fetching news: {}", e),
             },
         },
+        ToolCall::DelegateTask { task, mode } => ToolResult {
+            success: false,
+            output: format!("delegate_task for task '{}' and mode '{}' should be intercepted by the agent runner loop and not executed directly.", task, mode),
+        },
     }
 }
 
 /// Return the tool definitions for the OpenAI-compatible API
 pub fn tool_definitions() -> Vec<ToolDef> {
     vec![
+        ToolDef {
+            tool_type: "function".to_string(),
+            function: ToolFunction {
+                name: "delegate_task".to_string(),
+                description: "Delegate a sub-task to a specialized sub-agent. This runs the sub-agent loop asynchronously and returns their final response, preventing context rot in your main thread.".to_string(),
+                parameters: serde_json::json!({
+                    "type": "object",
+                    "properties": {
+                        "task": {
+                            "type": "string",
+                            "description": "The detailed task description for the sub-agent."
+                        },
+                        "mode": {
+                            "type": "string",
+                            "description": "The mode of the sub-agent (coder, cpe, eval, research, architect, librarian)."
+                        }
+                    },
+                    "required": ["task", "mode"]
+                }),
+            },
+        },
         ToolDef {
             tool_type: "function".to_string(),
             function: ToolFunction {
@@ -398,5 +432,19 @@ mod tests {
         let xml = "<entry><summary>Test Abstract</summary></entry>";
         let res = extract_tag(xml, "title");
         assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_parse_delegate_task() {
+        let workdir = Path::new(".");
+        let args = r#"{"task": "Analyze code", "mode": "coder"}"#;
+        let call = parse_tool_call("delegate_task", args, workdir).unwrap();
+        match call {
+            ToolCall::DelegateTask { task, mode } => {
+                assert_eq!(task, "Analyze code");
+                assert_eq!(mode, "coder");
+            }
+            _ => panic!("Expected DelegateTask call"),
+        }
     }
 }
