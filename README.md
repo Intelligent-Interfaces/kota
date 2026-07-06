@@ -9,8 +9,10 @@ A TUI agent coder & computing assistant that runs on local LLMs.
 ## What it does
 
 - Talks to any OpenAI-compatible local LLM (Ollama, llama-server, RamaLama, vLLM)
-- 5 built-in tools: read_file, write_file, list_dir, run_command, search
-- Streams tokens and thinking/reasoning traces in real time
+- **Recursive Agent (RA) Delegation**: Delegate complex sub-tasks asynchronously to specialized subagents using the `delegate_task` tool to prevent context rot.
+- **Agent-Native Documentation**: OpenWiki-style codebase context mapping (`AGENTS.md`) and automated CI synchronization.
+- 7 built-in tools: `read_file`, `write_file`, `list_dir`, `run_command`, `search`, `fetch_news`, `delegate_task`
+- Streams tokens and thinking/reasoning traces in real time (including subagent tokens with `Sub[mode]>` prefix)
 - Shows tool calls as they happen with timing
 - Tracks context budget so you don't silently overflow
 - Single binary, no Python, no Node.js
@@ -53,7 +55,11 @@ cargo run -- --model qwen3:8b --api-url http://localhost:11434/v1 --workdir ~/my
                  │ list_dir  │
                  │ run_cmd   │
                  │ search    │
-                 └───────────┘
+                 │ fetch_news│
+                 │ delegate  │───┐ (recursively spawns
+                 └───────────┘   │  nested sub-agents)
+                       ▲         │
+                       └─────────┘
 ```
 
 The agent loop:
