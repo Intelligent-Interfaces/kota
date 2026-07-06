@@ -1007,7 +1007,7 @@ class MetaHarness:
         self.workdir: str = ""
 
     def index_for_agents(
-        self, output_path: str = "AGENTS.md", ignore_dirs: list[str] = None
+        self, output_path: str = "AGENTS.md", ignore_dirs: list[str] | None = None
     ):
         """Generates an agent-native repository context map (OpenWiki style)."""
         import os

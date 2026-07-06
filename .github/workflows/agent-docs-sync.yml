@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install dependencies
+        run: pip install python-dotenv
+
       - name: Generate AGENTS.md
         run: |
           python scripts/generate_agent_docs.py
