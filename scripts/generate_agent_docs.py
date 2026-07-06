@@ -3,7 +3,9 @@ import os
 import sys
 
 # Add meta_search to sys.path to import meta_harness
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'meta_search')))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "meta_search"))
+)
 
 from meta_harness import MetaHarness
 
