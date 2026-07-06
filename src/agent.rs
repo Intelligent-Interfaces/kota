@@ -312,16 +312,13 @@ impl Agent {
                                         let mode_clone = mode_str.to_string();
                                         tokio::spawn(async move {
                                             while let Ok(event) = sub_rx.recv().await {
-                                                match event {
-                                                    AgentEvent::Token { text } => {
-                                                        let _ = tx_clone.send(AgentEvent::Token {
-                                                            text: format!(
-                                                                "Sub[{}]> {}",
-                                                                mode_clone, text
-                                                            ),
-                                                        });
-                                                    }
-                                                    _ => {}
+                                                if let AgentEvent::Token { text } = event {
+                                                    let _ = tx_clone.send(AgentEvent::Token {
+                                                        text: format!(
+                                                            "Sub[{}]> {}",
+                                                            mode_clone, text
+                                                        ),
+                                                    });
                                                 }
                                             }
                                         });
