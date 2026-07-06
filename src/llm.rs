@@ -3,6 +3,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 /// Client for an OpenAI-compatible local LLM API (Ollama, llama-server, etc.)
+#[derive(Clone)]
 pub struct LlmClient {
     client: Client,
     base_url: String,
