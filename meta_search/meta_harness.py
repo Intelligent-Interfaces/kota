@@ -1005,3 +1005,79 @@ class MetaHarness:
     def __init__(self) -> None:
         self.target_files: list[str] = []
         self.workdir: str = ""
+
+    def index_for_agents(
+        self, output_path: str = "AGENTS.md", ignore_dirs: list[str] = None
+    ):
+        """Generates an agent-native repository context map (OpenWiki style)."""
+        import os
+        import ast
+
+        if ignore_dirs is None:
+            # Default exclusions based on user feedback (tests/, docs/) + standards
+            ignore_dirs = [
+                "tests",
+                "docs",
+                ".git",
+                "__pycache__",
+                "venv",
+                "env",
+                ".venv",
+                ".github",
+                "node_modules",
+                "target",
+                "build",
+                "dist",
+            ]
+
+        base_dir = self.workdir if self.workdir else "."
+
+        tree_lines = []
+        docstrings = []
+
+        for root, dirs, files in os.walk(base_dir):
+            dirs[:] = [
+                d for d in dirs if d not in ignore_dirs and not d.startswith(".")
+            ]
+
+            rel_root = os.path.relpath(root, base_dir)
+            level = 0 if rel_root == "." else rel_root.count(os.sep) + 1
+
+            indent = "  " * level
+            if rel_root != ".":
+                tree_lines.append(f"{indent}- {os.path.basename(root)}/")
+
+            for file in sorted(files):
+                if file.startswith("."):
+                    continue
+                file_indent = "  " * (level + 1)
+                tree_lines.append(f"{file_indent}- {file}")
+
+                # Extract module-level docstrings for Python files
+                if file.endswith(".py"):
+                    file_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(file_path, base_dir)
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        parsed = ast.parse(content)
+                        docstring = ast.get_docstring(parsed)
+                        if docstring:
+                            docstrings.append(
+                                f"### `{rel_path}`\n\n```text\n{docstring}\n```\n"
+                            )
+                    except Exception:
+                        pass
+
+        content = (
+            "# Agent Context Map\n\n"
+            "This repository has been indexed for agent consumption. "
+            "Use this map to quickly grasp the project structure and primary module purposes.\n\n"
+            "## Directory Tree\n\n" + "\n".join(tree_lines) + "\n\n"
+            "## Module Documentation\n\n" + "\n".join(docstrings)
+        )
+
+        out_file = os.path.join(base_dir, output_path)
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write(content)
+        return out_file
