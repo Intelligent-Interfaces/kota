@@ -1,245 +1,582 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="matrix">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kota Remote</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked, Highlight, DOMPurify -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap');
-        
+        /* ──────────────────────────────────────────
+           THEME SYSTEM
+        ────────────────────────────────────────── */
+        :root {
+            --accent: #64ffda;
+            --accent2: #00b4d8;
+            --bg-body: #0f1117;
+            --bg-panel: #161b22;
+            --bg-card: #1c2128;
+            --bg-input: #0d1117;
+            --border: #30363d;
+            --border-light: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --msg-user: #fbbf24;
+            --msg-assistant: #64ffda;
+            --msg-system: #6e7681;
+            --msg-tool: #f97316;
+            --msg-thinking: #6e7681;
+            --btn-bg: #21262d;
+            --btn-hover: #30363d;
+            --led-glow: rgba(100,255,218,0.4);
+        }
+
+        [data-theme="matrix"] {
+            --accent: #64ffda;
+            --accent2: #00ff88;
+            --bg-body: #0a0e0a;
+            --bg-panel: #0f1410;
+            --bg-card: #141d15;
+            --bg-input: #080c08;
+            --border: #1a2e1a;
+            --border-light: #122012;
+            --text-primary: #a8d5b5;
+            --text-secondary: #5a8a65;
+            --text-muted: #2a4a2e;
+            --msg-user: #facc15;
+            --msg-assistant: #64ffda;
+            --msg-system: #4a6e50;
+            --msg-tool: #ff6b35;
+            --msg-thinking: #3a5a40;
+            --btn-bg: #0f1c10;
+            --btn-hover: #162217;
+            --led-glow: rgba(100,255,218,0.5);
+        }
+
+        [data-theme="midnight"] {
+            --accent: #818cf8;
+            --accent2: #a78bfa;
+            --bg-body: #070b18;
+            --bg-panel: #0d1224;
+            --bg-card: #131929;
+            --bg-input: #060a15;
+            --border: #1e2a4a;
+            --border-light: #162038;
+            --text-primary: #c7d2fe;
+            --text-secondary: #6e7ab0;
+            --text-muted: #2e3a60;
+            --msg-user: #f472b6;
+            --msg-assistant: #818cf8;
+            --msg-system: #4e5a90;
+            --msg-tool: #fb923c;
+            --msg-thinking: #3e4870;
+            --btn-bg: #111828;
+            --btn-hover: #1a2438;
+            --led-glow: rgba(129,140,248,0.5);
+        }
+
+        [data-theme="amber"] {
+            --accent: #f59e0b;
+            --accent2: #fbbf24;
+            --bg-body: #0e0b00;
+            --bg-panel: #191200;
+            --bg-card: #211900;
+            --bg-input: #0b0800;
+            --border: #3b2e00;
+            --border-light: #2c2200;
+            --text-primary: #fde68a;
+            --text-secondary: #a07c10;
+            --text-muted: #5a4500;
+            --msg-user: #fb923c;
+            --msg-assistant: #fde68a;
+            --msg-system: #7a5c10;
+            --msg-tool: #f87171;
+            --msg-thinking: #5a4a10;
+            --btn-bg: #1c1400;
+            --btn-hover: #2a1e00;
+            --led-glow: rgba(245,158,11,0.5);
+        }
+
+        [data-theme="slate"] {
+            --accent: #38bdf8;
+            --accent2: #7dd3fc;
+            --bg-body: #0c1321;
+            --bg-panel: #13202f;
+            --bg-card: #192739;
+            --bg-input: #0a1020;
+            --border: #243347;
+            --border-light: #1c2a3a;
+            --text-primary: #cdd6f4;
+            --text-secondary: #7a9ab5;
+            --text-muted: #3a546a;
+            --msg-user: #a6e3a1;
+            --msg-assistant: #89dceb;
+            --msg-system: #5a7a95;
+            --msg-tool: #f38ba8;
+            --msg-thinking: #4a6a80;
+            --btn-bg: #162030;
+            --btn-hover: #1e2c40;
+            --led-glow: rgba(56,189,248,0.5);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #1f2022 0%, #151618 100%);
-            color: #d1d5db;
-            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Inter', 'Space Grotesk', sans-serif;
             margin: 0;
-            padding: 0;
-            height: 100vh;
+            padding: 8px;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s, color 0.3s;
         }
 
-        .hardware-panel {
+        /* ──────────────────────────────────────────
+           MAIN PANEL
+        ────────────────────────────────────────── */
+        .panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #232528;
-            border: 2px solid #333;
-            border-radius: 12px;
-            margin: 10px;
-            box-shadow: 
-                inset 0 1px 1px rgba(255,255,255,0.1),
-                0 10px 20px rgba(0,0,0,0.5);
-            padding: 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.6);
         }
 
-        .lcd-display {
-            background: #111a13;
-            border: 4px solid #000;
-            border-radius: 8px;
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-            font-family: 'Share Tech Mono', monospace;
-            color: #64ffda;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-            text-shadow: 0 0 5px rgba(100,255,218,0.5);
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .lcd-display::-webkit-scrollbar {
-            width: 8px;
-        }
-        .lcd-display::-webkit-scrollbar-track {
-            background: #0a0f0b;
-        }
-        .lcd-display::-webkit-scrollbar-thumb {
-            background: #2b4d3f;
-            border-radius: 4px;
-        }
-
-        .control-area {
-            margin-top: 16px;
+        /* ──────────────────────────────────────────
+           HEADER
+        ────────────────────────────────────────── */
+        .header {
             display: flex;
-            gap: 12px;
-        }
-
-        .hardware-input {
-            flex: 1;
-            background: #111;
-            border: 2px solid #000;
-            border-radius: 4px;
-            color: #fff;
-            padding: 12px;
-            font-family: 'Share Tech Mono', monospace;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .hardware-input:focus {
-            outline: none;
-            border-color: #444;
-        }
-
-        .tactile-btn {
-            background: linear-gradient(to bottom, #444, #222);
-            border: 1px solid #111;
-            border-radius: 6px;
-            color: #ccc;
-            font-weight: bold;
-            padding: 0 24px;
-            text-transform: uppercase;
-            box-shadow: 
-                0 4px 0 #111,
-                0 5px 10px rgba(0,0,0,0.4),
-                inset 0 1px 1px rgba(255,255,255,0.2);
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-        .tactile-btn:active {
-            transform: translateY(4px);
-            box-shadow: 
-                0 0 0 #111,
-                0 1px 2px rgba(0,0,0,0.4),
-                inset 0 1px 1px rgba(255,255,255,0.2);
-        }
-
-        .led {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #333;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5);
-            margin-bottom: 8px;
-        }
-        .led.active {
-            background: #ff3e00;
-            box-shadow: inset 0 0 4px #ff3e00, 0 0 10px #ff3e00;
-        }
-        .led.connected {
-            background: #64ffda;
-            box-shadow: inset 0 0 4px #64ffda, 0 0 10px #64ffda;
-        }
-        .led.coder {
-            background: #64ffda;
-            box-shadow: inset 0 0 4px #64ffda, 0 0 10px #64ffda;
-        }
-        .led.cpe {
-            background: #fbbf24;
-            box-shadow: inset 0 0 4px #fbbf24, 0 0 10px #fbbf24;
-        }
-        .led.eval {
-            background: #ec4899;
-            box-shadow: inset 0 0 4px #ec4899, 0 0 10px #ec4899;
-        }
-        .led.research {
-            background: #3b82f6;
-            box-shadow: inset 0 0 4px #3b82f6, 0 0 10px #3b82f6;
-        }
-        .led.architect {
-            background: #a855f7;
-            box-shadow: inset 0 0 4px #a855f7, 0 0 10px #a855f7;
-        }
-        
-        .mode-btn {
-            background: #222;
-            border: 1px solid #333;
-            color: #777;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-        .mode-btn.active {
-            border-color: #64ffda;
-            color: #64ffda;
-            background: #0f1c18;
-            box-shadow: 0 0 5px rgba(100,255,218,0.2);
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 8px;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            flex-shrink: 0;
         }
 
         .brand {
-            font-weight: 800;
-            letter-spacing: 2px;
-            color: #555;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.1);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-shadow: 0 0 12px var(--led-glow);
+            flex-shrink: 0;
         }
 
-        .message { margin-bottom: 8px; }
-        .message.user { color: #facc15; }
-        .message.assistant { color: #64ffda; }
-        .message.system { color: #888; }
-        .message.tool { color: #ff3e00; }
-        .message.thinking { color: #6b7280; font-style: italic; }
+        .header-spacer { flex: 1; }
 
-        /* Markdown Styling */
-        .message.assistant p { margin-bottom: 0.5em; }
-        .message.assistant pre { background: #000; padding: 8px; border-radius: 4px; overflow-x: auto; margin: 8px 0; border: 1px solid #333; }
-        .message.assistant code { font-family: 'Share Tech Mono', monospace; background: #0a0f0b; padding: 2px 4px; border-radius: 2px; border: 1px solid #222; }
-        .message.assistant pre code { padding: 0; background: transparent; border: none; }
-        .message.assistant ul { list-style-type: disc; margin-left: 20px; margin-bottom: 0.5em; }
-        .message.assistant ol { list-style-type: decimal; margin-left: 20px; margin-bottom: 0.5em; }
-        .message.assistant h1, .message.assistant h2, .message.assistant h3 { color: #fff; margin-top: 1em; margin-bottom: 0.5em; font-weight: bold; }
-        .message.assistant a { color: #3b82f6; text-decoration: underline; }
+        .status-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 3px 8px;
+            text-transform: uppercase;
+        }
+
+        .pill.active { color: var(--accent); border-color: var(--accent); }
+        .pill-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+        .pill.active .pill-dot {
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        .power-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--led-glow);
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 3px 10px;
+            white-space: nowrap;
+        }
+
+        /* ──────────────────────────────────────────
+           TOOLBAR (Modes + Toggles)
+        ────────────────────────────────────────── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-body);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .toolbar-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-right: 2px;
+        }
+
+        .mode-btn {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .mode-btn:hover { color: var(--text-secondary); background: var(--btn-hover); }
+        .mode-btn.active {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--btn-bg);
+            text-shadow: 0 0 8px var(--led-glow);
+        }
+
+        /* Toggle switches */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .toggle-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .toggle-wrap.on .toggle-label { color: var(--accent); }
+
+        .toggle-track {
+            width: 28px;
+            height: 16px;
+            border-radius: 8px;
+            background: var(--border);
+            border: 1px solid var(--border-light);
+            position: relative;
+            transition: background 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle-wrap.on .toggle-track {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--led-glow);
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: left 0.2s, background 0.2s;
+        }
+        .toggle-wrap.on .toggle-thumb {
+            left: 14px;
+            background: var(--bg-body);
+        }
+
+        /* Theme picker */
+        .theme-swatches {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .swatch:hover { transform: scale(1.2); }
+        .swatch.active { border-color: var(--text-primary); }
+        .swatch-matrix { background: #64ffda; }
+        .swatch-midnight { background: #818cf8; }
+        .swatch-amber { background: #f59e0b; }
+        .swatch-slate { background: #38bdf8; }
+
+        /* ──────────────────────────────────────────
+           MESSAGE LOG
+        ────────────────────────────────────────── */
+        .msg-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            scroll-behavior: smooth;
+        }
+
+        .msg-log::-webkit-scrollbar { width: 4px; }
+        .msg-log::-webkit-scrollbar-track { background: transparent; }
+        .msg-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .message {
+            font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 2px 0;
+        }
+
+        .message.user    { color: var(--msg-user); }
+        .message.assistant { color: var(--msg-assistant); }
+        .message.system  { color: var(--msg-system); font-size: 11px; }
+        .message.tool    { color: var(--msg-tool); }
+        .message.thinking { color: var(--msg-thinking); font-style: italic; }
+        .message.error   { color: #f87171; }
+
+        /* Markdown rendering */
+        .message.assistant p { margin: 0.3em 0; }
+        .message.assistant pre {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .message.assistant code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-card);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .message.assistant pre code { padding: 0; background: transparent; }
+        .message.assistant ul { list-style: disc; margin-left: 20px; margin: 4px 0; }
+        .message.assistant ol { list-style: decimal; margin-left: 20px; margin: 4px 0; }
+        .message.assistant h1,
+        .message.assistant h2,
+        .message.assistant h3 { color: var(--text-primary); margin: 0.8em 0 0.3em; font-weight: 600; }
+        .message.assistant a { color: var(--accent2); text-decoration: underline; }
+
+        /* Separator line */
+        .sep-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+        }
+        .sep-line span {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+            white-space: nowrap;
+        }
+        .sep-line::before, .sep-line::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        /* ──────────────────────────────────────────
+           INPUT AREA
+        ────────────────────────────────────────── */
+        .input-area {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-card);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .cmd-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .cmd-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--led-glow);
+        }
+        .cmd-input::placeholder { color: var(--text-muted); }
+
+        .send-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-body);
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            flex-shrink: 0;
+        }
+        .send-btn:hover { opacity: 0.85; }
+        .send-btn:active { transform: scale(0.97); }
+
+        /* Thinking animation */
+        @keyframes pulse-opacity { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .thinking-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+        }
+        .thinking-indicator.visible { display: flex; }
+        .thinking-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--msg-thinking);
+            animation: pulse-opacity 1.2s ease-in-out infinite;
+        }
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
     </style>
 </head>
 <body>
-    <div class="hardware-panel">
-        <div class="panel-header">
-            <div class="brand">KOTA REMOTE ///</div>
-            <div class="flex gap-4">
-                <div class="flex flex-col items-center">
-                    <div id="led-conn" class="led"></div>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase">Link</span>
+    <div class="panel">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="brand">KOTA //</div>
+            <div class="status-pills">
+                <div class="pill" id="pill-conn">
+                    <div class="pill-dot"></div>
+                    <span>Offline</span>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div id="led-busy" class="led"></div>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase">Busy</span>
+                <div class="pill" id="pill-busy">
+                    <div class="pill-dot"></div>
+                    <span>Idle</span>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div id="led-mode" class="led coder"></div>
-                    <span id="label-mode" class="text-[10px] text-gray-500 font-bold uppercase">Coder</span>
-                </div>
-                <div class="flex flex-col items-center border-l border-[#333] pl-4 ml-2">
-                    <div id="power-gauge" class="text-sm text-[#64ffda] font-mono font-bold" style="font-family: 'Share Tech Mono', monospace;">⚡ 0.0W</div>
-                    <span id="power-joules" class="text-[10px] text-gray-500 font-bold uppercase">0.0 J</span>
-                </div>
+            </div>
+            <div class="header-spacer"></div>
+            <div class="power-display" id="power-display">⚡ 0.0W · 0.0J</div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <!-- Agent Modes -->
+            <span class="toolbar-label">Mode</span>
+            <div class="toolbar-section" id="mode-buttons">
+                <button class="mode-btn active" id="btn-coder"   onclick="changeMode('coder')">Coder</button>
+                <button class="mode-btn"        id="btn-cpe"     onclick="changeMode('cpe')">CPE</button>
+                <button class="mode-btn"        id="btn-eval"    onclick="changeMode('eval')">Eval</button>
+                <button class="mode-btn"        id="btn-research" onclick="changeMode('research')">Research</button>
+                <button class="mode-btn"        id="btn-architect" onclick="changeMode('architect')">Arch</button>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <!-- Power Toggle -->
+            <div class="toggle-wrap on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label">⚡ Sensor</span>
+            </div>
+
+            <!-- Eco Toggle -->
+            <div class="toggle-wrap" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label">🌿 Eco</span>
+            </div>
+
+            <!-- Cloud Toggle -->
+            <div class="toggle-wrap" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label">☁ Cloud</span>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <!-- Theme Swatches -->
+            <span class="toolbar-label">Theme</span>
+            <div class="theme-swatches">
+                <div class="swatch swatch-matrix active"   id="swatch-matrix"   title="Matrix"   onclick="setTheme('matrix')"></div>
+                <div class="swatch swatch-midnight"        id="swatch-midnight" title="Midnight"  onclick="setTheme('midnight')"></div>
+                <div class="swatch swatch-amber"           id="swatch-amber"    title="Amber"     onclick="setTheme('amber')"></div>
+                <div class="swatch swatch-slate"           id="swatch-slate"    title="Slate"     onclick="setTheme('slate')"></div>
             </div>
         </div>
 
-        <!-- Mode selector row -->
-        <div class="flex gap-2 mb-4 justify-between bg-[#111] p-2 border border-black rounded">
-            <button type="button" onclick="changeMode('coder')" class="mode-btn active" id="btn-coder">CODER</button>
-            <button type="button" onclick="changeMode('cpe')" class="mode-btn" id="btn-cpe">CPE</button>
-            <button type="button" onclick="changeMode('eval')" class="mode-btn" id="btn-eval">EVAL</button>
-            <button type="button" onclick="changeMode('research')" class="mode-btn" id="btn-research">RESEARCH</button>
-            <button type="button" onclick="changeMode('architect')" class="mode-btn" id="btn-architect">ARCH</button>
-        </div>
-        
-        <div class="lcd-display" id="output">
-            <div class="message system">KOTA SYSTEM INITIALIZED...</div>
-            <div class="message system">WAITING FOR CONNECTION...</div>
+        <!-- Message Log -->
+        <div class="msg-log" id="output">
+            <div class="sep-line"><span>KOTA REMOTE</span></div>
+            <div class="message system">Waiting for connection...</div>
         </div>
 
-        <form id="input-form" class="control-area">
-            <input type="text" id="cmd-input" class="hardware-input" placeholder="ENTER COMMAND..." autocomplete="off">
-            <button type="submit" class="tactile-btn">SEND</button>
+        <!-- Thinking indicator -->
+        <div class="thinking-indicator" id="thinking-indicator" style="padding: 0 16px 8px;">
+            <div class="thinking-dot"></div>
+            <div class="thinking-dot"></div>
+            <div class="thinking-dot"></div>
+            <span style="font-size:11px; color: var(--text-muted); font-family: monospace;">thinking...</span>
+        </div>
+
+        <!-- Input -->
+        <form class="input-area" id="input-form">
+            <input type="text" id="cmd-input" class="cmd-input" placeholder="Message kota... (or /help)" autocomplete="off" autocorrect="off" spellcheck="false">
+            <button type="submit" class="send-btn">Send</button>
         </form>
     </div>
 
@@ -247,18 +584,20 @@
         const output = document.getElementById('output');
         const form = document.getElementById('input-form');
         const input = document.getElementById('cmd-input');
-        const ledConn = document.getElementById('led-conn');
-        const ledBusy = document.getElementById('led-busy');
-        const ledMode = document.getElementById('led-mode');
-        const labelMode = document.getElementById('label-mode');
-        const powerGauge = document.getElementById('power-gauge');
-        const powerJoules = document.getElementById('power-joules');
-        
+        const pillConn = document.getElementById('pill-conn');
+        const pillBusy = document.getElementById('pill-busy');
+        const powerDisplay = document.getElementById('power-display');
+        const thinkingIndicator = document.getElementById('thinking-indicator');
+
+        // Toggle state
+        const toggleState = { power: true, eco: false, cloud: false };
+
         let ws;
         let isBusy = false;
-        let thinkingLine = null;
         let currentAssistantLine = null;
+        let isThinking = false;
 
+        // Marked setup
         const { Marked } = window.marked;
         const { markedHighlight } = window.markedHighlight;
         const markedInstance = new Marked(
@@ -271,18 +610,47 @@
             })
         );
 
+        // ── THEME ──────────────────────────────────
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+            const sw = document.getElementById('swatch-' + theme);
+            if (sw) sw.classList.add('active');
+            localStorage.setItem('kota-theme', theme);
+        }
+        const savedTheme = localStorage.getItem('kota-theme');
+        if (savedTheme) setTheme(savedTheme);
+
+        // ── TOGGLES ────────────────────────────────
+        function toggleCmd(name, elId) {
+            toggleState[name] = !toggleState[name];
+            const el = document.getElementById(elId);
+            if (toggleState[name]) {
+                el.classList.add('on');
+            } else {
+                el.classList.remove('on');
+            }
+            const val = toggleState[name] ? 'on' : 'off';
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(`/${name} ${val}`);
+            }
+        }
+
+        // ── CONNECTION ─────────────────────────────
         function connect() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
-            
+
             ws.onopen = () => {
-                ledConn.classList.add('connected');
-                appendLine('system', 'CONNECTION ESTABLISHED.');
+                pillConn.classList.add('active');
+                pillConn.querySelector('span').textContent = 'Online';
+                appendSep('Connected');
             };
-            
+
             ws.onclose = () => {
-                ledConn.classList.remove('connected');
-                appendLine('system', 'CONNECTION LOST. RECONNECTING...');
+                pillConn.classList.remove('active');
+                pillConn.querySelector('span').textContent = 'Offline';
+                appendSep('Disconnected — retrying...');
                 setTimeout(connect, 2000);
             };
 
@@ -292,6 +660,7 @@
             };
         }
 
+        // ── UI HELPERS ─────────────────────────────
         function appendLine(type, text) {
             const div = document.createElement('div');
             div.className = `message ${type}`;
@@ -301,93 +670,110 @@
             return div;
         }
 
+        function appendSep(label) {
+            const div = document.createElement('div');
+            div.className = 'sep-line';
+            div.innerHTML = `<span>${label}</span>`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
         function setBusy(state) {
             isBusy = state;
             if (state) {
-                ledBusy.classList.add('active');
+                pillBusy.classList.add('active');
+                pillBusy.querySelector('span').textContent = 'Busy';
             } else {
-                ledBusy.classList.remove('active');
+                pillBusy.classList.remove('active');
+                pillBusy.querySelector('span').textContent = 'Idle';
+                thinkingIndicator.classList.remove('visible');
             }
         }
 
+        // ── EVENT HANDLER ──────────────────────────
         function handleEvent(ev) {
             switch (ev.type) {
                 case 'UserMessage':
                     if (ev.source === 'system') {
-                        const content = ev.text.replace("SYSTEM:", "").trim();
+                        const content = ev.text.replace(/^SYSTEM:\n?/, '').trim();
+                        if (ev.text.startsWith('SYSTEM: Mode changed to ')) {
+                            const m = ev.text.replace('SYSTEM: Mode changed to ', '').trim().toLowerCase();
+                            updateModeUI(m);
+                        }
+                        // Detect eco/cloud/power system confirmations to update toggles
+                        if (ev.text.includes('Eco mode on')) updateToggleUI('eco', true);
+                        if (ev.text.includes('Eco mode off')) updateToggleUI('eco', false);
+                        if (ev.text.includes('Cloud mode on')) updateToggleUI('cloud', true);
+                        if (ev.text.includes('Cloud mode off')) updateToggleUI('cloud', false);
+                        if (ev.text.includes('Power monitoring enabled')) updateToggleUI('power', true);
+                        if (ev.text.includes('Power monitoring disabled')) updateToggleUI('power', false);
+
                         for (const line of content.split('\n')) {
                             appendLine('system', `  ${line}`);
                         }
-                        if (ev.text.startsWith("SYSTEM: Mode changed to ")) {
-                            const m = ev.text.replace("SYSTEM: Mode changed to ", "").trim().toLowerCase();
-                            updateModeUI(m);
-                        }
                     } else if (ev.source === 'terminal') {
-                        appendLine('user', `💻 [Terminal]: ${ev.text}`);
+                        appendLine('user', `💻 ${ev.text}`);
                     } else {
-                        appendLine('user', `> ${ev.text}`);
+                        appendLine('user', `→ ${ev.text}`);
                     }
                     break;
+
                 case 'StepStarted':
-                    appendLine('system', `--- STEP ${ev.step} (${ev.tokens_in} TOKENS) ---`);
-                    thinkingLine = null;
                     currentAssistantLine = null;
+                    isThinking = false;
+                    thinkingIndicator.classList.add('visible');
                     setBusy(true);
+                    appendSep(`Step ${ev.step}`);
                     break;
+
                 case 'Thinking':
-                    if (!thinkingLine) {
-                        thinkingLine = appendLine('thinking', '> ' + ev.text);
-                    } else {
-                        thinkingLine.innerText += ev.text;
-                    }
-                    output.scrollTop = output.scrollHeight;
+                    // Don't show raw thinking in the log, just the indicator
                     break;
+
                 case 'Token':
+                    thinkingIndicator.classList.remove('visible');
                     if (!currentAssistantLine) {
-                        currentAssistantLine = appendLine('assistant', '');
-                        currentAssistantLine.rawText = ev.text;
-                    } else {
-                        currentAssistantLine.rawText += ev.text;
+                        currentAssistantLine = document.createElement('div');
+                        currentAssistantLine.className = 'message assistant';
+                        currentAssistantLine.rawText = '';
+                        output.appendChild(currentAssistantLine);
                     }
+                    currentAssistantLine.rawText += ev.text;
                     currentAssistantLine.innerHTML = DOMPurify.sanitize(markedInstance.parse(currentAssistantLine.rawText));
                     output.scrollTop = output.scrollHeight;
                     break;
+
                 case 'ToolCallStarted':
-                    appendLine('tool', `> EXEC: ${ev.tool}(...)`);
+                    appendLine('tool', `⚙  ${ev.tool}(...)`);
                     break;
+
                 case 'ToolCallFinished':
-                    const icon = ev.success ? 'OK' : 'ERR';
-                    appendLine('tool', `> ${icon} ${ev.tool} (${ev.duration_ms}ms)`);
+                    const icon = ev.success ? '✓' : '✗';
+                    appendLine('tool', `${icon}  ${ev.tool} · ${ev.duration_ms}ms`);
                     break;
+
                 case 'CommandFinished':
                     setBusy(false);
                     break;
+
                 case 'Done':
-                    appendLine('system', `--- DONE (${ev.duration_ms}ms) ---`);
+                    appendSep(`Done · ${ev.duration_ms}ms`);
                     setBusy(false);
-                    thinkingLine = null;
                     currentAssistantLine = null;
                     break;
+
                 case 'PowerUpdate':
-                    powerGauge.innerText = `⚡ ${ev.watts.toFixed(1)}W`;
-                    powerJoules.innerText = `${ev.joules.toFixed(1)} J`;
+                    powerDisplay.textContent = `⚡ ${ev.watts.toFixed(1)}W · ${ev.joules.toFixed(1)}J`;
                     break;
+
                 case 'Error':
-                    appendLine('tool', `> ERROR: ${ev.message}`);
+                    appendLine('error', `✗ ${ev.message}`);
                     setBusy(false);
                     break;
             }
         }
 
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            const val = input.value.trim();
-            if (val && ws.readyState === WebSocket.OPEN) {
-                ws.send(val);
-                input.value = '';
-            }
-        };
-
+        // ── MODE UI ────────────────────────────────
         function changeMode(mode) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(`/mode ${mode}`);
@@ -395,16 +781,28 @@
         }
 
         function updateModeUI(mode) {
-            ['coder', 'cpe', 'eval', 'research', 'architect'].forEach(m => {
-                const btn = document.getElementById(`btn-${m}`);
-                if (btn) btn.classList.remove('active');
-            });
-            const activeBtn = document.getElementById(`btn-${mode}`);
-            if (activeBtn) activeBtn.classList.add('active');
-
-            ledMode.className = 'led ' + mode;
-            labelMode.innerText = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-${mode}`);
+            if (btn) btn.classList.add('active');
         }
+
+        function updateToggleUI(name, state) {
+            toggleState[name] = state;
+            const el = document.getElementById('toggle-' + name);
+            if (!el) return;
+            if (state) el.classList.add('on');
+            else el.classList.remove('on');
+        }
+
+        // ── INPUT ──────────────────────────────────
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const val = input.value.trim();
+            if (val && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(val);
+                input.value = '';
+            }
+        };
 
         connect();
     </script>
