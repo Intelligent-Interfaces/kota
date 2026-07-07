@@ -7,8 +7,10 @@ mod power;
 mod sensing;
 mod server;
 mod skills;
+mod telemetry;
 mod tools;
 mod tui;
+mod vertex;
 
 use clap::Parser;
 
@@ -99,6 +101,30 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let (tx, rx1) = tokio::sync::broadcast::channel::<events::AgentEvent>(10000);
+
+    let rx_telemetry = tx.subscribe();
+
+    // Try to get Project ID from env, or fallback to active gcloud config
+    let project_id = std::env::var("GCP_PROJECT_ID").unwrap_or_else(|_| {
+        let output = std::process::Command::new("gcloud")
+            .args(["config", "get-value", "project"])
+            .output();
+        if let Ok(out) = output {
+            if out.status.success() {
+                return String::from_utf8_lossy(&out.stdout).trim().to_string();
+            }
+        }
+        String::new()
+    });
+
+    if !project_id.is_empty() {
+        let telemetry_worker =
+            telemetry::TelemetryWorker::new(&project_id, "kota_telemetry", "metrics");
+        tokio::spawn(async move {
+            telemetry_worker.run(rx_telemetry).await;
+        });
+    }
+
     let (input_tx, mut input_rx) = tokio::sync::mpsc::unbounded_channel::<(String, String)>();
 
     let workdir_str = cli.workdir.clone();
@@ -129,6 +155,7 @@ Available local commands (do not consume tokens or write to history):
   /power <on|off> - Toggle hardware power monitoring (macpow)
   /eco <on|off>   - Toggle lightweight Eco LLM (llama3.2:1b)
   /cloud <on|off> - Toggle cloud inference API offloading (Groq)
+  /gcp <on|off>   - Toggle GCP Vertex AI inference (Gemini 1.5 Pro)
   /art <type>   - Render an interactive ASCII animation (cat, clouds, plasma, lizard)";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM:\n{}", help_text),
@@ -307,14 +334,58 @@ Available agent modes (composed of weighted skill vectors):
                 if val == "on" {
                     current_api_url = "https://api.groq.com/openai/v1".to_string();
                     current_model = "llama3-8b-8192".to_string();
+                    agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
                 } else {
                     current_api_url = original_api_url.clone();
                     current_model = original_model.clone();
+                    agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
                 }
-                agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!(
                         "SYSTEM: Cloud mode {}. Using {} via {}",
+                        val, current_model, current_api_url
+                    ),
+                    source: "system".to_string(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if user_input.starts_with("/gcp ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                    source: source.clone(),
+                });
+                let val = user_input.trim_start_matches("/gcp ").trim();
+                if val == "on" {
+                    current_model = "gemini-1.5-pro-002".to_string();
+                    current_api_url = "Vertex AI".to_string();
+                    let project_id = std::env::var("GCP_PROJECT_ID").unwrap_or_else(|_| {
+                        let output = std::process::Command::new("gcloud")
+                            .args(["config", "get-value", "project"])
+                            .output();
+                        if let Ok(out) = output {
+                            if out.status.success() {
+                                return String::from_utf8_lossy(&out.stdout).trim().to_string();
+                            }
+                        }
+                        String::new()
+                    });
+                    let region =
+                        std::env::var("GCP_REGION").unwrap_or_else(|_| "us-central1".to_string());
+                    agent.set_llm(llm::LlmClient::new_vertex(
+                        &project_id,
+                        &region,
+                        &current_model,
+                    ));
+                } else {
+                    current_api_url = original_api_url.clone();
+                    current_model = original_model.clone();
+                    agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
+                }
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!(
+                        "SYSTEM: GCP mode {}. Using {} via {}",
                         val, current_model, current_api_url
                     ),
                     source: "system".to_string(),
