@@ -1,6 +1,8 @@
 use crate::agent::AgentMode;
 use crate::events::AgentEvent;
-use crossterm::event::{self, Event, KeyCode, KeyModifiers};
+use crossterm::event::{
+    self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers, MouseEventKind,
+};
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
@@ -81,7 +83,8 @@ impl App {
 
     fn push_line(&mut self, kind: LineKind, text: String) {
         self.output.push((kind, text));
-        self.scroll = 0;
+        // Don't reset scroll — if the user has scrolled up to read history,
+        // keep them there. They can PageDown back to the live tail.
     }
 
     fn handle_event(&mut self, event: AgentEvent) {
@@ -209,6 +212,7 @@ pub async fn run(
 ) -> anyhow::Result<()> {
     enable_raw_mode()?;
     stdout().execute(EnterAlternateScreen)?;
+    stdout().execute(EnableMouseCapture)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
     let mut app = App::new(startup_mode, port);
@@ -216,44 +220,68 @@ pub async fn run(
     loop {
         terminal.draw(|frame| draw(frame, &app))?;
 
-        // Poll for keyboard events
+        // Poll for keyboard/mouse events
         if event::poll(std::time::Duration::from_millis(16))? {
-            if let Event::Key(key) = event::read()? {
-                match (key.modifiers, key.code) {
-                    (KeyModifiers::CONTROL, KeyCode::Char('c')) => break,
+            match event::read()? {
+                Event::Key(key) => {
+                    match (key.modifiers, key.code) {
+                        (KeyModifiers::CONTROL, KeyCode::Char('c')) => break,
 
-                    (KeyModifiers::CONTROL, KeyCode::Char('r')) => {
-                        app.output.clear();
-                        app.push_line(LineKind::System, "── conversation reset ──".into());
-                        // Note: agent reset would need a separate channel message
+                        (KeyModifiers::CONTROL, KeyCode::Char('r')) => {
+                            app.output.clear();
+                            app.push_line(LineKind::System, "── conversation reset ──".into());
+                            // Note: agent reset would need a separate channel message
+                        }
+
+                        (_, KeyCode::PageUp) => {
+                            app.scroll = app.scroll.saturating_add(5);
+                        }
+
+                        (_, KeyCode::PageDown) => {
+                            app.scroll = app.scroll.saturating_sub(5);
+                            // Clamp to 0 so we snap back to live-follow mode
+                            if app.scroll < 5 {
+                                app.scroll = 0;
+                            }
+                        }
+
+                        // G = jump to bottom (live-follow)
+                        (_, KeyCode::Char('g')) if key.modifiers == KeyModifiers::NONE => {
+                            app.scroll = 0;
+                        }
+
+                        (_, KeyCode::Enter) if !app.input.is_empty() && !app.busy => {
+                            let input = app.input.clone();
+                            app.input.clear();
+                            app.busy = true;
+                            app.thinking_buf.clear();
+                            let _ = input_tx.send(input);
+                        }
+
+                        (_, KeyCode::Backspace) => {
+                            app.input.pop();
+                        }
+
+                        (_, KeyCode::Char(c)) if !app.busy => {
+                            app.input.push(c);
+                        }
+
+                        _ => {}
                     }
-
-                    (_, KeyCode::PageUp) => {
-                        app.scroll = app.scroll.saturating_add(5);
-                    }
-
-                    (_, KeyCode::PageDown) => {
-                        app.scroll = app.scroll.saturating_sub(5);
-                    }
-
-                    (_, KeyCode::Enter) if !app.input.is_empty() && !app.busy => {
-                        let input = app.input.clone();
-                        app.input.clear();
-                        app.busy = true;
-                        app.thinking_buf.clear();
-                        let _ = input_tx.send(input);
-                    }
-
-                    (_, KeyCode::Backspace) => {
-                        app.input.pop();
-                    }
-
-                    (_, KeyCode::Char(c)) if !app.busy => {
-                        app.input.push(c);
-                    }
-
-                    _ => {}
                 }
+                Event::Mouse(mouse_event) => match mouse_event.kind {
+                    MouseEventKind::ScrollUp => {
+                        app.scroll = app.scroll.saturating_add(2);
+                    }
+                    MouseEventKind::ScrollDown => {
+                        app.scroll = app.scroll.saturating_sub(2);
+                        if app.scroll < 2 {
+                            app.scroll = 0;
+                        }
+                    }
+                    _ => {}
+                },
+                _ => {}
             }
         }
 
@@ -264,6 +292,7 @@ pub async fn run(
     }
 
     disable_raw_mode()?;
+    stdout().execute(DisableMouseCapture)?;
     stdout().execute(LeaveAlternateScreen)?;
     Ok(())
 }
@@ -305,6 +334,44 @@ fn draw(frame: &mut Frame, app: &App) {
         Style::default().fg(Color::Cyan)
     };
 
+    let inner_width = chunks[0].width.saturating_sub(2).max(1);
+    let inner_height = chunks[0].height.saturating_sub(2);
+
+    let mut total_lines: u16 = 0;
+    for (_, text) in &app.output {
+        if text.is_empty() {
+            total_lines += 1;
+            continue;
+        }
+        for sub_line in text.lines() {
+            let w = sub_line.chars().count() as u16;
+            if w == 0 {
+                total_lines += 1;
+            } else {
+                let extra = if sub_line.contains(' ') { 1 } else { 0 };
+                total_lines += w.div_ceil(inner_width) + extra;
+            }
+        }
+    }
+
+    let has_conversation = app.output.iter().any(|(kind, _)| {
+        matches!(
+            kind,
+            LineKind::User
+                | LineKind::Assistant
+                | LineKind::Error
+                | LineKind::ToolStart
+                | LineKind::ToolDone
+        )
+    });
+
+    let max_scroll = if has_conversation {
+        total_lines.saturating_sub(inner_height)
+    } else {
+        0
+    };
+    let actual_scroll = max_scroll.saturating_sub(app.scroll);
+
     let output_widget = Paragraph::new(output_lines)
         .block(
             Block::default()
@@ -317,7 +384,7 @@ fn draw(frame: &mut Frame, app: &App) {
                 )),
         )
         .wrap(Wrap { trim: false })
-        .scroll((app.scroll, 0));
+        .scroll((actual_scroll, 0));
     frame.render_widget(output_widget, chunks[0]);
 
     // Input
@@ -344,19 +411,25 @@ fn draw(frame: &mut Frame, app: &App) {
     }
 
     // Status bar
+    let scroll_str = if app.scroll > 0 {
+        " | ↑ scrolled (PgDn/g to tail)".to_string()
+    } else {
+        String::new()
+    };
     let tools_str = if app.active_tools.is_empty() {
         String::new()
     } else {
         format!(" | 🔧 {}", app.active_tools.join(", "))
     };
     let status = format!(
-        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps{} | Ctrl+C quit",
+        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps{}{} | Ctrl+C quit",
         app.mode.to_str().to_uppercase(),
         app.step_count,
         app.last_duration_ms,
         app.tx_kbps,
         app.rx_kbps,
-        tools_str
+        tools_str,
+        scroll_str,
     );
     let status_widget =
         Paragraph::new(status).style(Style::default().fg(Color::DarkGray).bg(Color::Black));
