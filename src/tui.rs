@@ -87,12 +87,15 @@ impl App {
     fn handle_event(&mut self, event: AgentEvent) {
         match event {
             AgentEvent::UserMessage { text } => {
-                if text.starts_with("SYSTEM: ") {
+                if text.starts_with("SYSTEM:") {
                     if text.starts_with("SYSTEM: Mode changed to ") {
                         let mode_str = text.trim_start_matches("SYSTEM: Mode changed to ").trim();
                         self.mode = AgentMode::from_str(mode_str);
                     }
-                    self.push_line(LineKind::System, text);
+                    let content = text.trim_start_matches("SYSTEM:").trim();
+                    for line in content.lines() {
+                        self.push_line(LineKind::System, format!("  {}", line));
+                    }
                 } else {
                     self.push_line(LineKind::User, format!("▶ {}", text));
                 }

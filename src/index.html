@@ -279,10 +279,17 @@
         function handleEvent(ev) {
             switch (ev.type) {
                 case 'UserMessage':
-                    appendLine('user', `> ${ev.text}`);
-                    if (ev.text.startsWith("SYSTEM: Mode changed to ")) {
-                        const m = ev.text.replace("SYSTEM: Mode changed to ", "").trim().toLowerCase();
-                        updateModeUI(m);
+                    if (ev.text.startsWith("SYSTEM:")) {
+                        const content = ev.text.replace("SYSTEM:", "").trim();
+                        for (const line of content.split('\n')) {
+                            appendLine('system', `  ${line}`);
+                        }
+                        if (ev.text.startsWith("SYSTEM: Mode changed to ")) {
+                            const m = ev.text.replace("SYSTEM: Mode changed to ", "").trim().toLowerCase();
+                            updateModeUI(m);
+                        }
+                    } else {
+                        appendLine('user', `> ${ev.text}`);
                     }
                     break;
                 case 'StepStarted':
