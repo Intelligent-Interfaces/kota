@@ -4,17 +4,16 @@ import json
 import urllib.request
 import urllib.parse
 
+
 def send_response(req_id, result=None, error=None):
-    resp = {
-        "jsonrpc": "2.0",
-        "id": req_id
-    }
+    resp = {"jsonrpc": "2.0", "id": req_id}
     if error:
         resp["error"] = error
     else:
         resp["result"] = result
     sys.stdout.write(json.dumps(resp) + "\n")
     sys.stdout.flush()
+
 
 def search_boston_data(query):
     try:
@@ -23,13 +22,13 @@ def search_boston_data(query):
         with urllib.request.urlopen(req, timeout=10) as response:
             data = json.loads(response.read().decode("utf-8"))
             results = data.get("result", {}).get("results", [])
-            
+
             lines = []
             for pkg in results[:5]:
                 title = pkg.get("title", "No Title")
                 notes = pkg.get("notes", "No description available")
                 resources = pkg.get("resources", [])
-                
+
                 lines.append(f"📦 DATASET: {title}")
                 lines.append(f"   Description: {notes[:200]}...")
                 lines.append("   Resources/Files:")
@@ -37,13 +36,24 @@ def search_boston_data(query):
                     r_name = r.get("name", "Unnamed resource")
                     r_id = r.get("id", "N/A")
                     r_fmt = r.get("format", "unknown")
-                    lines.append(f"     - {r_name} (Format: {r_fmt}, Resource ID: {r_id})")
+                    lines.append(
+                        f"     - {r_name} (Format: {r_fmt}, Resource ID: {r_id})"
+                    )
                 lines.append("")
-            
-            output = "\n".join(lines) if lines else "No datasets found in Boston open data for this query."
+
+            output = (
+                "\n".join(lines)
+                if lines
+                else "No datasets found in Boston open data for this query."
+            )
             return {"content": [{"type": "text", "text": output}]}
     except Exception as e:
-        return {"content": [{"type": "text", "text": f"Error searching Boston Open Data: {str(e)}"}]}
+        return {
+            "content": [
+                {"type": "text", "text": f"Error searching Boston Open Data: {str(e)}"}
+            ]
+        }
+
 
 def get_boston_resource(resource_id):
     try:
@@ -52,20 +62,32 @@ def get_boston_resource(resource_id):
         with urllib.request.urlopen(req, timeout=10) as response:
             data = json.loads(response.read().decode("utf-8"))
             records = data.get("result", {}).get("records", [])
-            
+
             if not records:
-                return {"content": [{"type": "text", "text": "No records found in this resource datastore."}]}
-            
+                return {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "No records found in this resource datastore.",
+                        }
+                    ]
+                }
+
             lines = [f"📊 Records for resource {resource_id} (showing first 10):"]
             for idx, r in enumerate(records):
                 lines.append(f"\n[{idx + 1}]")
                 for k, v in r.items():
                     if k != "_id":
                         lines.append(f"   {k}: {v}")
-            
+
             return {"content": [{"type": "text", "text": "\n".join(lines)}]}
     except Exception as e:
-        return {"content": [{"type": "text", "text": f"Error reading Boston resource: {str(e)}"}]}
+        return {
+            "content": [
+                {"type": "text", "text": f"Error reading Boston resource: {str(e)}"}
+            ]
+        }
+
 
 def search_socrata_data(domain, query):
     try:
@@ -75,7 +97,7 @@ def search_socrata_data(domain, query):
         with urllib.request.urlopen(req, timeout=10) as response:
             data = json.loads(response.read().decode("utf-8"))
             results = data.get("results", [])
-            
+
             lines = []
             for item in results:
                 resource = item.get("resource", {})
@@ -83,18 +105,25 @@ def search_socrata_data(domain, query):
                 desc = resource.get("description", "No description available.")
                 item_id = resource.get("id", "N/A")
                 permalink = resource.get("permalink", "")
-                
+
                 lines.append(f"📦 DATASET: {name}")
                 lines.append(f"   ID/Resource ID: {item_id}")
                 lines.append(f"   Description: {desc[:200]}...")
                 if permalink:
                     lines.append(f"   Link: {permalink}")
                 lines.append("")
-                
-            output = "\n".join(lines) if lines else f"No datasets found in {domain} for this query."
+
+            output = (
+                "\n".join(lines)
+                if lines
+                else f"No datasets found in {domain} for this query."
+            )
             return {"content": [{"type": "text", "text": output}]}
     except Exception as e:
-        return {"content": [{"type": "text", "text": f"Error searching {domain}: {str(e)}"}]}
+        return {
+            "content": [{"type": "text", "text": f"Error searching {domain}: {str(e)}"}]
+        }
+
 
 def main():
     while True:
@@ -102,29 +131,24 @@ def main():
             line = sys.stdin.readline()
             if not line:
                 break
-            
+
             req = json.loads(line.strip())
             req_id = req.get("id")
             method = req.get("method")
             params = req.get("params", {})
-            
+
             if method == "initialize":
                 result = {
                     "protocolVersion": "2024-11-05",
-                    "capabilities": {
-                        "tools": {}
-                    },
-                    "serverInfo": {
-                        "name": "boston-mcp-server",
-                        "version": "1.0.0"
-                    }
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "boston-mcp-server", "version": "1.0.0"},
                 }
                 send_response(req_id, result)
-                
+
             elif method == "notifications/initialized":
                 # client acknowledges initialization, nothing to return
                 pass
-                
+
             elif method == "tools/list":
                 tools = [
                     {
@@ -135,11 +159,11 @@ def main():
                             "properties": {
                                 "query": {
                                     "type": "string",
-                                    "description": "Search keyword or dataset topic."
+                                    "description": "Search keyword or dataset topic.",
                                 }
                             },
-                            "required": ["query"]
-                        }
+                            "required": ["query"],
+                        },
                     },
                     {
                         "name": "get_boston_resource",
@@ -149,11 +173,11 @@ def main():
                             "properties": {
                                 "resource_id": {
                                     "type": "string",
-                                    "description": "The unique Resource ID of the file/datastore."
+                                    "description": "The unique Resource ID of the file/datastore.",
                                 }
                             },
-                            "required": ["resource_id"]
-                        }
+                            "required": ["resource_id"],
+                        },
                     },
                     {
                         "name": "search_cambridge_data",
@@ -163,11 +187,11 @@ def main():
                             "properties": {
                                 "query": {
                                     "type": "string",
-                                    "description": "Search keyword or topic."
+                                    "description": "Search keyword or topic.",
                                 }
                             },
-                            "required": ["query"]
-                        }
+                            "required": ["query"],
+                        },
                     },
                     {
                         "name": "search_somerville_data",
@@ -177,19 +201,19 @@ def main():
                             "properties": {
                                 "query": {
                                     "type": "string",
-                                    "description": "Search keyword or topic."
+                                    "description": "Search keyword or topic.",
                                 }
                             },
-                            "required": ["query"]
-                        }
-                    }
+                            "required": ["query"],
+                        },
+                    },
                 ]
                 send_response(req_id, {"tools": tools})
-                
+
             elif method == "tools/call":
                 tool_name = params.get("name")
                 arguments = params.get("arguments", {})
-                
+
                 if tool_name == "search_boston_data":
                     res = search_boston_data(arguments.get("query", ""))
                     send_response(req_id, res)
@@ -197,19 +221,36 @@ def main():
                     res = get_boston_resource(arguments.get("resource_id", ""))
                     send_response(req_id, res)
                 elif tool_name == "search_cambridge_data":
-                    res = search_socrata_data("data.cambridgema.gov", arguments.get("query", ""))
+                    res = search_socrata_data(
+                        "data.cambridgema.gov", arguments.get("query", "")
+                    )
                     send_response(req_id, res)
                 elif tool_name == "search_somerville_data":
-                    res = search_socrata_data("data.somervillema.gov", arguments.get("query", ""))
+                    res = search_socrata_data(
+                        "data.somervillema.gov", arguments.get("query", "")
+                    )
                     send_response(req_id, res)
                 else:
-                    send_response(req_id, error={"code": -32601, "message": f"Tool not found: {tool_name}"})
+                    send_response(
+                        req_id,
+                        error={
+                            "code": -32601,
+                            "message": f"Tool not found: {tool_name}",
+                        },
+                    )
             else:
                 if req_id is not None:
-                    send_response(req_id, error={"code": -32601, "message": f"Method not found: {method}"})
-        except Exception as e:
+                    send_response(
+                        req_id,
+                        error={
+                            "code": -32601,
+                            "message": f"Method not found: {method}",
+                        },
+                    )
+        except Exception:
             # Prevent server crash on bad line input, respond with error
             pass
+
 
 if __name__ == "__main__":
     main()
