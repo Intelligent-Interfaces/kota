@@ -4,22 +4,47 @@ This repository has been indexed for agent consumption. Use this map to quickly 
 
 ## Directory Tree
 
+  - AGENTS.md
   - Cargo.lock
   - Cargo.toml
   - README.md
+  - add_two_numbers.go
   - audit.toml
   - book.toml
+  - boston_mcp.py
+  - generate_table.py
+  - mcp_config.json
+  - output.md
   - ruff.toml
+  - test_tui_md.rs
   - go/
     - go.mod
-    - coordinator/
-      - coordinator.go
-    - watchdog/
-      - watchdog.go
-      - watchdog_test.go
     - search_wiki/
       - search_wiki.go
       - search_wiki_test.go
+    - watchdog/
+      - watchdog.go
+      - watchdog_test.go
+    - coordinator/
+      - coordinator.go
+  - scripts/
+    - generate_agent_docs.py
+  - src/
+    - agent.rs
+    - events.rs
+    - index.html
+    - llm.rs
+    - main.rs
+    - mcp.rs
+    - memory.rs
+    - power.rs
+    - sensing.rs
+    - server.rs
+    - skills.rs
+    - telemetry.rs
+    - tools.rs
+    - tui.rs
+    - vertex.rs
   - meta_search/
     - anthropic_caching.py
     - claude_wrapper.py
@@ -29,8 +54,6 @@ This repository has been indexed for agent consumption. Use this map to quickly 
     - run_eval.sh
     - logs/
       - evolution_summary.jsonl
-  - scripts/
-    - generate_agent_docs.py
   - notebooks/
     - L1_Kota_Architecture.ipynb
     - L2_Memory_and_Turso.ipynb
@@ -40,23 +63,6 @@ This repository has been indexed for agent consumption. Use this map to quickly 
     - L6_Quality_Workflows.ipynb
     - Pipfile
     - requirements.txt
-    - generators/
-      - generate_l1.py
-      - generate_l2.py
-      - generate_l3.py
-      - generate_l4.py
-  - src/
-    - agent.rs
-    - events.rs
-    - index.html
-    - llm.rs
-    - main.rs
-    - memory.rs
-    - sensing.rs
-    - server.rs
-    - skills.rs
-    - tools.rs
-    - tui.rs
 
 ## Module Documentation
 
