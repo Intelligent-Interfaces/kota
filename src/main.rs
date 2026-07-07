@@ -109,6 +109,10 @@ async fn main() -> anyhow::Result<()> {
     let tx_clone = tx.clone();
     tokio::spawn(async move {
         let mut active_mode = startup_mode;
+        let mut current_model = model_str.clone();
+        let mut current_api_url = api_url.clone();
+        let original_model = model_str.clone();
+        let original_api_url = api_url.clone();
         while let Some((user_input, source)) = input_rx.recv().await {
             let trimmed = user_input.trim();
             if trimmed == "/help" {
@@ -122,6 +126,9 @@ Available local commands (do not consume tokens or write to history):
   /modes        - List all available agent modes and descriptions
   /status       - Display current agent configuration & session status
   /mode <name>  - Switch the agent to a different mode
+  /power <on|off> - Toggle hardware power monitoring (macpow)
+  /eco <on|off>   - Toggle lightweight Eco LLM (llama3.2:1b)
+  /cloud <on|off> - Toggle cloud inference API offloading (Groq)
   /art <type>   - Render an interactive ASCII animation (cat, clouds, plasma, lizard)";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM:\n{}", help_text),
@@ -205,8 +212,8 @@ Available agent modes (composed of weighted skill vectors):
                 let status_text = format!(
                     "Agent Status:\n  Active Mode: {}\n  Model: {}\n  Endpoint: {}\n  Workdir: {}\n  Token Budget: {}",
                     active_mode.to_str().to_uppercase(),
-                    model_str,
-                    api_url,
+                    current_model,
+                    current_api_url,
                     workdir_str,
                     max_tokens
                 );
@@ -245,6 +252,70 @@ Available agent modes (composed of weighted skill vectors):
                     text: format!(
                         "SYSTEM: Mode changed to {}",
                         new_mode.to_str().to_uppercase()
+                    ),
+                    source: "system".to_string(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if user_input.starts_with("/power ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                    source: source.clone(),
+                });
+                let val = user_input.trim_start_matches("/power ").trim();
+                let enabled = val == "on";
+                let _ = tx_clone.send(events::AgentEvent::PowerConfig { enabled });
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!(
+                        "SYSTEM: Power monitoring {}",
+                        if enabled { "enabled" } else { "disabled" }
+                    ),
+                    source: "system".to_string(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if user_input.starts_with("/eco ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                    source: source.clone(),
+                });
+                let val = user_input.trim_start_matches("/eco ").trim();
+                if val == "on" {
+                    current_model = "llama3.2:1b".to_string();
+                } else {
+                    current_model = original_model.clone();
+                }
+                agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM: Eco mode {}. Model is now {}", val, current_model),
+                    source: "system".to_string(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if user_input.starts_with("/cloud ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                    source: source.clone(),
+                });
+                let val = user_input.trim_start_matches("/cloud ").trim();
+                if val == "on" {
+                    current_api_url = "https://api.groq.com/openai/v1".to_string();
+                    current_model = "llama3-8b-8192".to_string();
+                } else {
+                    current_api_url = original_api_url.clone();
+                    current_model = original_model.clone();
+                }
+                agent.set_llm(llm::LlmClient::new(&current_api_url, &current_model));
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!(
+                        "SYSTEM: Cloud mode {}. Using {} via {}",
+                        val, current_model, current_api_url
                     ),
                     source: "system".to_string(),
                 });

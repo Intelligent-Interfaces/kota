@@ -237,6 +237,7 @@ impl App {
                 self.watts = watts;
                 self.joules = joules;
             }
+            AgentEvent::PowerConfig { .. } => {}
             AgentEvent::NetworkThreatDetected {
                 severity,
                 description,

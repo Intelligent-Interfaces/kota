@@ -10,6 +10,7 @@ pub async fn start_power_monitor(
     let mut total_joules: f64 = 0.0;
     let mut is_busy = false;
     let mut last_was_busy = false;
+    let mut is_enabled = true;
 
     // Spawn the sampler on a blocking thread because it might block,
     // though Sampler::new spawns its own background threads.
@@ -22,6 +23,10 @@ pub async fn start_power_monitor(
     loop {
         tokio::select! {
             _ = interval.tick() => {
+                if !is_enabled {
+                    continue;
+                }
+
                 // Reset joules when starting a new busy cycle
                 if is_busy && !last_was_busy {
                     total_joules = 0.0;
@@ -47,6 +52,13 @@ pub async fn start_power_monitor(
                 match event {
                     AgentEvent::StepStarted { .. } => is_busy = true,
                     AgentEvent::Done { .. } | AgentEvent::CommandFinished | AgentEvent::Error { .. } => is_busy = false,
+                    AgentEvent::PowerConfig { enabled } => {
+                        is_enabled = enabled;
+                        if !enabled {
+                            // Broadcast 0 to clear the UI
+                            let _ = tx.send(AgentEvent::PowerUpdate { watts: 0.0, joules: 0.0 });
+                        }
+                    }
                     _ => {}
                 }
             }

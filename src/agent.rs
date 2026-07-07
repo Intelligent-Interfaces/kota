@@ -142,6 +142,10 @@ impl Agent {
         }
     }
 
+    pub fn set_llm(&mut self, llm: LlmClient) {
+        self.llm = llm;
+    }
+
     /// Process a user message and stream events back through the channel.
     /// The agent loop handles tool calls automatically.
     pub async fn process(

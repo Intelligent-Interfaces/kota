@@ -62,6 +62,9 @@ pub enum AgentEvent {
     /// Power usage
     PowerUpdate { watts: f32, joules: f32 },
 
+    /// Enable or disable power polling
+    PowerConfig { enabled: bool },
+
     /// Start an interactive ASCII art animation in the TUI
     StartArt { mode: String },
 }
