@@ -300,8 +300,8 @@ pub async fn run(
                                 }
                             }
 
-                            // G = jump to bottom (live-follow)
-                            (_, KeyCode::Char('g')) if key.modifiers == KeyModifiers::NONE => {
+                            // Ctrl+G = jump to bottom (live-follow)
+                            (KeyModifiers::CONTROL, KeyCode::Char('g')) => {
                                 app.scroll = 0;
                             }
 
@@ -708,7 +708,7 @@ fn draw(frame: &mut Frame, app: &App) {
 
     // Status bar
     let scroll_str = if app.scroll > 0 {
-        " | ↑ scrolled (PgDn/g to tail)".to_string()
+        " | ↑ scrolled (PgDn/Ctrl+G to tail)".to_string()
     } else {
         String::new()
     };
