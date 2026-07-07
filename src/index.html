@@ -610,6 +610,12 @@
                 <span class="toggle-label">☁ Cloud</span>
             </div>
 
+            <!-- GCP Toggle -->
+            <div class="toggle-wrap" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="toggle-label">🌐 GCP</span>
+            </div>
+
             <div class="toolbar-divider"></div>
 
             <!-- Theme Swatches -->
@@ -653,7 +659,7 @@
         const thinkingIndicator = document.getElementById('thinking-indicator');
 
         // Toggle state
-        const toggleState = { power: true, eco: false, cloud: false };
+        const toggleState = { power: true, eco: false, cloud: false, gcp: false };
 
         let ws;
         let isBusy = false;
@@ -763,11 +769,13 @@
                             const m = ev.text.replace('SYSTEM: Mode changed to ', '').trim().toLowerCase();
                             updateModeUI(m);
                         }
-                        // Detect eco/cloud/power system confirmations to update toggles
+                        // Detect eco/cloud/power/gcp system confirmations to update toggles
                         if (ev.text.includes('Eco mode on')) updateToggleUI('eco', true);
                         if (ev.text.includes('Eco mode off')) updateToggleUI('eco', false);
                         if (ev.text.includes('Cloud mode on')) updateToggleUI('cloud', true);
                         if (ev.text.includes('Cloud mode off')) updateToggleUI('cloud', false);
+                        if (ev.text.includes('GCP mode on')) updateToggleUI('gcp', true);
+                        if (ev.text.includes('GCP mode off')) updateToggleUI('gcp', false);
                         if (ev.text.includes('Power monitoring enabled')) updateToggleUI('power', true);
                         if (ev.text.includes('Power monitoring disabled')) updateToggleUI('power', false);
 
