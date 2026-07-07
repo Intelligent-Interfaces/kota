@@ -45,6 +45,9 @@ pub enum AgentEvent {
     /// Context budget warning
     BudgetWarning { used: usize, max: usize },
 
+    /// Local command finished (unlocks UI)
+    CommandFinished,
+
     /// Error
     Error { message: String },
 

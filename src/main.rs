@@ -70,6 +70,7 @@ Available local commands (do not consume tokens or write to history):
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM: \n{}", help_text),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
@@ -85,6 +86,7 @@ Available agent modes (composed of weighted skill vectors):
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM: \n{}", modes_text),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
@@ -100,6 +102,7 @@ Available agent modes (composed of weighted skill vectors):
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM: \n{}", status_text),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
@@ -108,6 +111,7 @@ Available agent modes (composed of weighted skill vectors):
                     text: "SYSTEM: \nUsage: /mode <name>\nUse /modes to list all available modes."
                         .to_string(),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
@@ -122,6 +126,7 @@ Available agent modes (composed of weighted skill vectors):
                         new_mode.to_str().to_uppercase()
                     ),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 

@@ -314,6 +314,9 @@
                     const icon = ev.success ? 'OK' : 'ERR';
                     appendLine('tool', `> ${icon} ${ev.tool} (${ev.duration_ms}ms)`);
                     break;
+                case 'CommandFinished':
+                    setBusy(false);
+                    break;
                 case 'Done':
                     appendLine('system', `--- DONE (${ev.duration_ms}ms) ---`);
                     setBusy(false);

@@ -173,6 +173,10 @@ impl App {
                 );
             }
 
+            AgentEvent::CommandFinished => {
+                self.busy = false;
+            }
+
             AgentEvent::Error { message } => {
                 self.push_line(LineKind::Error, format!("❌ {}", message));
                 self.busy = false;
