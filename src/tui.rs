@@ -124,8 +124,8 @@ impl App {
 
     fn handle_event(&mut self, event: AgentEvent) {
         match event {
-            AgentEvent::UserMessage { text } => {
-                if text.starts_with("SYSTEM:") {
+            AgentEvent::UserMessage { text, source } => {
+                if source == "system" {
                     if text.starts_with("SYSTEM: Mode changed to ") {
                         let mode_str = text.trim_start_matches("SYSTEM: Mode changed to ").trim();
                         self.mode = AgentMode::from_str(mode_str);
@@ -134,6 +134,9 @@ impl App {
                     for line in content.lines() {
                         self.push_line(LineKind::System, format!("  {}", line));
                     }
+                } else if source == "remote" {
+                    self.busy = true; // Block local input while agent is busy processing remote message
+                    self.push_line(LineKind::User, format!("📱 [Remote]: {}", text));
                 } else {
                     self.push_line(LineKind::User, format!("▶ {}", text));
                 }
@@ -251,7 +254,7 @@ impl App {
 
 pub async fn run(
     mut rx: broadcast::Receiver<AgentEvent>,
-    input_tx: mpsc::UnboundedSender<String>,
+    input_tx: mpsc::UnboundedSender<(String, String)>,
     startup_mode: AgentMode,
     port: u16,
 ) -> anyhow::Result<()> {
@@ -310,7 +313,7 @@ pub async fn run(
                                 app.input.clear();
                                 app.busy = true;
                                 app.thinking_buf.clear();
-                                let _ = input_tx.send(input);
+                                let _ = input_tx.send((input, "terminal".to_string()));
                             }
 
                             (_, KeyCode::Backspace) => {

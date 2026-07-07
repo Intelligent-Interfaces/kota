@@ -14,13 +14,13 @@ use tokio::sync::{broadcast, mpsc};
 use crate::events::AgentEvent;
 
 struct AppState {
-    input_tx: mpsc::UnboundedSender<String>,
+    input_tx: mpsc::UnboundedSender<(String, String)>,
     event_tx: broadcast::Sender<AgentEvent>,
 }
 
 pub async fn start(
     port: u16,
-    input_tx: mpsc::UnboundedSender<String>,
+    input_tx: mpsc::UnboundedSender<(String, String)>,
     event_tx: broadcast::Sender<AgentEvent>,
 ) {
     let state = Arc::new(AppState { input_tx, event_tx });
@@ -64,7 +64,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>) {
     let mut recv_task = tokio::spawn(async move {
         while let Some(Ok(msg)) = receiver.next().await {
             if let Message::Text(text) = msg {
-                let _ = input_tx.send(text);
+                let _ = input_tx.send((text, "remote".to_string()));
             }
         }
     });

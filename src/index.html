@@ -279,7 +279,7 @@
         function handleEvent(ev) {
             switch (ev.type) {
                 case 'UserMessage':
-                    if (ev.text.startsWith("SYSTEM:")) {
+                    if (ev.source === 'system') {
                         const content = ev.text.replace("SYSTEM:", "").trim();
                         for (const line of content.split('\n')) {
                             appendLine('system', `  ${line}`);
@@ -288,6 +288,8 @@
                             const m = ev.text.replace("SYSTEM: Mode changed to ", "").trim().toLowerCase();
                             updateModeUI(m);
                         }
+                    } else if (ev.source === 'terminal') {
+                        appendLine('user', `💻 [Terminal]: ${ev.text}`);
                     } else {
                         appendLine('user', `> ${ev.text}`);
                     }

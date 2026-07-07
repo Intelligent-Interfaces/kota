@@ -8,7 +8,7 @@ use serde::Serialize;
 #[serde(tag = "type")]
 pub enum AgentEvent {
     /// User submitted a prompt
-    UserMessage { text: String },
+    UserMessage { text: String, source: String },
 
     /// Agent started a new step (LLM call)
     StepStarted { step: usize, tokens_in: usize },
