@@ -4,10 +4,16 @@ use serde::{Deserialize, Serialize};
 
 /// Client for an OpenAI-compatible local LLM API (Ollama, llama-server, etc.)
 #[derive(Clone)]
-pub struct LlmClient {
+pub struct OpenAiClient {
     client: Client,
     base_url: String,
     model: String,
+}
+
+#[derive(Clone)]
+pub enum LlmClient {
+    OpenAi(OpenAiClient),
+    Vertex(crate::vertex::VertexClient),
 }
 
 #[derive(Debug, Serialize)]
@@ -111,7 +117,7 @@ pub enum StreamEvent {
     Done,
 }
 
-impl LlmClient {
+impl OpenAiClient {
     pub fn new(base_url: &str, model: &str) -> Self {
         Self {
             client: Client::new(),
@@ -120,8 +126,6 @@ impl LlmClient {
         }
     }
 
-    /// Stream a chat completion, yielding events as they arrive.
-    /// The callback is called for each event.
     pub async fn chat_stream<F>(
         &self,
         messages: Vec<Message>,
@@ -256,5 +260,30 @@ impl LlmClient {
         }
 
         Ok(())
+    }
+}
+
+impl LlmClient {
+    pub fn new(base_url: &str, model: &str) -> Self {
+        Self::OpenAi(OpenAiClient::new(base_url, model))
+    }
+
+    pub fn new_vertex(project_id: &str, region: &str, model: &str) -> Self {
+        Self::Vertex(crate::vertex::VertexClient::new(project_id, region, model))
+    }
+
+    pub async fn chat_stream<F>(
+        &self,
+        messages: Vec<Message>,
+        tools: Option<Vec<ToolDef>>,
+        on_event: F,
+    ) -> anyhow::Result<()>
+    where
+        F: FnMut(StreamEvent) + Send,
+    {
+        match self {
+            Self::OpenAi(c) => c.chat_stream(messages, tools, on_event).await,
+            Self::Vertex(c) => c.chat_stream(messages, tools, on_event).await,
+        }
     }
 }
