@@ -59,6 +59,8 @@ pub enum AgentEvent {
         severity: String,
         description: String,
     },
+    /// Start an interactive ASCII art animation in the TUI
+    StartArt { mode: String },
 }
 
 /// A timestamped event for logging

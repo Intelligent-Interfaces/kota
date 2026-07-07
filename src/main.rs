@@ -69,10 +69,52 @@ Available local commands (do not consume tokens or write to history):
   /help         - Display this help message
   /modes        - List all available agent modes and descriptions
   /status       - Display current agent configuration & session status
-  /mode <name>  - Switch the agent to a different mode";
+  /mode <name>  - Switch the agent to a different mode
+  /art <type>   - Render an interactive ASCII animation (cat, clouds, plasma, lizard)";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM:\n{}", help_text),
                 });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if trimmed == "/art" || trimmed == "/art help" {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
+                let help_text = "\
+Available art animations:
+  /art cat      - Lounging beach cat with animated waves
+  /art clouds   - Parallax scrolling ASCII clouds
+  /art plasma   - Abstract mathematical wave generator
+  /art lizard   - Centered wiggling ASCII lizard
+Press any key to exit the animation once started.";
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM:\n{}", help_text),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if user_input.starts_with("/art ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
+                let art_type = user_input.trim_start_matches("/art ").trim().to_lowercase();
+                if art_type == "cat"
+                    || art_type == "clouds"
+                    || art_type == "plasma"
+                    || art_type == "lizard"
+                {
+                    let _ = tx_clone.send(events::AgentEvent::StartArt { mode: art_type });
+                } else {
+                    let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                        text: format!(
+                            "SYSTEM:\nUnknown art mode '{}'. Try: cat, clouds, plasma, lizard.",
+                            art_type
+                        ),
+                    });
+                }
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }

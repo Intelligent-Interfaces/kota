@@ -13,6 +13,14 @@ use std::io::stdout;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum ArtMode {
+    Cat,
+    Plasma,
+    Lizard,
+    Clouds,
+}
+
 /// Application state
 struct App {
     input: String,
@@ -26,6 +34,8 @@ struct App {
     mode: AgentMode,
     rx_kbps: f64,
     tx_kbps: f64,
+    art_mode: Option<ArtMode>,
+    frame_count: u32,
 }
 
 #[derive(Clone)]
@@ -44,12 +54,35 @@ impl App {
         Self {
             input: String::new(),
             output: vec![
-                (LineKind::System, "   _  __      _".into()),
-                (LineKind::System, "  | |/ /___  | |_  __ _   🦎".into()),
-                (LineKind::System, "  | ' // _ \\ | __|/ _` |".into()),
-                (LineKind::System, "  | . \\ (_) || |_| (_| |".into()),
-                (LineKind::System, "  |_|\\_\\___/  \\__|\\__,_|".into()),
-                (LineKind::System, "  [  COMPUTING ASSIST  ]".into()),
+                (LineKind::System, "                       )/_".into()),
+                (LineKind::System, "             _.--..---\"-,--c_".into()),
+                (LineKind::System, "        \\L..'           ._O__)_".into()),
+                (
+                    LineKind::System,
+                    ",-.     _.+  _  \\..--( /           a:f".into(),
+                ),
+                (LineKind::System, "  `\\.-''__.-' \\ (     \\_".into()),
+                (LineKind::System, "    `'''       `\\__   /\\".into()),
+                (LineKind::System, "                ')".into()),
+                (LineKind::System, "".into()),
+                (LineKind::System, "             _  __      _".into()),
+                (LineKind::System, "            | |/ /___  | |_  __ _".into()),
+                (
+                    LineKind::System,
+                    "            | ' // _ \\ | __|/ _` |".into(),
+                ),
+                (
+                    LineKind::System,
+                    "            | . \\ (_) || |_| (_| |".into(),
+                ),
+                (
+                    LineKind::System,
+                    "            |_|\\_\\___/  \\__|\\__,_|".into(),
+                ),
+                (
+                    LineKind::System,
+                    "            [  COMPUTING ASSIST  ]".into(),
+                ),
                 (LineKind::System, "".into()),
                 (
                     LineKind::System,
@@ -78,6 +111,8 @@ impl App {
             mode: startup_mode,
             rx_kbps: 0.0,
             tx_kbps: 0.0,
+            art_mode: None,
+            frame_count: 0,
         }
     }
 
@@ -200,6 +235,16 @@ impl App {
                     format!("🚨 THREAT [{}]: {}", severity, description),
                 );
             }
+            AgentEvent::StartArt { mode } => {
+                self.art_mode = match mode.as_str() {
+                    "cat" => Some(ArtMode::Cat),
+                    "plasma" => Some(ArtMode::Plasma),
+                    "lizard" => Some(ArtMode::Lizard),
+                    "clouds" => Some(ArtMode::Clouds),
+                    _ => None,
+                };
+                self.frame_count = 0;
+            }
         }
     }
 }
@@ -220,68 +265,79 @@ pub async fn run(
     loop {
         terminal.draw(|frame| draw(frame, &app))?;
 
+        // Increment frame count for animations
+        app.frame_count = app.frame_count.wrapping_add(1);
+
         // Poll for keyboard/mouse events
         if event::poll(std::time::Duration::from_millis(16))? {
-            match event::read()? {
-                Event::Key(key) => {
-                    match (key.modifiers, key.code) {
-                        (KeyModifiers::CONTROL, KeyCode::Char('c')) => break,
+            let ev = event::read()?;
+            if app.art_mode.is_some() {
+                // Any input event (key press, mouse click) exits art mode
+                if let Event::Key(_) | Event::Mouse(_) = ev {
+                    app.art_mode = None;
+                }
+            } else {
+                match ev {
+                    Event::Key(key) => {
+                        match (key.modifiers, key.code) {
+                            (KeyModifiers::CONTROL, KeyCode::Char('c')) => break,
 
-                        (KeyModifiers::CONTROL, KeyCode::Char('r')) => {
-                            app.output.clear();
-                            app.push_line(LineKind::System, "── conversation reset ──".into());
-                            // Note: agent reset would need a separate channel message
+                            (KeyModifiers::CONTROL, KeyCode::Char('r')) => {
+                                app.output.clear();
+                                app.push_line(LineKind::System, "── conversation reset ──".into());
+                                // Note: agent reset would need a separate channel message
+                            }
+
+                            (_, KeyCode::PageUp) => {
+                                app.scroll = app.scroll.saturating_add(5);
+                            }
+
+                            (_, KeyCode::PageDown) => {
+                                app.scroll = app.scroll.saturating_sub(5);
+                                // Clamp to 0 so we snap back to live-follow mode
+                                if app.scroll < 5 {
+                                    app.scroll = 0;
+                                }
+                            }
+
+                            // G = jump to bottom (live-follow)
+                            (_, KeyCode::Char('g')) if key.modifiers == KeyModifiers::NONE => {
+                                app.scroll = 0;
+                            }
+
+                            (_, KeyCode::Enter) if !app.input.is_empty() && !app.busy => {
+                                let input = app.input.clone();
+                                app.input.clear();
+                                app.busy = true;
+                                app.thinking_buf.clear();
+                                let _ = input_tx.send(input);
+                            }
+
+                            (_, KeyCode::Backspace) => {
+                                app.input.pop();
+                            }
+
+                            (_, KeyCode::Char(c)) if !app.busy => {
+                                app.input.push(c);
+                            }
+
+                            _ => {}
                         }
-
-                        (_, KeyCode::PageUp) => {
-                            app.scroll = app.scroll.saturating_add(5);
+                    }
+                    Event::Mouse(mouse_event) => match mouse_event.kind {
+                        MouseEventKind::ScrollUp => {
+                            app.scroll = app.scroll.saturating_add(2);
                         }
-
-                        (_, KeyCode::PageDown) => {
-                            app.scroll = app.scroll.saturating_sub(5);
-                            // Clamp to 0 so we snap back to live-follow mode
-                            if app.scroll < 5 {
+                        MouseEventKind::ScrollDown => {
+                            app.scroll = app.scroll.saturating_sub(2);
+                            if app.scroll < 2 {
                                 app.scroll = 0;
                             }
                         }
-
-                        // G = jump to bottom (live-follow)
-                        (_, KeyCode::Char('g')) if key.modifiers == KeyModifiers::NONE => {
-                            app.scroll = 0;
-                        }
-
-                        (_, KeyCode::Enter) if !app.input.is_empty() && !app.busy => {
-                            let input = app.input.clone();
-                            app.input.clear();
-                            app.busy = true;
-                            app.thinking_buf.clear();
-                            let _ = input_tx.send(input);
-                        }
-
-                        (_, KeyCode::Backspace) => {
-                            app.input.pop();
-                        }
-
-                        (_, KeyCode::Char(c)) if !app.busy => {
-                            app.input.push(c);
-                        }
-
                         _ => {}
-                    }
-                }
-                Event::Mouse(mouse_event) => match mouse_event.kind {
-                    MouseEventKind::ScrollUp => {
-                        app.scroll = app.scroll.saturating_add(2);
-                    }
-                    MouseEventKind::ScrollDown => {
-                        app.scroll = app.scroll.saturating_sub(2);
-                        if app.scroll < 2 {
-                            app.scroll = 0;
-                        }
-                    }
+                    },
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
 
@@ -297,6 +353,211 @@ pub async fn run(
     Ok(())
 }
 
+fn draw_art(art_mode: ArtMode, frame_count: u32, width: u16, height: u16) -> Vec<Line<'static>> {
+    let w = width as usize;
+    let h = height as usize;
+    let mut lines = Vec::new();
+
+    match art_mode {
+        ArtMode::Lizard => {
+            let phase = (frame_count / 15) % 4;
+            let eyes = if phase == 1 || phase == 3 {
+                "(--)..(--)"
+            } else {
+                "()..()"
+            };
+            let tongue = if phase == 1 { "==" } else { "__" };
+
+            // Jonathon R. Oglesbee lizard with wiggling tail and blinking eyes
+            let tail1 = if phase.is_multiple_of(2) {
+                " / /"
+            } else {
+                " \\ \\"
+            };
+            let tail2 = if phase.is_multiple_of(2) {
+                "( ("
+            } else {
+                ") )"
+            };
+            let tail3 = if phase.is_multiple_of(2) {
+                " \\ \\"
+            } else {
+                " / /"
+            };
+            let tail4 = if phase.is_multiple_of(2) {
+                ") )"
+            } else {
+                "( ("
+            };
+
+            let raw_lines = vec![
+                "              ____...---...___".to_string(),
+                "___.....---\"\"\"        .       \"\"--..____".to_string(),
+                "     .                  .            .".to_string(),
+                " .             _.--._       /|".to_string(),
+                format!("        .    .'{}`.    {}", eyes, tail1),
+                format!("            ( `-.__{}__.-' )  {}    .", tongue, tail2),
+                format!("    .         \\        /    {}", tail3),
+                format!("        .      \\      /      {}        .", tail4),
+                "            .' -.__.- `.-.-'_.'".to_string(),
+                " .        .'  /-____-\\\\  `.-'       .".to_string(),
+                "          \\  /-.____.-\\  /-.".to_string(),
+                "           \\ \\`-.__.-'/ /\\|\\|".to_string(),
+                "          .'  `.    .'  `.".to_string(),
+                "          |/\\/\\|    |/\\/\\|".to_string(),
+            ];
+
+            let top_pad = h.saturating_sub(raw_lines.len()) / 2;
+            for _ in 0..top_pad {
+                lines.push(Line::raw(""));
+            }
+            for line in raw_lines {
+                let left_pad = w.saturating_sub(line.chars().count()) / 2;
+                let padded = format!("{:left_pad$}{}", "", line, left_pad = left_pad);
+                lines.push(Line::styled(padded, Style::default().fg(Color::Green)));
+            }
+        }
+        ArtMode::Cat => {
+            let phase = (frame_count / 12) % 4;
+            let eyes = if phase.is_multiple_of(2) {
+                "■-■"
+            } else {
+                "☼.☼"
+            };
+            let tail = if phase.is_multiple_of(2) { "~" } else { "≈" };
+
+            let w_offset = (frame_count / 6) as usize;
+            let mut wave_line1 = String::new();
+            let mut wave_line2 = String::new();
+            let mut wave_line3 = String::new();
+            for i in 0..w {
+                wave_line1.push(if (i + w_offset) % 8 < 4 { '~' } else { ' ' });
+                wave_line2.push(if (i + w_offset / 2) % 12 < 6 {
+                    '≈'
+                } else {
+                    ' '
+                });
+                wave_line3.push(if (i + w_offset * 2) % 6 < 3 { '^' } else { 'v' });
+            }
+
+            let raw_lines = vec![
+                "          _.._  .---.".to_string(),
+                "         ( `  \\'     `".to_string(),
+                "          |  /  \\  \\  \\".to_string(),
+                "          |__\\__/__/__/_".to_string(),
+                "                |".to_string(),
+                format!(
+                    "                |   |\\_/|   {}",
+                    wave_line1.chars().take(15).collect::<String>()
+                ),
+                format!(
+                    "                |  =({})={}  _.._{}",
+                    eyes,
+                    tail,
+                    wave_line2.chars().take(8).collect::<String>()
+                ),
+                "               /| \\  _  /   /     \\".to_string(),
+                wave_line3,
+            ];
+
+            let top_pad = h.saturating_sub(raw_lines.len()) / 2;
+            for _ in 0..top_pad {
+                lines.push(Line::raw(""));
+            }
+            for (idx, line) in raw_lines.into_iter().enumerate() {
+                let style = if idx < 5 {
+                    Style::default().fg(Color::Yellow)
+                } else if idx < 8 {
+                    Style::default().fg(Color::Cyan)
+                } else {
+                    Style::default().fg(Color::Blue)
+                };
+                if idx == 8 {
+                    lines.push(Line::styled(line, style));
+                } else {
+                    let left_pad = w.saturating_sub(line.chars().count()) / 2;
+                    let padded = format!("{:left_pad$}{}", "", line, left_pad = left_pad);
+                    lines.push(Line::styled(padded, style));
+                }
+            }
+        }
+        ArtMode::Plasma => {
+            for y in 0..h {
+                let mut row = String::new();
+                for x in 0..w {
+                    let x_f = x as f32;
+                    let y_f = y as f32;
+                    let t_f = frame_count as f32;
+
+                    let val = (x_f / 6.0 + t_f / 8.0).sin()
+                        + (y_f / 3.0 - t_f / 12.0).cos()
+                        + ((x_f + y_f) / 10.0 + t_f / 15.0).sin();
+
+                    let idx = (((val + 3.0) / 6.0) * 9.0) as i32;
+                    let idx = idx.clamp(0, 9) as usize;
+                    let chars = b" .:-=+*#%@";
+                    row.push(chars[idx] as char);
+                }
+                lines.push(Line::styled(row, Style::default().fg(Color::Magenta)));
+            }
+        }
+        ArtMode::Clouds => {
+            let offset1 = (frame_count / 12) as usize;
+            let offset2 = (frame_count / 6) as usize;
+            let offset3 = (frame_count / 3) as usize;
+
+            let clouds_pattern1 =
+                "      . - ~ ~ ~ - .      . - ~ ~ ~ - .      . - ~ ~ ~ - .       ";
+            let clouds_pattern2 =
+                "  (                 )  _   (                 )  _               ";
+            let clouds_pattern3 =
+                " (   o  o  o  o  o   ) (  ) (   o  o  o  o  o   ) (  )          ";
+
+            for y in 0..h {
+                let mut line_str = String::new();
+                if y == h / 4 {
+                    for i in 0..w {
+                        let char_idx = (i + offset1) % clouds_pattern1.chars().count();
+                        line_str.push(clouds_pattern1.chars().nth(char_idx).unwrap());
+                    }
+                    lines.push(Line::styled(line_str, Style::default().fg(Color::DarkGray)));
+                } else if y == h / 2 {
+                    for i in 0..w {
+                        let char_idx = (i + offset2) % clouds_pattern2.chars().count();
+                        line_str.push(clouds_pattern2.chars().nth(char_idx).unwrap());
+                    }
+                    lines.push(Line::styled(line_str, Style::default().fg(Color::Gray)));
+                } else if y == h / 2 + 1 {
+                    for i in 0..w {
+                        let char_idx = (i + offset2) % clouds_pattern3.chars().count();
+                        line_str.push(clouds_pattern3.chars().nth(char_idx).unwrap());
+                    }
+                    lines.push(Line::styled(line_str, Style::default().fg(Color::Gray)));
+                } else if y == (3 * h) / 4 {
+                    for i in 0..w {
+                        let char_idx = (i + offset3) % clouds_pattern1.chars().count();
+                        line_str.push(clouds_pattern1.chars().nth(char_idx).unwrap());
+                    }
+                    lines.push(Line::styled(line_str, Style::default().fg(Color::White)));
+                } else {
+                    for i in 0..w {
+                        let val = (i as i32 * 17 + y as i32 * 31 + (frame_count / 15) as i32) % 150;
+                        if val == 0 {
+                            line_str.push('*');
+                        } else if val == 1 {
+                            line_str.push('.');
+                        } else {
+                            line_str.push(' ');
+                        }
+                    }
+                    lines.push(Line::styled(line_str, Style::default().fg(Color::DarkGray)));
+                }
+            }
+        }
+    }
+    lines
+}
+
 fn draw(frame: &mut Frame, app: &App) {
     let area = frame.area();
 
@@ -309,23 +570,29 @@ fn draw(frame: &mut Frame, app: &App) {
         ])
         .split(area);
 
+    let inner_width = chunks[0].width.saturating_sub(2).max(1);
+    let inner_height = chunks[0].height.saturating_sub(2);
+
     // Output
-    let output_lines: Vec<Line> = app
-        .output
-        .iter()
-        .map(|(kind, text)| {
-            let style = match kind {
-                LineKind::User => Style::default().fg(Color::Cyan).bold(),
-                LineKind::Assistant => Style::default().fg(Color::White),
-                LineKind::Thinking => Style::default().fg(Color::DarkGray).italic(),
-                LineKind::ToolStart => Style::default().fg(Color::Yellow),
-                LineKind::ToolDone => Style::default().fg(Color::Green),
-                LineKind::System => Style::default().fg(Color::DarkGray),
-                LineKind::Error => Style::default().fg(Color::Red),
-            };
-            Line::styled(text.as_str(), style)
-        })
-        .collect();
+    let output_lines: Vec<Line> = if let Some(art) = app.art_mode {
+        draw_art(art, app.frame_count, inner_width, inner_height)
+    } else {
+        app.output
+            .iter()
+            .map(|(kind, text)| {
+                let style = match kind {
+                    LineKind::User => Style::default().fg(Color::Cyan).bold(),
+                    LineKind::Assistant => Style::default().fg(Color::White),
+                    LineKind::Thinking => Style::default().fg(Color::DarkGray).italic(),
+                    LineKind::ToolStart => Style::default().fg(Color::Yellow),
+                    LineKind::ToolDone => Style::default().fg(Color::Green),
+                    LineKind::System => Style::default().fg(Color::DarkGray),
+                    LineKind::Error => Style::default().fg(Color::Red),
+                };
+                Line::styled(text.as_str(), style)
+            })
+            .collect()
+    };
 
     // Output Border Style
     let output_style = if app.busy {
@@ -333,9 +600,6 @@ fn draw(frame: &mut Frame, app: &App) {
     } else {
         Style::default().fg(Color::Cyan)
     };
-
-    let inner_width = chunks[0].width.saturating_sub(2).max(1);
-    let inner_height = chunks[0].height.saturating_sub(2);
 
     let mut total_lines: u16 = 0;
     for (_, text) in &app.output {
@@ -372,19 +636,26 @@ fn draw(frame: &mut Frame, app: &App) {
     };
     let actual_scroll = max_scroll.saturating_sub(app.scroll);
 
-    let output_widget = Paragraph::new(output_lines)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(output_style)
-                .title(Span::styled(
-                    " kota ",
-                    Style::default().bold().fg(Color::Cyan),
-                )),
-        )
-        .wrap(Wrap { trim: false })
-        .scroll((actual_scroll, 0));
+    let (scroll_y, wrap_widget) = if app.art_mode.is_some() {
+        (0, false)
+    } else {
+        (actual_scroll, true)
+    };
+
+    let mut output_widget = Paragraph::new(output_lines).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(output_style)
+            .title(Span::styled(
+                " kota ",
+                Style::default().bold().fg(Color::Cyan),
+            )),
+    );
+    if wrap_widget {
+        output_widget = output_widget.wrap(Wrap { trim: false });
+    }
+    let output_widget = output_widget.scroll((scroll_y, 0));
     frame.render_widget(output_widget, chunks[0]);
 
     // Input
