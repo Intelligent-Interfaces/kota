@@ -34,6 +34,8 @@ struct App {
     mode: AgentMode,
     rx_kbps: f64,
     tx_kbps: f64,
+    watts: f32,
+    joules: f32,
     art_mode: Option<ArtMode>,
     frame_count: u32,
 }
@@ -111,6 +113,8 @@ impl App {
             mode: startup_mode,
             rx_kbps: 0.0,
             tx_kbps: 0.0,
+            watts: 0.0,
+            joules: 0.0,
             art_mode: None,
             frame_count: 0,
         }
@@ -228,6 +232,10 @@ impl App {
             AgentEvent::TelemetryUpdate { rx_kbps, tx_kbps } => {
                 self.rx_kbps = rx_kbps;
                 self.tx_kbps = tx_kbps;
+            }
+            AgentEvent::PowerUpdate { watts, joules } => {
+                self.watts = watts;
+                self.joules = joules;
             }
             AgentEvent::NetworkThreatDetected {
                 severity,
@@ -605,21 +613,49 @@ fn draw(frame: &mut Frame, app: &App) {
     let output_lines: Vec<Line> = if let Some(art) = app.art_mode {
         draw_art(art, app.frame_count, inner_width, inner_height)
     } else {
-        app.output
-            .iter()
-            .map(|(kind, text)| {
-                let style = match kind {
-                    LineKind::User => Style::default().fg(Color::Cyan).bold(),
-                    LineKind::Assistant => Style::default().fg(Color::White),
-                    LineKind::Thinking => Style::default().fg(Color::DarkGray).italic(),
-                    LineKind::ToolStart => Style::default().fg(Color::Yellow),
-                    LineKind::ToolDone => Style::default().fg(Color::Green),
-                    LineKind::System => Style::default().fg(Color::DarkGray),
-                    LineKind::Error => Style::default().fg(Color::Red),
-                };
-                Line::styled(text.as_str(), style)
-            })
-            .collect()
+        let mut lines = Vec::new();
+        for (kind, text) in &app.output {
+            match kind {
+                LineKind::Assistant => {
+                    let mut md_text = tui_markdown::from_str(text);
+                    lines.append(&mut md_text.lines);
+                }
+                LineKind::User => {
+                    lines.push(Line::styled(
+                        text.as_str(),
+                        Style::default().fg(Color::Cyan).bold(),
+                    ));
+                }
+                LineKind::Thinking => {
+                    lines.push(Line::styled(
+                        text.as_str(),
+                        Style::default().fg(Color::DarkGray).italic(),
+                    ));
+                }
+                LineKind::ToolStart => {
+                    lines.push(Line::styled(
+                        text.as_str(),
+                        Style::default().fg(Color::Yellow),
+                    ));
+                }
+                LineKind::ToolDone => {
+                    lines.push(Line::styled(
+                        text.as_str(),
+                        Style::default().fg(Color::Green),
+                    ));
+                }
+                LineKind::System => {
+                    lines.push(Line::styled(
+                        text.as_str(),
+                        Style::default().fg(Color::DarkGray),
+                    ));
+                }
+                LineKind::Error => {
+                    lines.push(Line::styled(text.as_str(), Style::default().fg(Color::Red)));
+                }
+            }
+        }
+        lines
     };
 
     // Output Border Style
@@ -721,12 +757,14 @@ fn draw(frame: &mut Frame, app: &App) {
         format!(" | 🔧 {}", app.active_tools.join(", "))
     };
     let status = format!(
-        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps{}{} | Ctrl+C quit",
+        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps | ⚡ {:.1}W ({:.1}J){}{} | Ctrl+C quit",
         app.mode.to_str().to_uppercase(),
         app.step_count,
         app.last_duration_ms,
         app.tx_kbps,
         app.rx_kbps,
+        app.watts,
+        app.joules,
         tools_str,
         scroll_str,
     );

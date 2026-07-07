@@ -59,6 +59,9 @@ pub enum AgentEvent {
         severity: String,
         description: String,
     },
+    /// Power usage
+    PowerUpdate { watts: f32, joules: f32 },
+
     /// Start an interactive ASCII art animation in the TUI
     StartArt { mode: String },
 }

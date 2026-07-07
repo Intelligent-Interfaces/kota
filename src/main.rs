@@ -3,6 +3,7 @@ mod events;
 mod llm;
 pub mod mcp;
 pub mod memory;
+mod power;
 mod sensing;
 mod server;
 mod skills;
@@ -274,6 +275,12 @@ Available agent modes (composed of weighted skill vectors):
     let tx_telemetry = tx.clone();
     tokio::spawn(async move {
         sensing::run_telemetry_loop(tx_telemetry).await;
+    });
+
+    let tx_power = tx.clone();
+    let rx_power = tx.subscribe();
+    tokio::spawn(async move {
+        power::start_power_monitor(tx_power, rx_power).await;
     });
 
     tui::run(rx1, input_tx, startup_mode, port).await
