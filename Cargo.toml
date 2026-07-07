@@ -48,4 +48,6 @@ tower-http = { version = "0.5", features = ["fs", "cors"] }
 # Cognitive Network Sensing
 sysinfo = "0.33"
 tui-markdown = "0.3.8"
+
+[target.'cfg(target_os = "macos")'.dependencies]
 macpow = "0.1.19"

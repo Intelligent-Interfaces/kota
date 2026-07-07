@@ -1,12 +1,14 @@
 use crate::events::AgentEvent;
-use macpow::metrics::Sampler;
 use std::time::Duration;
 use tokio::sync::broadcast;
 
+#[cfg(target_os = "macos")]
 pub async fn start_power_monitor(
     tx: broadcast::Sender<AgentEvent>,
     mut rx: broadcast::Receiver<AgentEvent>,
 ) {
+    use macpow::metrics::Sampler;
+
     let mut total_joules: f64 = 0.0;
     let mut is_busy = false;
     let mut last_was_busy = false;
@@ -60,6 +62,41 @@ pub async fn start_power_monitor(
                         }
                     }
                     _ => {}
+                }
+            }
+        }
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+pub async fn start_power_monitor(
+    tx: broadcast::Sender<AgentEvent>,
+    mut rx: broadcast::Receiver<AgentEvent>,
+) {
+    // Dummy implementation for non-macOS platforms
+    // because macpow is heavily tied to Apple IOKit
+    let mut is_enabled = true;
+    let mut interval = tokio::time::interval(Duration::from_millis(500));
+
+    loop {
+        tokio::select! {
+            _ = interval.tick() => {
+                if !is_enabled {
+                    continue;
+                }
+
+                // Just broadcast 0 watts if power monitoring isn't supported
+                let _ = tx.send(AgentEvent::PowerUpdate {
+                    watts: 0.0,
+                    joules: 0.0,
+                });
+            }
+            Ok(event) = rx.recv() => {
+                if let AgentEvent::PowerConfig { enabled } = event {
+                    is_enabled = enabled;
+                    if !enabled {
+                        let _ = tx.send(AgentEvent::PowerUpdate { watts: 0.0, joules: 0.0 });
+                    }
                 }
             }
         }
