@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "boston-data": {
+      "command": "python3",
+      "args": ["boston_mcp.py"],
+      "env": {}
+    }
+  }
+}

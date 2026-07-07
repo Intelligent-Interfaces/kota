@@ -1,6 +1,7 @@
 mod agent;
 mod events;
 mod llm;
+pub mod mcp;
 pub mod memory;
 mod sensing;
 mod server;

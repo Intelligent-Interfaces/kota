@@ -86,6 +86,7 @@ pub struct Agent {
     mode: AgentMode,
     memory: MemoryStore,
     session_id: String,
+    mcp: Option<crate::mcp::McpManager>,
 }
 
 impl Agent {
@@ -113,16 +114,22 @@ impl Agent {
             .await?;
 
         let messages = vec![sys_msg];
+        let workdir_path = PathBuf::from(workdir);
+        let mcp_config_path = workdir_path.join("mcp_config.json");
+        let mcp = crate::mcp::McpManager::load_from_config(mcp_config_path)
+            .await
+            .ok();
 
         Ok(Self {
             llm,
             messages,
             max_tokens,
-            workdir: PathBuf::from(workdir),
+            workdir: workdir_path,
             step: 0,
             mode,
             memory,
             session_id,
+            mcp,
         })
     }
 
@@ -210,7 +217,7 @@ impl Agent {
             let tx_clone = tx.clone();
 
             let messages = self.messages.clone();
-            let tool_defs = tools::tool_definitions();
+            let tool_defs = tools::tool_definitions(self.mcp.as_ref()).await;
 
             let tc_clone = pending_tool_calls.clone();
             let cb_clone = content_buf.clone();
@@ -287,6 +294,13 @@ impl Agent {
                     });
 
                     let tool_start = Instant::now();
+                    let mut has_mcp_tool = false;
+                    if let Some(ref m) = self.mcp {
+                        if m.has_tool(name).await {
+                            has_mcp_tool = true;
+                        }
+                    }
+
                     let result = if name == "delegate_task" {
                         match serde_json::from_str::<serde_json::Value>(args) {
                             Ok(args_val) => {
@@ -357,6 +371,19 @@ impl Agent {
                             Err(e) => tools::ToolResult {
                                 success: false,
                                 output: format!("Failed to parse delegate_task arguments: {}", e),
+                            },
+                        }
+                    } else if has_mcp_tool {
+                        let args_val: serde_json::Value =
+                            serde_json::from_str(args).unwrap_or(serde_json::Value::Null);
+                        match self.mcp.as_ref().unwrap().call_tool(name, args_val).await {
+                            Ok(output) => tools::ToolResult {
+                                success: true,
+                                output,
+                            },
+                            Err(e) => tools::ToolResult {
+                                success: false,
+                                output: format!("MCP tool call failed: {}", e),
                             },
                         }
                     } else {

@@ -229,8 +229,8 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
 }
 
 /// Return the tool definitions for the OpenAI-compatible API
-pub fn tool_definitions() -> Vec<ToolDef> {
-    vec![
+pub async fn tool_definitions(mcp: Option<&crate::mcp::McpManager>) -> Vec<ToolDef> {
+    let mut tools = vec![
         ToolDef {
             tool_type: "function".to_string(),
             function: ToolFunction {
@@ -364,7 +364,22 @@ pub fn tool_definitions() -> Vec<ToolDef> {
                 }),
             },
         },
-    ]
+    ];
+
+    if let Some(mcp_mgr) = mcp {
+        for t in mcp_mgr.list_all_tools().await {
+            tools.push(ToolDef {
+                tool_type: "function".to_string(),
+                function: ToolFunction {
+                    name: t.name,
+                    description: t.description,
+                    parameters: t.input_schema,
+                },
+            });
+        }
+    }
+
+    tools
 }
 
 async fn fetch_arxiv(query: &str) -> anyhow::Result<String> {
