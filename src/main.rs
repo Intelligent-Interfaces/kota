@@ -61,6 +61,9 @@ async fn main() -> anyhow::Result<()> {
         while let Some(user_input) = input_rx.recv().await {
             let trimmed = user_input.trim();
             if trimmed == "/help" {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
                 let help_text = "\
 Available local commands (do not consume tokens or write to history):
   /help         - Display this help message
@@ -68,13 +71,16 @@ Available local commands (do not consume tokens or write to history):
   /status       - Display current agent configuration & session status
   /mode <name>  - Switch the agent to a different mode";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
-                    text: format!("SYSTEM: \n{}", help_text),
+                    text: format!("SYSTEM:\n{}", help_text),
                 });
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
             if trimmed == "/modes" {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
                 let modes_text = "\
 Available agent modes (composed of weighted skill vectors):
   coder     - Software Engineering & Testing (1.0 coder, 0.2 eval)
@@ -84,13 +90,16 @@ Available agent modes (composed of weighted skill vectors):
   architect - Systems Design & Infrastructure (1.0 architect, 0.5 cpe)
   librarian - LLM Wiki Maintenance & Knowledge Compiling (1.0 librarian, 0.4 research)";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
-                    text: format!("SYSTEM: \n{}", modes_text),
+                    text: format!("SYSTEM:\n{}", modes_text),
                 });
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
             }
 
             if trimmed == "/status" {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
                 let status_text = format!(
                     "Agent Status:\n  Active Mode: {}\n  Model: {}\n  Endpoint: {}\n  Workdir: {}\n  Token Budget: {}",
                     active_mode.to_str().to_uppercase(),
@@ -100,7 +109,7 @@ Available agent modes (composed of weighted skill vectors):
                     max_tokens
                 );
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
-                    text: format!("SYSTEM: \n{}", status_text),
+                    text: format!("SYSTEM:\n{}", status_text),
                 });
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
                 continue;
@@ -108,7 +117,10 @@ Available agent modes (composed of weighted skill vectors):
 
             if trimmed == "/mode" {
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
-                    text: "SYSTEM: \nUsage: /mode <name>\nUse /modes to list all available modes."
+                    text: user_input.clone(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: "SYSTEM:\nUsage: /mode <name>\nUse /modes to list all available modes."
                         .to_string(),
                 });
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
@@ -116,6 +128,9 @@ Available agent modes (composed of weighted skill vectors):
             }
 
             if user_input.starts_with("/mode ") {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                });
                 let mode_str = user_input.trim_start_matches("/mode ").trim();
                 let new_mode = agent::AgentMode::from_str(mode_str);
                 agent.set_mode(new_mode);
