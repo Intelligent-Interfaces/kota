@@ -229,12 +229,18 @@
         .toolbar {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 12px;
             padding: 8px 16px;
             background: var(--bg-body);
             border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
+            overflow-x: auto;
+            flex-wrap: nowrap;
             flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+        .toolbar::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome/Safari */
         }
 
         .toolbar-section {
@@ -406,6 +412,63 @@
         .message.assistant h2,
         .message.assistant h3 { color: var(--text-primary); margin: 0.8em 0 0.3em; font-weight: 600; }
         .message.assistant a { color: var(--accent2); text-decoration: underline; }
+
+        /* ──────────────────────────────────────────
+           RESPONSIVE MOBILE OVERRIDES (Pixel 8 / Mobile)
+           ────────────────────────────────────────── */
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0;
+            }
+            .panel {
+                border-radius: 0;
+                border: none;
+            }
+            .header {
+                padding: 8px 12px;
+            }
+            .brand {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+            }
+            .power-display {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+            .toolbar {
+                padding: 6px 12px;
+                gap: 10px;
+            }
+            .toolbar-label {
+                font-size: 8px;
+            }
+            .mode-btn {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+            .toggle-label {
+                font-size: 9px;
+            }
+            .msg-log {
+                padding: 12px;
+            }
+            .message {
+                font-size: 12px;
+            }
+            .input-area {
+                padding: 8px;
+                gap: 6px;
+            }
+            .cmd-input {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .send-btn {
+                padding: 8px 16px;
+                font-size: 11px;
+            }
+        }
 
         /* Separator line */
         .sep-line {
