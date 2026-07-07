@@ -59,7 +59,7 @@ impl App {
                 (LineKind::System, "        \\L..'           ._O__)_".into()),
                 (
                     LineKind::System,
-                    ",-.     _.+  _  \\..--( /           a:f".into(),
+                    ",-.     _.+  _  \\..--( /           🦎".into(),
                 ),
                 (LineKind::System, "  `\\.-''__.-' \\ (     \\_".into()),
                 (LineKind::System, "    `'''       `\\__   /\\".into()),
@@ -502,56 +502,81 @@ fn draw_art(art_mode: ArtMode, frame_count: u32, width: u16, height: u16) -> Vec
             }
         }
         ArtMode::Clouds => {
-            let offset1 = (frame_count / 12) as usize;
-            let offset2 = (frame_count / 6) as usize;
-            let offset3 = (frame_count / 3) as usize;
-
-            let clouds_pattern1 =
-                "      . - ~ ~ ~ - .      . - ~ ~ ~ - .      . - ~ ~ ~ - .       ";
-            let clouds_pattern2 =
-                "  (                 )  _   (                 )  _               ";
-            let clouds_pattern3 =
-                " (   o  o  o  o  o   ) (  ) (   o  o  o  o  o   ) (  )          ";
-
             for y in 0..h {
-                let mut line_str = String::new();
-                if y == h / 4 {
-                    for i in 0..w {
-                        let char_idx = (i + offset1) % clouds_pattern1.chars().count();
-                        line_str.push(clouds_pattern1.chars().nth(char_idx).unwrap());
-                    }
-                    lines.push(Line::styled(line_str, Style::default().fg(Color::DarkGray)));
-                } else if y == h / 2 {
-                    for i in 0..w {
-                        let char_idx = (i + offset2) % clouds_pattern2.chars().count();
-                        line_str.push(clouds_pattern2.chars().nth(char_idx).unwrap());
-                    }
-                    lines.push(Line::styled(line_str, Style::default().fg(Color::Gray)));
-                } else if y == h / 2 + 1 {
-                    for i in 0..w {
-                        let char_idx = (i + offset2) % clouds_pattern3.chars().count();
-                        line_str.push(clouds_pattern3.chars().nth(char_idx).unwrap());
-                    }
-                    lines.push(Line::styled(line_str, Style::default().fg(Color::Gray)));
-                } else if y == (3 * h) / 4 {
-                    for i in 0..w {
-                        let char_idx = (i + offset3) % clouds_pattern1.chars().count();
-                        line_str.push(clouds_pattern1.chars().nth(char_idx).unwrap());
-                    }
-                    lines.push(Line::styled(line_str, Style::default().fg(Color::White)));
-                } else {
-                    for i in 0..w {
-                        let val = (i as i32 * 17 + y as i32 * 31 + (frame_count / 15) as i32) % 150;
-                        if val == 0 {
-                            line_str.push('*');
-                        } else if val == 1 {
-                            line_str.push('.');
+                let mut spans = Vec::new();
+                let mut current_segment = String::new();
+                let mut current_style = Style::default();
+                let mut last_type = 0; // 0: sky, 1: cloud edge, 2: cloud body
+
+                for x in 0..w {
+                    let h_f = h as f32;
+                    let x_f = x as f32;
+                    let y_f = y as f32;
+                    let t_f = frame_count as f32;
+
+                    // Band 1 (High, slow, small clouds)
+                    let center1 = h_f * 0.3;
+                    let thick1 = (h_f * 0.12).max(1.0);
+                    let wave1 =
+                        (x_f / 8.0 + t_f / 30.0).sin() * 0.5 + (x_f / 4.0 - t_f / 18.0).cos() * 0.2;
+                    let y_dist1 = y_f - center1;
+                    let falloff1 = if y_dist1 > 0.0 {
+                        y_dist1 / (thick1 * 0.4) // flat bottom (rapid falloff)
+                    } else {
+                        y_dist1.abs() / thick1 // puffy top (gradual falloff)
+                    };
+                    let density1 = wave1 + 0.15 - falloff1;
+
+                    // Band 2 (Low, fast, large clouds)
+                    let center2 = h_f * 0.65;
+                    let thick2 = (h_f * 0.20).max(1.0);
+                    let wave2 = (x_f / 15.0 + t_f / 14.0).sin() * 0.6
+                        + (x_f / 7.0 - t_f / 9.0).cos() * 0.25;
+                    let y_dist2 = y_f - center2;
+                    let falloff2 = if y_dist2 > 0.0 {
+                        y_dist2 / (thick2 * 0.4) // flat bottom (rapid falloff)
+                    } else {
+                        y_dist2.abs() / thick2 // puffy top (gradual falloff)
+                    };
+                    let density2 = wave2 + 0.15 - falloff2;
+
+                    let density = density1.max(density2);
+
+                    let (char_val, char_type, style) = if density > 0.3 {
+                        ('@', 2, Style::default().fg(Color::White).bold())
+                    } else if density > 0.1 {
+                        ('O', 2, Style::default().fg(Color::White).bold())
+                    } else if density > -0.05 {
+                        ('o', 2, Style::default().fg(Color::White))
+                    } else if density > -0.2 {
+                        ('~', 1, Style::default().fg(Color::Gray))
+                    } else if density > -0.35 {
+                        ('-', 1, Style::default().fg(Color::DarkGray))
+                    } else {
+                        // Twinkling star field in the sky
+                        let star =
+                            (x as i32 * 17 + y as i32 * 31 + (frame_count / 12) as i32) % 120;
+                        if star == 0 {
+                            ('*', 0, Style::default().fg(Color::Yellow))
+                        } else if star == 1 {
+                            ('.', 0, Style::default().fg(Color::DarkGray))
                         } else {
-                            line_str.push(' ');
+                            (' ', 0, Style::default().fg(Color::Black))
                         }
+                    };
+
+                    if char_type != last_type && !current_segment.is_empty() {
+                        spans.push(Span::styled(current_segment.clone(), current_style));
+                        current_segment.clear();
                     }
-                    lines.push(Line::styled(line_str, Style::default().fg(Color::DarkGray)));
+                    current_segment.push(char_val);
+                    current_style = style;
+                    last_type = char_type;
                 }
+                if !current_segment.is_empty() {
+                    spans.push(Span::styled(current_segment, current_style));
+                }
+                lines.push(Line::from(spans));
             }
         }
     }
