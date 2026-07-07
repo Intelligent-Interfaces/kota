@@ -50,13 +50,72 @@ async fn main() -> anyhow::Result<()> {
     let (tx, rx1) = tokio::sync::broadcast::channel::<events::AgentEvent>(100);
     let (input_tx, mut input_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
 
+    let workdir_str = cli.workdir.clone();
+    let model_str = cli.model.clone();
+    let max_tokens = cli.max_tokens;
+    let api_url = cli.api_url.clone();
+
     let tx_clone = tx.clone();
     tokio::spawn(async move {
+        let mut active_mode = startup_mode;
         while let Some(user_input) = input_rx.recv().await {
+            let trimmed = user_input.trim();
+            if trimmed == "/help" {
+                let help_text = "\
+Available local commands (do not consume tokens or write to history):
+  /help         - Display this help message
+  /modes        - List all available agent modes and descriptions
+  /status       - Display current agent configuration & session status
+  /mode <name>  - Switch the agent to a different mode";
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM: \n{}", help_text),
+                });
+                continue;
+            }
+
+            if trimmed == "/modes" {
+                let modes_text = "\
+Available agent modes (composed of weighted skill vectors):
+  coder     - Software Engineering & Testing (1.0 coder, 0.2 eval)
+  cpe       - Client Platform Engineering (1.0 cpe, 0.4 architect)
+  eval      - Safety and Red-teaming Evaluation (1.0 eval)
+  research  - Literature Review & Scientific Synthesis (1.0 research, 0.3 coder)
+  architect - Systems Design & Infrastructure (1.0 architect, 0.5 cpe)
+  librarian - LLM Wiki Maintenance & Knowledge Compiling (1.0 librarian, 0.4 research)";
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM: \n{}", modes_text),
+                });
+                continue;
+            }
+
+            if trimmed == "/status" {
+                let status_text = format!(
+                    "Agent Status:\n  Active Mode: {}\n  Model: {}\n  Endpoint: {}\n  Workdir: {}\n  Token Budget: {}",
+                    active_mode.to_str().to_uppercase(),
+                    model_str,
+                    api_url,
+                    workdir_str,
+                    max_tokens
+                );
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: format!("SYSTEM: \n{}", status_text),
+                });
+                continue;
+            }
+
+            if trimmed == "/mode" {
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: "SYSTEM: \nUsage: /mode <name>\nUse /modes to list all available modes."
+                        .to_string(),
+                });
+                continue;
+            }
+
             if user_input.starts_with("/mode ") {
                 let mode_str = user_input.trim_start_matches("/mode ").trim();
                 let new_mode = agent::AgentMode::from_str(mode_str);
                 agent.set_mode(new_mode);
+                active_mode = new_mode;
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!(
                         "SYSTEM: Mode changed to {}",
