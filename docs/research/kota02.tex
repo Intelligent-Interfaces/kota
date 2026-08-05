@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{\textbf{Kota 2: Engineering a Distributed, Cognitively Secure Multi-Agent System}}
+\author{Erick Oduniyi \\ Intelligent Interfaces Group \\ \texttt{eeoduniyi@gmail.com}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Building upon the foundational architecture of the Kota agent---a local-first autonomous agent engineered around an event-driven Rust core---we present Kota 2. This evolution transitions Kota from a single monolithic agent to a distributed, multi-agent swarm orchestrated via the Agent Development Kit (ADK). By integrating Cloud Spanner Graph and Vertex AI Memory Bank, we evolve the hierarchical memory system into a spatial Graph RAG framework capable of dynamic, spectral memory retrieval. Furthermore, we address the energetic cost of intelligence by integrating active bandwidth shaping (Neotrickle) and robust evaluation safeguards against signal noise. Finally, we explore Cognitive RF Security, modeling the agent's context window as an RF spectrum and applying MIMO Prompting to neutralize adversarial prompt injections through spatial diversity.
+\end{abstract}
+
+\section{Introduction}
+The transition from single-agent LLM wrappers to multi-agent swarms requires fundamental shifts in memory, orchestration, and security. Kota 1 demonstrated the viability of treating an agent as a software circuit. Kota 2 scales this circuitry.
+
+\section{Memory Evolution: Graph RAG and Spectral Retrieval}
+Kota 1 relied on a two-tiered hierarchical memory via Turso/libSQL for sparse keyword retrieval. Kota 2 augments this with Vertex AI Memory Bank for long-horizon persistence and Cloud Spanner Graph for structural relationship mapping.
+
+\section{Multi-Agent Orchestration via ADK}
+We decompose the monolithic event loop into specialized, concurrent agents:
+\begin{itemize}
+    \item \textbf{Sensing Agent:} Hardware constraints, bandwidth monitoring (Neotrickle).
+    \item \textbf{Execution Agent:} Tool usage, Option Keyboard synthesis.
+    \item \textbf{Critic Agent:} Automated evaluation and signal-to-noise filtration.
+\end{itemize}
+
+\section{Cognitive RF Security and MIMO Prompting}
+Adversarial prompt injection is structurally equivalent to RF interference. By leveraging multiple sub-agents operating at varying temperatures and constraints, we achieve \textit{spatial diversity} (MIMO Prompting), filtering out anomalous injections through a beamforming synthesis function.
+
+\section{Conclusion and Future Work}
+Kota 2 provides the infrastructure required for resilient, physically-grounded autonomous systems. Future extensions include deploying the skill tree as a Directed Acyclic Graph (DAG) and extending the architecture to embodied robotic control.
+
+\end{document}
