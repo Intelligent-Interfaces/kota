@@ -5,7 +5,9 @@
 A TUI agent coder & computing assistant that runs on local LLMs.
 
 ![Kota TUI](docs/kota-tui-dark-ravenwood.png)
-![Kota Technical Report](docs/research/kota01_page1.png)
+<p align="center">
+  <img src="docs/research/kota01_page1.png" alt="Kota Technical Report" />
+</p>
 ## What it does
 
 - Talks to any OpenAI-compatible local LLM (Ollama, llama-server, RamaLama, vLLM)
