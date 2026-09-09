@@ -49,8 +49,8 @@ jobs:
         uses: rustsec/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Ignore vulnerable webpki advisories from transitive dependencies (we only use local SQLite features)
-          ignore: RUSTSEC-2026-0104, RUSTSEC-2026-0049, RUSTSEC-2026-0099, RUSTSEC-2026-0098
+          # Ignore vulnerable webpki and h2 v0.3.x advisories from transitive dependencies (we only use local SQLite features)
+          ignore: RUSTSEC-2026-0104, RUSTSEC-2026-0049, RUSTSEC-2026-0099, RUSTSEC-2026-0098, RUSTSEC-2026-0258
 
   python-check:
     name: Python Linting, Formatting & Typing
