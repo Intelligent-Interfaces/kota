@@ -4,12 +4,19 @@ This repository has been indexed for agent consumption. Use this map to quickly 
 
 ## Directory Tree
 
+  - AGENTS.md
   - Cargo.lock
   - Cargo.toml
   - README.md
+  - add_two_numbers.go
   - audit.toml
   - book.toml
+  - boston_mcp.py
+  - generate_table.py
+  - mcp_config.json
+  - output.md
   - ruff.toml
+  - test_tui_md.rs
   - go/
     - go.mod
     - coordinator/
@@ -51,12 +58,17 @@ This repository has been indexed for agent consumption. Use this map to quickly 
     - index.html
     - llm.rs
     - main.rs
+    - mcp.rs
     - memory.rs
+    - power.rs
     - sensing.rs
     - server.rs
     - skills.rs
+    - telemetry.rs
     - tools.rs
     - tui.rs
+    - verifier.rs
+    - vertex.rs
 
 ## Module Documentation
 

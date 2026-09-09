@@ -32,7 +32,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: "chore: update agent-native documentation"
-          title: "Update Agent-Native Documentation"
+          title: "chore: update agent-native documentation"
           body: "Automated PR to update the AGENTS.md repository context map."
           branch: "chore/update-agent-docs"
           base: main
