@@ -1,0 +1,351 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+
+\title{\textbf{Kota Q: Embodied Agent Swarms \\ via Recursive Assembly}}
+\author{Erick Oduniyi \\ Intelligent Interfaces Group \\ \texttt{eeoduniyi@gmail.com}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Building upon the foundational architecture of the Kota agent---a local-first autonomous agent engineered around an event-driven Rust core---we present Kota~Q, a theoretical framework for physically grounded, community-aware agent swarms. The central contribution is the formalization of \emph{cognitive voxels}: discrete, AST-validated software primitives that mirror the digital materials paradigm from recursive robotic assembly. We show that this discretization enables three formal properties: (i)~exponential task scaling through hierarchical agent delegation, (ii)~a quantitative creativity metric derived from Assembly Theory, and (iii)~mass-conserving autopoietic skill evolution inspired by Flow-Lenia dynamics. We further introduce polycentric governance protocols based on Ostrom's commons principles and cooperative Shapley allocation for energy-just multi-operator scheduling. Finally, we specify the interface layer that extends agent actuation from digital tool use to physical hardware control via the Model Context Protocol.
+\end{abstract}
+
+%% ========================================================================
+\section{Introduction}
+%% ========================================================================
+
+The transition from single-agent LLM wrappers to multi-agent swarms requires fundamental shifts in memory, orchestration, and security. Kota~1 demonstrated the viability of treating an agent as a \emph{software circuit}---an event-driven Rust core with real-time hardware sensing, hierarchical memory via Turso/libSQL, and modular tool composition through the \emph{Option Keyboard}~\citep{abdelrahman2022self}. However, it remained bound to the paradigm of the isolated digital assistant.
+
+Kota~Q scales this circuitry beyond the digital sandbox. The central argument is that an autonomous agent must operate as an active participant in shared physical and digital ecosystems. We organize this extension along seven theoretical axes:
+
+\begin{enumerate}
+    \item \textbf{Software foundations} (Section~\ref{sec:software}): Graph RAG memory, ADK orchestration, MIMO security.
+    \item \textbf{Cognitive voxels} (Section~\ref{sec:voxels}): The central thesis---discretizing cognition via digital materials.
+    \item \textbf{Assembly metrics} (Section~\ref{sec:assembly}): Quantifying cognitive utility via Assembly Theory.
+    \item \textbf{Polycentric governance} (Section~\ref{sec:governance}): Commons-based swarm coordination.
+    \item \textbf{Energy justice} (Section~\ref{sec:energy}): Shapley allocation and power-aware scheduling.
+    \item \textbf{Autopoiesis and M-Capacity} (Section~\ref{sec:autopoiesis}): Mass-conserving, self-evolving skill trees.
+    \item \textbf{Physical interface} (Section~\ref{sec:interface}): Bridging digital cognition to real-world actuation.
+\end{enumerate}
+
+%% ========================================================================
+\section{Software Architecture Foundations}
+\label{sec:software}
+%% ========================================================================
+
+\subsection{Spectral Memory via Graph RAG}
+
+Kota~1's memory relied on sparse keyword retrieval (\texttt{LIKE \%keyword\%}) over a local SQLite store. Kota~2 augments this with two complementary backends:
+
+\begin{itemize}
+    \item \textbf{Vertex AI Memory Bank:} Long-horizon episodic persistence with semantic embedding retrieval.
+    \item \textbf{Cloud Spanner Graph:} Structural relationship mapping across conversational context, codebase entities, and the agent's knowledge wiki.
+\end{itemize}
+
+\noindent Together, these form a \emph{spatial Graph RAG} framework. We define spectral retrieval as the decomposition of the memory adjacency matrix $\mathbf{A} \in \mathbb{R}^{n \times n}$ via truncated SVD. In the context of M-Capacity, this matrix space acts as the phase space $S$ for the agent's cognitive trajectory:
+
+\begin{equation}
+    \mathbf{A} \approx \mathbf{U}_k \boldsymbol{\Sigma}_k \mathbf{V}_k^\top, \quad k \ll n
+    \label{eq:spectral}
+\end{equation}
+
+\noindent where $k$ is the rank of the approximation. Queries are projected into the $k$-dimensional spectral space, enabling retrieval by semantic proximity rather than lexical overlap.
+
+\subsection{Multi-Agent Orchestration via ADK}
+
+We decompose the monolithic event loop into specialized, concurrent agents using Google's Agent Development Kit (ADK):
+
+\begin{itemize}
+    \item \textbf{Sensing Agent $\mathcal{A}_s$:} Polls hardware state---CPU/GPU temperature, wattage, bandwidth ($\text{rx}_{\text{kbps}}$, $\text{tx}_{\text{kbps}}$)---and enforces Neotrickle bandwidth shaping.
+    \item \textbf{Execution Agent $\mathcal{A}_e$:} Writes code and invokes tools via the Option Keyboard.
+    \item \textbf{Critic Agent $\mathcal{A}_c$:} Evaluates outputs, filters evaluation noise (overly strict tests, low-coverage assertions), and enforces security policies.
+\end{itemize}
+
+\subsection{Cognitive RF Security via MIMO Prompting}
+
+Adversarial prompt injection is structurally analogous to RF interference in wireless communication systems. We formalize this via \emph{MIMO Prompting}:
+
+\begin{definition}[MIMO Prompting]
+Given a prompt $\mathbf{p}$ and an ensemble of $M$ sub-agents $\{\mathcal{A}_1, \ldots, \mathcal{A}_M\}$ operating at temperatures $\{\tau_1, \ldots, \tau_M\}$, the beamformed output is:
+\begin{equation}
+    \hat{\mathbf{y}} = \sum_{i=1}^{M} w_i \cdot \mathcal{A}_i(\mathbf{p}; \tau_i), \quad \text{where } w_i = \frac{\text{coh}(\mathcal{A}_i, \bar{\mathcal{A}})}{\sum_j \text{coh}(\mathcal{A}_j, \bar{\mathcal{A}})}
+    \label{eq:mimo}
+\end{equation}
+where $\text{coh}(\cdot, \cdot)$ measures semantic coherence against the ensemble mean $\bar{\mathcal{A}}$. Adversarial injections produce low-coherence outliers that are suppressed by the weighting scheme.
+\end{definition}
+
+%% ========================================================================
+\section{Cognitive Voxels}
+\label{sec:voxels}
+%% ========================================================================
+
+\emph{This section presents the central thesis of Kota~2.}
+
+The MIT Center for Bits and Atoms reconceptualizes manufacturing through \emph{digital materials}: standardized primitive building blocks (functional voxels) that vastly simplify error correction and enable recursive self-assembly~\citep{abdelrahman2022self, smith2025voxel}. Micro-scale robots assemble mid-scale robots, which in turn assemble macro-structures---achieving exponential scaling through identical, reusable primitives.
+
+\begin{definition}[Cognitive Voxel]
+A \emph{cognitive voxel} $v \in \mathcal{V}$ is an atomic, AST-validated software action with the following properties:
+\begin{enumerate}
+    \item \textbf{Determinism:} Given identical inputs, $v$ produces identical outputs.
+    \item \textbf{Boundedness:} The execution cost $c(v)$ is upper-bounded: $c(v) \leq c_{\max}$.
+    \item \textbf{Composability:} Voxels compose via sequential ($v_1 \circ v_2$) or parallel ($v_1 \| v_2$) operators.
+    \item \textbf{Verifiability:} The postcondition of $v$ is machine-checkable (e.g., AST validity, type safety).
+\end{enumerate}
+\end{definition}
+
+\noindent Examples of cognitive voxels include: an AST-validated function write, a cryptographically verified API call, a sandboxed shell execution, and a typed file read. The agent \emph{cannot} act continuously; it is structurally constrained to compose only pre-validated blocks.
+
+\subsection{Recursive Task Delegation}
+
+The self-replication demonstrated by hierarchical modular swarms~\citep{abdelrahman2022self} maps directly onto Kota's \texttt{delegate\_task} primitive. We formalize the recursive delegation tree:
+
+\begin{definition}[Delegation Tree]
+A delegation tree $\mathcal{T} = (V, E)$ is a rooted tree where each node $n_i \in V$ is an agent instance and each edge $(n_i, n_j) \in E$ represents a task delegation. The root agent $n_0$ delegates to children $\{n_1, \ldots, n_k\}$, which may recursively delegate further.
+\end{definition}
+
+\begin{property}[Exponential Scaling and Error Containment]
+For a delegation tree of depth $d$ with branching factor $b$, the total parallelism is $O(b^d)$. The error containment per leaf is formalized using the maximal Lyapunov exponent $\lambda$. A cognitive voxel is strictly defined as an operation where trajectories in the agent's phase space converge:
+\begin{equation}
+    \lambda = \lim_{t\to\infty} \lim_{|\delta Z_0|\to 0} \frac{1}{t} \ln \frac{|\delta Z(t)|}{|\delta Z_0|} < 0
+\end{equation}
+where $\delta Z_0$ is the initial separation vector~\citep{benettin1980lyapunov}. While chaotic hallucination yields $\lambda > 0$ (exponential divergence), recursive delegation constrains the state space such that $\lambda < 0$ at each leaf node, guaranteeing systemic stability.
+\end{property}
+
+\begin{algorithm}[t]
+\caption{Pre-Execution Load Simulation}
+\label{alg:load_sim}
+\begin{algorithmic}[1]
+\Require Task $T$, delegation tree $\mathcal{T}$, energy budget $E_{\max}$
+\Ensure Approved execution plan or veto
+\State $\hat{E} \gets 0$ \Comment{Estimated total energy}
+\For{each leaf node $n_i \in \text{leaves}(\mathcal{T})$}
+    \State $\hat{E} \gets \hat{E} + c(n_i) \cdot \text{depth}(n_i)$
+\EndFor
+\State $\hat{M} \gets \sum_{n_i \in V} \text{ctx\_tokens}(n_i)$ \Comment{Total memory}
+\If{$\hat{E} > E_{\max}$ \textbf{or} $\hat{M} > M_{\max}$}
+    \State \Return \textsf{Veto}(``Exceeds energy/memory budget'')
+\Else
+    \State \Return \textsf{Approve}($\mathcal{T}$)
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\noindent Before execution, the root agent simulates the cognitive load, memory consumption, and energy cost of the planned assembly tree (Algorithm~\ref{alg:load_sim}). If simulation indicates high probability of failure or thermal throttling, the plan is vetoed and returned to the planning layer.
+
+%% ========================================================================
+\section{Assembly Theory as a Creativity Metric}
+\label{sec:assembly}
+%% ========================================================================
+
+Within Kota~Q, Assembly Theory quantifies the complexity of objects based on their causal formation histories~\citep{sharma2023assembly}. The \emph{assembly index} $a(x)$ is the minimum number of joining operations required to construct object $x$ from basic building blocks, where previously constructed sub-assemblies may be reused as single components.
+
+\begin{definition}[Assembly Index for Tool Chains]
+Let $\mathcal{V} = \{v_1, \ldots, v_n\}$ be the set of cognitive voxels. For a composite task $T = v_{i_1} \circ v_{i_2} \circ \cdots \circ v_{i_m}$, the assembly index is:
+\begin{equation}
+    a(T) = \min_{\pi} |\pi| \quad \text{s.t. } \pi \text{ produces } T \text{ from } \mathcal{V} \text{ with sub-assembly reuse}
+    \label{eq:assembly_index}
+\end{equation}
+where $\pi$ is a construction pathway and $|\pi|$ counts irreducible joining steps.
+\end{definition}
+
+\begin{definition}[Copy Number Threshold]
+Let $N(T)$ denote the number of times task pattern $T$ appears across distinct operational contexts. The \emph{selection signature} is the pair $(a(T), N(T))$. We classify:
+\begin{equation}
+    \text{class}(T) = \begin{cases}
+        \textsf{Verified-Macro} & \text{if } a(T) > \alpha \text{ and } N(T) > \beta \\
+        \textsf{Memorized-Template} & \text{if } a(T) \leq \alpha \text{ and } N(T) > \beta \\
+        \textsf{Novel-Exploration} & \text{if } a(T) > \alpha \text{ and } N(T) \leq \beta \\
+        \textsf{Noise} & \text{otherwise}
+    \end{cases}
+    \label{eq:copy_threshold}
+\end{equation}
+where $\alpha$ and $\beta$ are domain-specific thresholds~\citep{seet2025assemblytheory}.
+\end{definition}
+
+\noindent Tasks classified as \textsf{Verified-Macro} are automatically promoted into the agent's skill tree as callable single-step tools, compressing future assembly paths. Tasks classified as \textsf{Novel-Exploration} with high utility are candidates for creative reward by the Critic Agent $\mathcal{A}_c$.
+
+%% ========================================================================
+\section{Polycentric Governance}
+\label{sec:governance}
+%% ========================================================================
+
+Scaling to multi-operator environments transforms local compute into a \emph{Common-Pool Resource} (CPR). GPU VRAM, network bandwidth, and SQLite I/O are rival and partially excludable---the defining characteristics of a CPR~\citep{ostrom1990governing}.
+
+We embed Ostrom's eight design principles as algorithmic constraints:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lp{6cm}@{}}
+\toprule
+\textbf{Ostrom Principle} & \textbf{Kota~2 Implementation} \\
+\midrule
+Defined boundaries & Cryptographic isolation of per-agent SQLite memory and VRAM quotas \\
+Local congruence & Agent capabilities bounded by real-time hardware measurements from $\mathcal{A}_s$ \\
+Collective choice & Sub-agents vote via MIMO synthesis (Eq.~\ref{eq:mimo}) before state-altering commits \\
+Monitoring & $\mathcal{A}_c$ continuously audits resource consumption per agent \\
+Graduated sanctions & Bandwidth throttling proportional to context-window overuse \\
+Conflict resolution & Shapley-value arbitration (Section~\ref{sec:energy}) \\
+\bottomrule
+\end{tabular}
+\caption{Mapping Ostrom's commons principles to swarm governance.}
+\label{tab:ostrom}
+\end{table}
+
+\subsection{Stigmergic Coordination}
+
+Rather than explicit $O(n^2)$ message passing between agents, coordination proceeds \emph{stigmergically} through the shared Graph RAG store. Agents annotate memory nodes with metadata tags---utility scores, temporal relevance, and access frequency---that implicitly guide the retrieval paths of other agents~\citep{minsky1986society}. This mirrors biological stigmergy in ant colonies and scales sub-linearly with swarm size.
+
+Research on real-time human-AI deliberation further motivates structural pacing interventions---artificial words-per-minute throttling and cohort transfers---to prevent agents from overwhelming human participants~\citep{qian2025deliberate}.
+
+%% ========================================================================
+\section{Energy Justice and Shapley Allocation}
+\label{sec:energy}
+%% ========================================================================
+
+Power in agent systems has dual meaning: thermodynamic energy (watts, joules) and socio-economic leverage. Deep learning training carries substantial carbon costs~\citep{strubell2019energy}, framing energy consumption as an environmental justice concern.
+
+\subsection{Energy Score as Active Constraint}
+
+Kota~1 introduced the Energy Score $\mathcal{E}$ as a passive metric. Kota~2 elevates it to an \emph{active constraint}:
+
+\begin{equation}
+    \mathcal{E}(T) = \int_0^{\Delta t} P(t) \, dt \leq E_{\max}
+    \label{eq:energy_score}
+\end{equation}
+
+\noindent where $P(t)$ is instantaneous power draw and $E_{\max}$ is the per-task energy budget. Tasks exceeding $E_{\max}$ trigger automatic decomposition into lower-energy sub-tasks via the delegation tree (Section~\ref{sec:voxels}).
+
+\subsection{Cooperative Resource Allocation}
+
+When $K$ operators share a compute cluster, we allocate resources via Shapley values from cooperative game theory. Let $v: 2^K \to \mathbb{R}$ be the characteristic function mapping operator coalitions to utility. The Shapley value for operator $i$ is:
+
+\begin{equation}
+    \phi_i(v) = \sum_{S \subseteq K \setminus \{i\}} \frac{|S|!(|K|-|S|-1)!}{|K|!} \left[ v(S \cup \{i\}) - v(S) \right]
+    \label{eq:shapley}
+\end{equation}
+
+\noindent GPU time is allocated proportionally to $\phi_i$, ensuring that no single operator monopolizes hardware and that each receives compute proportional to their marginal contribution to community utility.
+
+\subsection{Legibility Pauses}
+
+To counteract the structural power asymmetry between agent velocity and human comprehension~\citep{greatinversion2026}, the system enforces \emph{mandatory legibility pauses}: for any action with estimated impact $I(a) > I_{\text{threshold}}$, the agent halts execution and requests a human verification token before proceeding. This tethers operational velocity to the operator's cognitive bandwidth.
+
+%% ========================================================================
+\section{Autopoiesis and M-Capacity: Markov Spectral Agency}
+\label{sec:autopoiesis}
+%% ========================================================================
+
+Artificial life simulations---particularly Flow-Lenia~\citep{plantec2023flow}---demonstrate that complex, self-organizing behavior emerges from simple localized rules under two critical constraints: \emph{mass conservation} and \emph{parameter localization}.
+
+To formally map this to cognitive models, we model the present state $A_n$ and future state $A_{n+1}$ of the agent as a finite-state irreducible Markov chain. The mutual information shared between the present and future state is $I(A_n ; A_{n+1}) = H(A_n) - H(A_{n+1}|A_n)$. The maximal information shared over any probability mass function $p(x)$ is the channel link capacity $C$, which we define as the agent's \emph{M-Capacity}:
+\begin{equation}
+    C = \max_{p(x)} I(A_n ; A_{n+1})
+\end{equation}
+By bounding the system's M-Capacity, we prevent chaotic divergence~\citep{holliday2003capacity, treffert2009savant}.
+
+\subsection{Token Conservation and Symmetric Information Rate}
+
+We map Flow-Lenia's mass conservation directly onto the agent's M-Capacity and token budget. Let $\mathcal{M}$ denote the total ``cognitive mass'' (active context tokens plus stored memory entries). We enforce:
+
+\begin{equation}
+    |\mathcal{M}(t)| = \text{const.} \quad \forall t
+    \label{eq:mass_conservation}
+\end{equation}
+
+\noindent If a new skill $s_{\text{new}}$ is activated, requiring $\delta$ tokens, an equivalent mass of low-utility memory must be decayed. This continuous substitution is governed by computing the Symmetric Information Rate (SIR) across the Markov spectrum (Algorithm~\ref{alg:sir}), maximizing the stable information flow.
+
+\begin{algorithm}[h]
+\caption{Compute Symmetric Information Rate (SIR)}
+\label{alg:sir}
+\begin{algorithmic}[1]
+\Procedure{SIR}{$\mathcal{A}, A_n, A_{n+1}, X, Y$}
+    \For{all states $A$ in phase space $S$}
+        \State Compute $\lambda(A_i) = \lim_{n\to\infty} \frac{1}{n} \sum_{i=0}^{n-1} \ln |f'(x_i)|$
+    \EndFor
+    \State \Return $\max(\lambda(A))$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{equation}
+    \mathcal{M}(t+1) = \mathcal{M}(t) \cup \{s_{\text{new}}\} \setminus \arg\min_{\substack{S \subseteq \mathcal{M}(t) \\ |S| = \delta}} \sum_{s \in S} u(s)
+    \label{eq:decay}
+\end{equation}
+
+\noindent where $u(s)$ is the utility score of memory entry $s$, computed from access frequency and recency.
+
+\subsection{Self-Evolving Skill Kernels}
+
+Rather than a static tool array, the skill tree operates as a continuous kernel function. Each tool $v_i$ has a selection weight:
+
+\begin{equation}
+    w_i(t) = \frac{\exp(\eta \cdot r_i(t) / c_i(t))}{\sum_j \exp(\eta \cdot r_j(t) / c_j(t))}
+    \label{eq:skill_kernel}
+\end{equation}
+
+\noindent where $r_i(t)$ is the cumulative success rate of tool $v_i$ up to time $t$, $c_i(t)$ is its average energy cost, and $\eta$ is a temperature parameter. Tools with high reward-to-cost ratios are preferentially selected. Over time, the agent dynamically rewrites its own tool definitions---composing high-weight primitives into new compound tools---achieving \emph{software autopoiesis}~\citep{autopoiesis2026}.
+
+%% ========================================================================
+\section{The Physical Interface Layer}
+\label{sec:interface}
+%% ========================================================================
+
+The ultimate trajectory of agentic technology is physical actuation~\citep{liang2023code, suchman1987plans}. Existing paradigms demonstrate that language models can map natural language to robotic skill vocabularies, outputting executable control scripts. The open-source Model Context Protocol (MCP) has been extended to IoT devices and local microcontrollers, providing a standardized JSON-RPC interface for reading sensors and triggering actuators without cloud dependency.
+
+\subsection{Asymmetric Energy Budgets}
+
+Physical actions carry fundamentally different risk profiles than digital ones. Writing a file consumes microwatts; operating a CNC spindle consumes kilowatts. We formalize this via an \emph{asymmetric energy budget}:
+
+\begin{equation}
+    E_{\max}^{\text{phys}} = \gamma \cdot E_{\max}^{\text{dig}}, \quad \gamma \gg 1
+    \label{eq:asymmetric}
+\end{equation}
+
+\noindent Actions tagged as physical actuation require both a higher Shapley-value justification (Eq.~\ref{eq:shapley}) and mandatory human-in-the-loop verification, serving as the robotic equivalent of a software sandbox.
+
+\subsection{Tool-Use Cascades}
+
+Situated cognition holds that intelligence arises from continuous interaction with an environment~\citep{suchman1987plans}. In physical fabrication, this manifests as \emph{tool-use cascades}: mastery of one tool enables construction of a more advanced tool, yielding exponential fabrication capability from minimal starting resources.
+
+Kota~2 is designed to recognize and optimize these cascades. The agent assists the operator not merely in fabricating a singular end-use part, but in designing the automated jigs, fixtures, and secondary machines that accelerate all future physical workflows---bootstrapping the operator's fabrication infrastructure recursively.
+
+%% ========================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%% ========================================================================
+
+We have presented Kota~Q, a theoretical framework that extends the autonomous coding agent from a digital tool to a physically grounded, community-aware system. The key contributions are:
+
+\begin{enumerate}
+    \item \textbf{Cognitive voxels} (Definition~1): Discretizing agent actions into AST-validated primitives, enabling recursive delegation with exponential scaling and Lyapunov stability (Property~1).
+    \item \textbf{Assembly-theoretic creativity metrics} (Eq.~\ref{eq:assembly_index}--\ref{eq:copy_threshold}): Quantifying cognitive utility and autonomously evolving the skill tree.
+    \item \textbf{Polycentric governance} (Table~\ref{tab:ostrom}): Embedding Ostrom's commons principles as algorithmic constraints for multi-operator swarms.
+    \item \textbf{Energy-just allocation} (Eq.~\ref{eq:energy_score}--\ref{eq:shapley}): Shapley-value resource distribution with mandatory legibility pauses.
+    \item \textbf{M-Capacity and Autopoiesis} (Eq.~\ref{eq:mass_conservation}--\ref{eq:skill_kernel}): Mass-conserving, self-evolving tool selection governed by Markov channel capacity.
+    \item \textbf{Physical interface specification} (Eq.~\ref{eq:asymmetric}): Asymmetric energy budgets and tool-use cascades for real-world actuation.
+\end{enumerate}
+
+\noindent Future work includes empirical validation of the assembly index on production codebases, deployment of the Shapley allocator on multi-GPU clusters, and integrating \emph{Quantum Belief Computing} paradigms to simulate decoupled and entangled Markov spectra across agent swarms for accelerated Graph RAG traversal.
+
+\bibliography{references}
+
+\end{document}

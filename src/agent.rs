@@ -392,7 +392,7 @@ impl Agent {
                         }
                     } else {
                         match tools::parse_tool_call(name, args, &self.workdir) {
-                            Ok(call) => tools::execute(&call).await,
+                            Ok(call) => tools::execute(&call, Some(&self.llm)).await,
                             Err(e) => tools::ToolResult {
                                 success: false,
                                 output: format!("Failed to parse tool call: {}", e),

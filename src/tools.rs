@@ -14,6 +14,7 @@ pub enum ToolCall {
     Search { pattern: String, path: PathBuf },
     FetchNews { query: String },
     DelegateTask { task: String, mode: String },
+    VerifyPaper { path: PathBuf, check_claims: bool },
 }
 
 #[derive(Debug)]
@@ -76,12 +77,20 @@ pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::R
                 query: query.to_string(),
             })
         }
+        "verify_paper" => {
+            let path = args["path"].as_str().unwrap_or("");
+            let check_claims = args["check_claims"].as_bool().unwrap_or(true);
+            Ok(ToolCall::VerifyPaper {
+                path: workdir.join(path),
+                check_claims,
+            })
+        }
         _ => anyhow::bail!("Unknown tool: {}", name),
     }
 }
 
 /// Execute a tool call and return the result
-pub async fn execute(call: &ToolCall) -> ToolResult {
+pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> ToolResult {
     match call {
         ToolCall::ReadFile { path } => {
             match tokio::fs::read_to_string(path).await {
@@ -225,6 +234,50 @@ pub async fn execute(call: &ToolCall) -> ToolResult {
             success: false,
             output: format!("delegate_task for task '{}' and mode '{}' should be intercepted by the agent runner loop and not executed directly.", task, mode),
         },
+        ToolCall::VerifyPaper { path, check_claims } => {
+            match crate::verifier::DocumentVerifier::verify_async(path, None, *check_claims, llm, 5).await {
+                Ok(report) => {
+                    let status = if report.passed { "PASSED (Reviewer-Ready)" } else { "FAILED (Violations Found)" };
+                    let mut out = format!(
+                        "Verification Report for {}:\nStatus: {}\nTotal Lines: {}\nLyapunov Stability Exponent: {:.2} (Target: λ < 0)\nErrors: {}, Warnings: {}, Infos: {}\n",
+                        report.file_path, status, report.total_lines, report.lyapunov_stability,
+                        report.summary.errors, report.summary.warnings, report.summary.infos
+                    );
+                    if let Some(mean_score) = report.mean_confidence_score {
+                        out.push_str(&format!("Mean Semantic Claim Confidence: {:.1}%\n", mean_score * 100.0));
+                    }
+                    if !report.diagnostics.is_empty() {
+                        out.push_str("\nDiagnostics:\n");
+                        for d in &report.diagnostics {
+                            out.push_str(&format!("- [{:?}] [{}] Line {}: {}\n", d.severity, d.voxel, d.line, d.message));
+                            if let Some(ref sugg) = d.suggestion {
+                                out.push_str(&format!("    Suggested: {}\n", sugg));
+                            }
+                        }
+                    }
+                    if !report.claims.is_empty() {
+                        out.push_str("\nSemantic Claims Evaluated:\n");
+                        for (i, c) in report.claims.iter().enumerate() {
+                            out.push_str(&format!(
+                                "{}. [{:?} | {:.0}%] Line {}: \"{}\"\n   Rationale: {}\n",
+                                i + 1, c.confidence_grade, c.confidence_score * 100.0, c.line, c.passage, c.rationale
+                            ));
+                            if let Some(ref ev) = c.evidence_found {
+                                out.push_str(&format!("   Evidence: {}\n", ev));
+                            }
+                        }
+                    }
+                    ToolResult {
+                        success: report.passed,
+                        output: out,
+                    }
+                }
+                Err(e) => ToolResult {
+                    success: false,
+                    output: format!("Error verifying paper at {}: {}", path.display(), e),
+                },
+            }
+        },
     }
 }
 
@@ -364,6 +417,27 @@ pub async fn tool_definitions(mcp: Option<&crate::mcp::McpManager>) -> Vec<ToolD
                 }),
             },
         },
+        ToolDef {
+            tool_type: "function".to_string(),
+            function: ToolFunction {
+                name: "verify_paper".to_string(),
+                description: "Run cognitive voxel verification on a LaTeX paper (.tex). Verifies syntax hygiene, table bolding arithmetic, citation integrity, cross-reference/label integrity, and evaluates semantic claims and passage confidence scores.".to_string(),
+                parameters: serde_json::json!({
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Relative path to the .tex file"
+                        },
+                        "check_claims": {
+                            "type": "boolean",
+                            "description": "Whether to perform semantic claim verification and passage confidence scoring (default: true)"
+                        }
+                    },
+                    "required": ["path"]
+                }),
+            },
+        },
     ];
 
     if let Some(mcp_mgr) = mcp {
@@ -460,6 +534,20 @@ mod tests {
                 assert_eq!(mode, "coder");
             }
             _ => panic!("Expected DelegateTask call"),
+        }
+    }
+
+    #[test]
+    fn test_parse_verify_paper() {
+        let workdir = Path::new("/workspace");
+        let args = r#"{"path": "papers/paper.tex", "check_claims": true}"#;
+        let call = parse_tool_call("verify_paper", args, workdir).unwrap();
+        match call {
+            ToolCall::VerifyPaper { path, check_claims } => {
+                assert_eq!(path, Path::new("/workspace/papers/paper.tex"));
+                assert!(check_claims);
+            }
+            _ => panic!("Expected VerifyPaper call"),
         }
     }
 }

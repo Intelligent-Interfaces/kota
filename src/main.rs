@@ -10,13 +10,18 @@ mod skills;
 mod telemetry;
 mod tools;
 mod tui;
+pub mod verifier;
 mod vertex;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "kota", about = "TUI agent coder & computer assistant")]
 struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+
     /// Base URL for the local LLM API (OpenAI-compatible)
     #[arg(long, default_value = "http://localhost:11434/v1")]
     api_url: String,
@@ -46,9 +51,155 @@ struct Cli {
     query: Option<String>,
 }
 
+#[derive(Subcommand)]
+enum Commands {
+    /// Verify a LaTeX document for syntax hygiene, citation provenance, table honesty, cross-references, and semantic claims
+    Verify {
+        /// Path to the .tex file
+        path: PathBuf,
+        /// Optional path to the .bib file (defaults to inferred from \bibliography or directory)
+        #[arg(long)]
+        bib: Option<PathBuf>,
+        /// Enable semantic claim verification and passage confidence scoring
+        #[arg(long)]
+        claims: bool,
+        /// Maximum candidate claims to extract and evaluate
+        #[arg(long, default_value_t = 5)]
+        max_claims: usize,
+        /// Base URL for the LLM API (for claim verification)
+        #[arg(long, default_value = "http://localhost:11434/v1")]
+        api_url: String,
+        /// Model name to use for semantic claim verification
+        #[arg(long, default_value = "qwen3:8b")]
+        model: String,
+        /// Output the verification report as JSON
+        #[arg(long)]
+        json: bool,
+    },
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    if let Some(Commands::Verify {
+        path,
+        bib,
+        claims,
+        max_claims,
+        api_url,
+        model,
+        json,
+    }) = cli.command
+    {
+        let llm_client = if claims {
+            Some(llm::LlmClient::new(&api_url, &model))
+        } else {
+            None
+        };
+
+        match verifier::DocumentVerifier::verify_async(
+            &path,
+            bib.as_ref(),
+            claims,
+            llm_client.as_ref(),
+            max_claims,
+        )
+        .await
+        {
+            Ok(report) => {
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    println!(
+                        "\n🔍 Running Cognitive Voxel Verification Pipeline on: {}",
+                        report.file_path
+                    );
+                    println!("──────────────────────────────────────────────────────────────────────────");
+                    println!("📄 Total Lines: {}", report.total_lines);
+                    println!(
+                        "📊 Lyapunov Stability Exponent: {:.2} (Target: λ < 0)",
+                        report.lyapunov_stability
+                    );
+                    if let Some(mean) = report.mean_confidence_score {
+                        println!("🧠 Mean Semantic Claim Confidence: {:.1}%", mean * 100.0);
+                    }
+                    println!(
+                        "Status: {}",
+                        if report.passed {
+                            "✅ PASSED (Reviewer-Ready)"
+                        } else {
+                            "❌ FAILED (Violations Found)"
+                        }
+                    );
+                    println!("──────────────────────────────────────────────────────────────────────────");
+
+                    if report.diagnostics.is_empty() {
+                        println!("✨ Zero violations found! Document satisfies all cognitive voxel invariants.");
+                    } else {
+                        for d in &report.diagnostics {
+                            let icon = match d.severity {
+                                verifier::DiagnosticSeverity::Error => "🔴 [ERROR]",
+                                verifier::DiagnosticSeverity::Warning => "🟡 [WARN]",
+                                verifier::DiagnosticSeverity::Info => "ℹ️ [INFO]",
+                            };
+                            println!("\n{} [{}] Line {}: {}", icon, d.voxel, d.line, d.message);
+                            if let Some(ref s) = d.snippet {
+                                println!("   Snippet:   \"{}\"", s.trim());
+                            }
+                            if let Some(ref sugg) = d.suggestion {
+                                println!("   Suggested: {}", sugg);
+                            }
+                        }
+                        println!(
+                            "\nSummary: {} error(s), {} warning(s), {} info(s).",
+                            report.summary.errors, report.summary.warnings, report.summary.infos
+                        );
+                    }
+
+                    if !report.claims.is_empty() {
+                        println!(
+                            "\n🔬 [VoxelClaim] Semantic Claims & Passage Confidence Evaluation:"
+                        );
+                        println!("──────────────────────────────────────────────────────────────────────────");
+                        for (i, c) in report.claims.iter().enumerate() {
+                            let badge = match c.confidence_grade {
+                                verifier::ConfidenceGrade::High => "🟢 [HIGH]",
+                                verifier::ConfidenceGrade::Moderate => "🟡 [MODERATE]",
+                                verifier::ConfidenceGrade::Low => "🟠 [LOW]",
+                                verifier::ConfidenceGrade::Fragile => "🔴 [FRAGILE]",
+                            };
+                            println!(
+                                "\nClaim #{}: {} ({:.1}%) - [{}] Line {}",
+                                i + 1,
+                                badge,
+                                c.confidence_score * 100.0,
+                                c.claim_type,
+                                c.line
+                            );
+                            println!("   Passage:    \"{}\"", c.passage.trim());
+                            println!("   Rationale:  {}", c.rationale);
+                            if let Some(ref ev) = c.evidence_found {
+                                println!("   Evidence:   {}", ev);
+                            }
+                            if let Some(ref sugg) = c.suggestion {
+                                println!("   Suggestion: {}", sugg);
+                            }
+                        }
+                    }
+                    println!("──────────────────────────────────────────────────────────────────────────\n");
+                }
+                if !report.passed {
+                    std::process::exit(1);
+                }
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("Verification failed: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
 
     let llm_client = llm::LlmClient::new(&cli.api_url, &cli.model);
     let startup_mode = agent::AgentMode::from_str(&cli.mode);

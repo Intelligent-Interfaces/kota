@@ -1,0 +1,91 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abdel-Rahman et~al.(2022)Abdel-Rahman, Cameron, Jenett, Smith, and
+  Gershenfeld]{abdelrahman2022self}
+Amira Abdel-Rahman, Christopher Cameron, Benjamin Jenett, Miana Smith, and Neil
+  Gershenfeld.
+\newblock Self-replicating hierarchical modular robotic swarms.
+\newblock \emph{Communications Engineering}, 1\penalty0 (1):\penalty0 35, 2022.
+
+\bibitem[Anonymous(2026{\natexlab{a}})]{autopoiesis2026}
+Anonymous.
+\newblock Autopoiesis: A self-evolving system paradigm for llm serving under
+  runtime dynamics.
+\newblock \emph{arXiv preprint arXiv:2604.07144}, 2026{\natexlab{a}}.
+
+\bibitem[Anonymous(2026{\natexlab{b}})]{greatinversion2026}
+Anonymous.
+\newblock The great inversion: Precedent, power, and moral reciprocity in
+  human-ai relations.
+\newblock \emph{AI Futures Policy Review}, 2026{\natexlab{b}}.
+
+\bibitem[Liang et~al.(2023)]{liang2023code}
+Jacky Liang et~al.
+\newblock Code as policies: Language model programs for embodied control.
+\newblock \emph{IEEE International Conference on Robotics and Automation
+  (ICRA)}, 2023.
+
+\bibitem[Minsky(1986)]{minsky1986society}
+Marvin Minsky.
+\newblock \emph{The Society of Mind}.
+\newblock Simon and Schuster, 1986.
+
+\bibitem[Ostrom(1990)]{ostrom1990governing}
+Elinor Ostrom.
+\newblock \emph{Governing the Commons: The Evolution of Institutions for
+  Collective Action}.
+\newblock Cambridge University Press, 1990.
+
+\bibitem[Plantec et~al.(2023)Plantec, Hamon, Etcheverry, Oudeyer, Moulin-Frier,
+  and Chan]{plantec2023flow}
+Erwan Plantec, Gautier Hamon, Mayalen Etcheverry, Pierre-Yves Oudeyer,
+  Cl{\'e}ment Moulin-Frier, and Bert Wang-Chak Chan.
+\newblock Flow-lenia: Towards open-ended evolution in cellular automata through
+  mass conservation and parameter localization.
+\newblock In \emph{Artificial Life Conference Proceedings 35}, page 131. MIT
+  Press, 2023.
+
+\bibitem[Qian(2025)]{qian2025deliberate}
+et~al. Qian.
+\newblock Deliberate lab: A platform for real-time human-ai social experiments.
+\newblock \emph{arXiv preprint arXiv:2510.13011}, 2025.
+
+\bibitem[Seet(2025)]{seet2025assemblytheory}
+et~al. Seet.
+\newblock assembly-theory: A rust library for molecular assembly index
+  calculation.
+\newblock \emph{Journal of Open Source Software}, 2025.
+
+\bibitem[Sharma et~al.(2023)Sharma, Cz{\'e}gel, Lachmann, Kempes, Walker, and
+  Cronin]{sharma2023assembly}
+Abhishek Sharma, D{\'a}niel Cz{\'e}gel, Michael Lachmann, Christopher~P Kempes,
+  Sara~I Walker, and Leroy Cronin.
+\newblock Assembly theory explains and quantifies selection and evolution.
+\newblock \emph{Nature}, 622\penalty0 (7982):\penalty0 321--328, 2023.
+
+\bibitem[Smith et~al.(2025)Smith, Forman, Abdel-Rahman, Wang, and
+  Gershenfeld]{smith2025voxel}
+Miana Smith, Jack Forman, Amira Abdel-Rahman, Sophia Wang, and Neil
+  Gershenfeld.
+\newblock Voxel invention kit: Reconfigurable building blocks for prototyping
+  interactive electronic structures.
+\newblock In \emph{CHI Conference on Human Factors in Computing Systems}, 2025.
+
+\bibitem[Strubell et~al.(2019)Strubell, Ganesh, and
+  McCallum]{strubell2019energy}
+Emma Strubell, Ananya Ganesh, and Andrew McCallum.
+\newblock Energy and policy considerations for deep learning in nlp.
+\newblock \emph{arXiv preprint arXiv:1906.02243}, 2019.
+
+\bibitem[Suchman(1987)]{suchman1987plans}
+Lucy~A Suchman.
+\newblock \emph{Plans and situated actions: The problem of human-machine
+  communication}.
+\newblock Cambridge university press, 1987.
+
+\end{thebibliography}

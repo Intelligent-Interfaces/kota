@@ -261,6 +261,58 @@ impl OpenAiClient {
 
         Ok(())
     }
+
+    pub async fn complete(
+        &self,
+        messages: Vec<Message>,
+        temperature: Option<f32>,
+    ) -> anyhow::Result<String> {
+        let request = ChatRequest {
+            model: self.model.clone(),
+            messages,
+            stream: false,
+            tools: None,
+            temperature: temperature.or(Some(0.1)),
+        };
+
+        let url = format!("{}/chat/completions", self.base_url);
+        let mut req = self.client.post(&url).json(&request);
+
+        if let Ok(key) = std::env::var("KOTA_API_KEY") {
+            req = req.bearer_auth(key);
+        } else if let Ok(key) = std::env::var("OPENAI_API_KEY") {
+            req = req.bearer_auth(key);
+        }
+
+        let response = req.send().await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            anyhow::bail!("LLM API error {}: {}", status, body);
+        }
+
+        #[derive(Deserialize)]
+        struct NonStreamChoice {
+            message: MessageContent,
+        }
+        #[derive(Deserialize)]
+        struct MessageContent {
+            content: Option<String>,
+        }
+        #[derive(Deserialize)]
+        struct NonStreamResponse {
+            choices: Vec<NonStreamChoice>,
+        }
+
+        let body: NonStreamResponse = response.json().await?;
+        let text = body
+            .choices
+            .into_iter()
+            .next()
+            .and_then(|c| c.message.content)
+            .unwrap_or_default();
+        Ok(text)
+    }
 }
 
 impl LlmClient {
@@ -284,6 +336,26 @@ impl LlmClient {
         match self {
             Self::OpenAi(c) => c.chat_stream(messages, tools, on_event).await,
             Self::Vertex(c) => c.chat_stream(messages, tools, on_event).await,
+        }
+    }
+
+    pub async fn complete(
+        &self,
+        messages: Vec<Message>,
+        temperature: Option<f32>,
+    ) -> anyhow::Result<String> {
+        match self {
+            Self::OpenAi(c) => c.complete(messages, temperature).await,
+            Self::Vertex(c) => {
+                let mut output = String::new();
+                c.chat_stream(messages, None, |event| {
+                    if let StreamEvent::Content(c) = event {
+                        output.push_str(&c);
+                    }
+                })
+                .await?;
+                Ok(output)
+            }
         }
     }
 }
