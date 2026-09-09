@@ -12,3 +12,8 @@ generate_l*.py
 *.out
 *.synctex.gz
 *.toc
+
+# Python cache artifacts
+__pycache__/
+*.py[cod]
+*$py.class
