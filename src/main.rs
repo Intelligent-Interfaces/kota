@@ -58,7 +58,11 @@ struct Cli {
     #[arg(long, default_value_t = 8765)]
     port: u16,
 
-    /// Bind remote controller to 0.0.0.0 (LAN) instead of 127.0.0.1 (Localhost)
+    /// Restrict remote controller to 127.0.0.1 (Localhost only)
+    #[arg(long)]
+    localhost_only: bool,
+
+    /// Bind remote controller to 0.0.0.0 (LAN, default)
     #[arg(long)]
     lan: bool,
 
@@ -69,6 +73,17 @@ struct Cli {
     /// A single query to run non-interactively and print to stdout
     #[arg(long)]
     query: Option<String>,
+}
+
+fn get_local_ip() -> Option<String> {
+    let socket = std::net::UdpSocket::bind("0.0.0.0:0").ok()?;
+    socket.connect("8.8.8.8:80").ok()?;
+    let ip = socket.local_addr().ok()?.ip();
+    if ip.is_loopback() || ip.is_unspecified() {
+        None
+    } else {
+        Some(ip.to_string())
+    }
 }
 
 #[derive(Subcommand)]
@@ -602,7 +617,16 @@ Available agent modes (composed of weighted skill vectors):
         }
     });
 
-    let host = if cli.lan { "0.0.0.0" } else { "127.0.0.1" };
+    let host = if cli.localhost_only {
+        "127.0.0.1"
+    } else {
+        "0.0.0.0"
+    };
+    let lan_ip = if host == "0.0.0.0" {
+        get_local_ip()
+    } else {
+        None
+    };
     let port = cli.port;
     let password = cli.password.clone();
     let tx_server = tx.clone();
@@ -622,5 +646,5 @@ Available agent modes (composed of weighted skill vectors):
         power::start_power_monitor(tx_power, rx_power).await;
     });
 
-    tui::run(rx1, input_tx, startup_mode, port).await
+    tui::run(rx1, input_tx, startup_mode, port, lan_ip).await
 }
