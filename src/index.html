@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#ECEAE4" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>KOTA · Pervasive Cyberphysical Terminal</title>
+    <title>kota · pervasive terminal</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
@@ -18,10 +18,10 @@
     <style>
         /* ──────────────────────────────────────────────────────────
            CYBERPHYSICAL / PERVASIVE HARDWARE DESIGN SYSTEM
-           Grid-like, bit-like, byte-graphics, Conway's Game of Life, E-Paper
+           lowercase, digital-like fabs & modals, e-ink / carbon grid
            ────────────────────────────────────────────────────────── */
         :root {
-            /* Chalk / E-Ink Technical Paper */
+            /* chalk / e-ink technical paper */
             --bg-outer: #ECEAE4;
             --bg-panel: #F5F4EE;
             --bg-card: #FFFFFF;
@@ -39,19 +39,18 @@
             --border-hairline: rgba(17, 18, 20, 0.14);
 
             --accent: #111214;
-            --accent-bg: #111214;
-            --accent-text: #FFFFFF;
             --error-ink: #A31515;
             --error-bg: rgba(163, 21, 21, 0.08);
 
-            --grid-line: rgba(17, 18, 20, 0.08);
+            --grid-line: rgba(17, 18, 20, 0.07);
             --bit-cell-off: rgba(17, 18, 20, 0.07);
             --bit-cell-on: #111214;
             --shadow-hardware: 1px 1px 0px rgba(17, 18, 20, 0.2);
+            --modal-backdrop: rgba(17, 18, 20, 0.35);
         }
 
         [data-theme="obsidian"] {
-            /* Matte Basalt / Carbon Terminal */
+            /* matte basalt / carbon terminal */
             --bg-outer: #090A0D;
             --bg-panel: #111317;
             --bg-card: #181A20;
@@ -69,8 +68,6 @@
             --border-hairline: rgba(234, 235, 240, 0.14);
 
             --accent: #EAEBF0;
-            --accent-bg: #EAEBF0;
-            --accent-text: #090A0D;
             --error-ink: #FF6B6B;
             --error-bg: rgba(255, 107, 107, 0.12);
 
@@ -78,10 +75,11 @@
             --bit-cell-off: rgba(234, 235, 240, 0.08);
             --bit-cell-on: #EAEBF0;
             --shadow-hardware: 1px 1px 0px rgba(0, 0, 0, 0.6);
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
         }
 
         [data-theme="concrete"] {
-            /* Brutalist Industrial Grey Chassis */
+            /* brutalist industrial grey chassis */
             --bg-outer: #D8D9D4;
             --bg-panel: #E4E5E0;
             --bg-card: #ECEEE9;
@@ -99,8 +97,6 @@
             --border-hairline: rgba(28, 30, 32, 0.15);
 
             --accent: #1C1E20;
-            --accent-bg: #1C1E20;
-            --accent-text: #ECEEE9;
             --error-ink: #B91C1C;
             --error-bg: rgba(185, 28, 28, 0.09);
 
@@ -108,14 +104,16 @@
             --bit-cell-off: rgba(28, 30, 32, 0.08);
             --bit-cell-on: #1C1E20;
             --shadow-hardware: 1px 1px 0px rgba(28, 30, 32, 0.25);
+            --modal-backdrop: rgba(28, 30, 32, 0.4);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            border-radius: 0 !important; /* Pure technical planar aesthetic */
+            border-radius: 0 !important;
             -webkit-tap-highlight-color: transparent;
+            text-transform: lowercase; /* consistent lowercase technical feel */
         }
 
         html, body {
@@ -133,7 +131,7 @@
             justify-content: center;
         }
 
-        /* Technical Coordinate Grid Background */
+        /* technical coordinate grid background */
         body::before {
             content: '';
             position: fixed;
@@ -150,7 +148,7 @@
         }
 
         /* ──────────────────────────────────────────────────────────
-           CHASSIS / APP SHELL
+           CHASSIS SHELL
            ────────────────────────────────────────────────────────── */
         .chassis-shell {
             width: 100%;
@@ -167,7 +165,7 @@
         }
 
         /* ──────────────────────────────────────────────────────────
-           MASTHEAD: PERVASIVE E-PAPER / SCHEMATIC HEADER
+           SLIM MASTHEAD (CLEAN, MINIMAL, LOWERCASE)
            ────────────────────────────────────────────────────────── */
         .masthead-frame {
             background: var(--bg-card);
@@ -177,7 +175,6 @@
             flex-shrink: 0;
         }
 
-        /* Top Technical Ruler */
         .tech-ruler-strip {
             padding: 3px 12px;
             background: var(--bg-inset);
@@ -192,77 +189,62 @@
         }
 
         .ruler-ticks {
-            font-family: 'JetBrains Mono', monospace;
             letter-spacing: 2px;
             opacity: 0.6;
         }
 
         .masthead-main {
-            padding: 10px 14px 8px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .brand-cluster {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* 2-Bit Stencil Mark */
         .brand-badge {
-            width: 32px;
-            height: 32px;
+            width: 26px;
+            height: 26px;
             background: var(--ink-primary);
             color: var(--bg-card);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: 13px;
-            letter-spacing: -0.5px;
+            font-size: 11px;
             line-height: 1;
             border: 1px solid var(--border-heavy);
-            position: relative;
-        }
-        .brand-badge::after {
-            content: '+';
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            font-size: 8px;
-            color: var(--ink-primary);
         }
 
         .brand-spec {
             display: flex;
             flex-direction: column;
-            gap: 1px;
+            gap: 0;
         }
 
         .brand-name {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: 15px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
+            font-size: 13.5px;
+            letter-spacing: 1px;
             line-height: 1.1;
         }
 
         .brand-nomenclature {
             font-size: 8.5px;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
             color: var(--ink-muted);
-            text-transform: uppercase;
         }
 
-        /* Hardware Telemetry Indicators */
-        .hardware-indicators {
+        /* Header indicators and tool chips */
+        .masthead-controls {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -270,22 +252,21 @@
         }
 
         .indicator-box {
-            padding: 3px 7px;
+            padding: 3px 6px;
             background: var(--bg-inset);
             border: 1px solid var(--border-light);
             font-size: 9px;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             white-space: nowrap;
         }
 
         .bit-lamp {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border: 1px solid var(--ink-primary);
             background: transparent;
             display: inline-block;
@@ -304,6 +285,28 @@
             50% { background: transparent; }
         }
 
+        /* Digital modal trigger chips in header */
+        .fab-trigger-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-heavy);
+            color: var(--ink-primary);
+            padding: 3px 7px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: var(--shadow-hardware);
+            transition: all 0.1s;
+        }
+
+        .fab-trigger-btn:hover, .fab-trigger-btn:active {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+        }
+
         /* Finish Selector (Chalk / Carbon / Grey) */
         .finish-group {
             display: flex;
@@ -314,12 +317,10 @@
         .finish-btn {
             border: none;
             background: transparent;
-            padding: 3px 6px;
+            padding: 3px 5px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 8.5px;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
             cursor: pointer;
             color: var(--ink-muted);
             border-right: 1px solid var(--border-light);
@@ -331,236 +332,7 @@
         }
 
         /* ──────────────────────────────────────────────────────────
-           OPERATIONAL TELEMETRY DECK:
-           CONWAY'S GAME OF LIFE & BYTE REGISTERS
-           ────────────────────────────────────────────────────────── */
-        .operation-deck {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-heavy);
-            display: grid;
-            grid-template-columns: 1fr 220px;
-            gap: 0;
-            flex-shrink: 0;
-        }
-
-        /* Conway Cell Automaton Pane */
-        .conway-pane {
-            position: relative;
-            background: var(--bg-inset);
-            border-right: 1px solid var(--border-heavy);
-            height: 110px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .conway-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            image-rendering: pixelated;
-            cursor: crosshair;
-        }
-
-        .conway-overlay {
-            position: absolute;
-            top: 4px;
-            left: 6px;
-            right: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            pointer-events: none;
-            font-size: 8.5px;
-            font-weight: 600;
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-            color: var(--ink-primary);
-            text-shadow: 0 0 2px var(--bg-panel);
-        }
-
-        .conway-badge {
-            background: var(--bg-card);
-            padding: 1px 5px;
-            border: 1px solid var(--border-heavy);
-        }
-
-        /* Byte Register & Sparkline Pane */
-        .byte-telemetry-pane {
-            padding: 8px 10px;
-            background: var(--bg-card);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .telemetry-row-label {
-            font-size: 8px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            color: var(--ink-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* 8-Bit Register Display */
-        .byte-register-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 2px;
-            background: var(--bg-inset);
-            padding: 3px;
-            border: 1px solid var(--border-light);
-        }
-
-        .reg-bit-cell {
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 7.5px;
-            font-weight: 700;
-            border: 1px solid var(--border-hairline);
-            background: var(--bg-card);
-            color: var(--ink-muted);
-            user-select: none;
-        }
-
-        .reg-bit-cell.on {
-            background: var(--ink-primary);
-            color: var(--bg-card);
-            border-color: var(--ink-primary);
-        }
-
-        /* Segmented Step Bounce Histogram */
-        .bounce-histogram {
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 28px;
-            background: var(--bg-inset);
-            padding: 3px 4px;
-            border: 1px solid var(--border-light);
-        }
-
-        .bounce-bar {
-            flex: 1;
-            background: var(--ink-primary);
-            min-height: 2px;
-            height: 12%;
-            transition: height 0.2s ease-out;
-        }
-
-        /* ──────────────────────────────────────────────────────────
-           HARDWARE CONTROL DECK (TACTILE RECTANGULAR KEYS)
-           ────────────────────────────────────────────────────────── */
-        .hardware-deck {
-            background: var(--bg-panel);
-            border-bottom: 1px solid var(--border-heavy);
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            overflow-x: auto;
-            flex-shrink: 0;
-            scrollbar-width: none;
-        }
-        .hardware-deck::-webkit-scrollbar { display: none; }
-
-        .deck-group {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-
-        .deck-caption {
-            font-size: 8.5px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--ink-muted);
-            margin-right: 4px;
-        }
-
-        /* Segmented Mode Keys */
-        .mode-keys {
-            display: flex;
-            border: 1px solid var(--border-heavy);
-            background: var(--bg-card);
-        }
-
-        .mode-key {
-            border: none;
-            background: transparent;
-            padding: 5px 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9.5px;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            color: var(--ink-secondary);
-            border-right: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: background 0.1s, color 0.1s;
-            white-space: nowrap;
-        }
-        .mode-key:last-child { border-right: none; }
-
-        .mode-key:hover {
-            color: var(--ink-primary);
-        }
-
-        .mode-key.active {
-            background: var(--ink-primary);
-            color: var(--bg-panel);
-            font-weight: 700;
-        }
-
-        /* Rocker Switch Keys */
-        .rocker-keys {
-            display: flex;
-            gap: 4px;
-        }
-
-        .rocker-key {
-            background: var(--bg-card);
-            border: 1px solid var(--border-heavy);
-            padding: 4px 7px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            user-select: none;
-            font-size: 9.5px;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            color: var(--ink-secondary);
-        }
-
-        .rocker-key.on {
-            color: var(--ink-primary);
-            font-weight: 700;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
-        }
-
-        .rocker-box {
-            width: 7px;
-            height: 7px;
-            border: 1px solid var(--border-heavy);
-            background: transparent;
-        }
-
-        .rocker-key.on .rocker-box {
-            background: var(--ink-primary);
-        }
-
-        /* ──────────────────────────────────────────────────────────
-           TUI LOG TRANSCRIPT (CYBERPHYSICAL TERMINAL ENTRIES)
+           TUI TRANSCRIPT (CLEAN, EXPANSIVE VIEWPORT)
            ────────────────────────────────────────────────────────── */
         .transcript-frame {
             flex: 1;
@@ -584,7 +356,6 @@
             background: var(--border-mid);
         }
 
-        /* Section Tear-Divider */
         .tear-rule {
             display: flex;
             align-items: center;
@@ -604,8 +375,7 @@
         .tear-rule span {
             font-size: 8.5px;
             font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
+            letter-spacing: 1px;
             color: var(--ink-muted);
             white-space: nowrap;
         }
@@ -620,7 +390,6 @@
             position: relative;
         }
 
-        /* Corner Registration Marks */
         .tui-entry::before {
             content: '┌';
             position: absolute;
@@ -649,8 +418,7 @@
             justify-content: space-between;
             font-size: 9px;
             font-weight: 700;
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
+            letter-spacing: 0.5px;
             color: var(--ink-secondary);
         }
 
@@ -660,7 +428,6 @@
             padding: 1px 4px;
             font-size: 8px;
             font-weight: 700;
-            letter-spacing: 0.5px;
         }
 
         .tui-entry.entry-user {
@@ -688,7 +455,6 @@
             word-break: break-word;
         }
 
-        /* Markdown formatting */
         .entry-payload p {
             margin: 0.4em 0;
         }
@@ -730,34 +496,32 @@
             font-weight: 700;
             letter-spacing: 0.5px;
         }
-        .entry-payload h1 { font-size: 15px; }
-        .entry-payload h2 { font-size: 13.5px; }
-        .entry-payload h3 { font-size: 12.5px; }
+        .entry-payload h1 { font-size: 14.5px; }
+        .entry-payload h2 { font-size: 13px; }
+        .entry-payload h3 { font-size: 12px; }
 
-        /* System Messages */
         .entry-system-inline {
-            padding: 6px 10px;
+            padding: 5px 8px;
             background: var(--bg-inset);
             border: 1px dashed var(--border-heavy);
             font-size: 10.5px;
             color: var(--ink-secondary);
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: flex-start;
         }
 
         /* ──────────────────────────────────────────────────────────
-           ACTIVE REASONING / GENERATION STREAMER
+           REASONING STREAMER
            ────────────────────────────────────────────────────────── */
         .reasoning-ticker {
             display: none;
-            padding: 6px 12px;
+            padding: 5px 12px;
             background: var(--bg-inset);
             border-top: 1px solid var(--border-heavy);
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 600;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
+            letter-spacing: 0.6px;
             color: var(--ink-secondary);
             align-items: center;
             justify-content: space-between;
@@ -788,7 +552,7 @@
         }
 
         /* ──────────────────────────────────────────────────────────
-           COMMAND INPUT & TRANSMISSION DECK
+           COMMAND INPUT & DOCK
            ────────────────────────────────────────────────────────── */
         .input-dock {
             padding: 8px 12px 12px;
@@ -800,26 +564,32 @@
             gap: 6px;
         }
 
-        /* Punch-Card Quick Chips */
-        .punch-chips-row {
+        .chips-scroll-strip {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
             overflow-x: auto;
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
         }
-        .punch-chips-row::-webkit-scrollbar { display: none; }
+        .chips-scroll-strip::-webkit-scrollbar { display: none; }
+
+        .chips-group {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
 
         .punch-chip {
             background: var(--bg-inset);
             border: 1px solid var(--border-heavy);
             color: var(--ink-secondary);
-            padding: 3px 7px;
+            padding: 3px 6px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 9px;
             font-weight: 700;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
+            letter-spacing: 0.3px;
             white-space: nowrap;
             cursor: pointer;
             user-select: none;
@@ -828,6 +598,11 @@
         }
 
         .punch-chip:hover, .punch-chip:active {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+        }
+
+        .punch-chip.active-modal-chip {
             background: var(--ink-primary);
             color: var(--bg-card);
         }
@@ -861,7 +636,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
             color: var(--ink-primary);
-            padding: 9px 0;
+            padding: 8px 0;
         }
 
         .cmd-text-input::placeholder {
@@ -874,12 +649,11 @@
             border-left: 1px solid var(--border-heavy);
             background: var(--ink-primary);
             color: var(--bg-card);
-            padding: 9px 16px;
+            padding: 8px 14px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            letter-spacing: 0.8px;
             cursor: pointer;
             transition: opacity 0.1s;
         }
@@ -887,56 +661,298 @@
         .exec-button:active { opacity: 0.75; }
 
         /* ──────────────────────────────────────────────────────────
-           MOBILE / PIXEL 8 RESPONSIVE OVERRIDES
+           DIGITAL MODALS & WIREFRAME OVERLAYS
+           ────────────────────────────────────────────────────────── */
+        .digital-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--modal-backdrop);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .digital-modal-backdrop.open {
+            display: flex;
+        }
+
+        .digital-modal-window {
+            width: 100%;
+            max-width: 580px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-heavy);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            animation: modal-appear 0.12s ease-out;
+            position: relative;
+        }
+
+        @keyframes modal-appear {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header-bar {
+            padding: 6px 10px;
+            background: var(--bg-inset);
+            border-bottom: 1px solid var(--border-heavy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: var(--ink-secondary);
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: 1px solid var(--border-heavy);
+            padding: 2px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--ink-primary);
+            cursor: pointer;
+        }
+        .modal-close-btn:hover {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+        }
+
+        .modal-body-content {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Conway Automaton Inside Modal */
+        .conway-modal-pane {
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-inset);
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .conway-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: pixelated;
+            cursor: crosshair;
+        }
+
+        .conway-modal-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--ink-muted);
+            padding: 4px 2px;
+        }
+
+        .conway-modal-tools {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Telemetry Modal Elements */
+        .telemetry-modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .telemetry-block {
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-inset);
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .telemetry-block-title {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: var(--ink-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .byte-register-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            padding: 2px 0;
+        }
+
+        .reg-bit-cell {
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7.5px;
+            font-weight: 700;
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-card);
+            color: var(--ink-muted);
+            user-select: none;
+        }
+
+        .reg-bit-cell.on {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+        }
+
+        .bounce-histogram {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 36px;
+            background: var(--bg-card);
+            padding: 3px 4px;
+            border: 1px solid var(--border-heavy);
+        }
+
+        .bounce-bar {
+            flex: 1;
+            background: var(--ink-primary);
+            min-height: 2px;
+            height: 12%;
+            transition: height 0.2s ease-out;
+        }
+
+        /* Mode & Switch Controls in Modal */
+        .controls-modal-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .segmented-mode-keys {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-card);
+        }
+
+        .mode-key {
+            border: none;
+            background: transparent;
+            padding: 6px 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--ink-secondary);
+            border-right: 1px solid var(--border-light);
+            cursor: pointer;
+            text-align: center;
+        }
+        .mode-key:last-child { border-right: none; }
+        .mode-key.active {
+            background: var(--ink-primary);
+            color: var(--bg-panel);
+            font-weight: 700;
+        }
+
+        .rocker-switch-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .rocker-key {
+            background: var(--bg-card);
+            border: 1px solid var(--border-heavy);
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: var(--ink-secondary);
+        }
+
+        .rocker-key.on {
+            color: var(--ink-primary);
+            font-weight: 700;
+        }
+
+        .rocker-box {
+            width: 7px;
+            height: 7px;
+            border: 1px solid var(--border-heavy);
+            background: transparent;
+        }
+
+        .rocker-key.on .rocker-box {
+            background: var(--ink-primary);
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           MOBILE / PIXEL 8 RESPONSIVENESS
            ────────────────────────────────────────────────────────── */
         @media (max-width: 640px) {
             .chassis-shell {
                 border-left: none;
                 border-right: none;
             }
-            .operation-deck {
-                grid-template-columns: 1fr;
-            }
-            .conway-pane {
-                height: 80px;
-                border-right: none;
-                border-bottom: 1px solid var(--border-heavy);
-            }
-            .byte-telemetry-pane {
-                padding: 6px 8px;
-            }
             .masthead-main {
-                padding: 8px 10px;
-            }
-            .hardware-deck {
-                padding: 6px 10px;
-            }
-            .transcript-frame {
-                padding: 10px 8px;
-                gap: 10px;
-            }
-            .cmd-text-input {
-                /* Essential: 16px font-size prevents Android Chrome auto-zoom on input focus */
-                font-size: 16px;
-                padding: 8px 0;
-            }
-            .exec-button {
-                padding: 8px 12px;
-                font-size: 10.5px;
-            }
-            .input-dock {
-                padding: 6px 8px max(12px, env(safe-area-inset-bottom, 12px));
-            }
-            .punch-chip {
-                padding: 3px 6px;
-                font-size: 8.5px;
+                padding: 6px 8px;
+                gap: 6px;
             }
             .brand-name {
-                font-size: 13px;
+                font-size: 12px;
+            }
+            .indicator-box {
+                padding: 2px 5px;
+                font-size: 8.5px;
+            }
+            .transcript-frame {
+                padding: 8px 6px;
+                gap: 8px;
+            }
+            .cmd-text-input {
+                font-size: 16px; /* Prevents auto-zoom on mobile Chrome / Pixel 8 */
+                padding: 7px 0;
+            }
+            .exec-button {
+                padding: 7px 10px;
+                font-size: 10px;
+            }
+            .input-dock {
+                padding: 6px 6px max(10px, env(safe-area-inset-bottom, 10px));
+            }
+            .telemetry-modal-grid {
+                grid-template-columns: 1fr;
+            }
+            .conway-modal-pane {
+                height: 180px;
+            }
+            .segmented-mode-keys {
+                grid-template-columns: repeat(3, 1fr);
             }
             .mode-key {
-                padding: 4px 6px;
-                font-size: 8.5px;
+                border-bottom: 1px solid var(--border-light);
+            }
+            .rocker-switch-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -945,171 +961,236 @@
 
     <div class="chassis-shell">
 
-        <!-- Masthead: Pervasive E-Paper Header -->
+        <!-- Masthead: Technical Header with FAB Triggers -->
         <header class="masthead-frame">
             <div class="tech-ruler-strip">
-                <span>[INSTRUMENT_ID: KOTA-8765]</span>
-                <span class="ruler-ticks">|··|··|··|··|··|··|··|··|</span>
-                <span id="host-addr-tag">ADDR: LOCALHOST:8765</span>
+                <span>[id: kota-8765]</span>
+                <span class="ruler-ticks">|··|··|··|··|··|··|</span>
+                <span id="host-addr-tag">addr: localhost:8765</span>
             </div>
 
             <div class="masthead-main">
                 <div class="brand-cluster">
-                    <div class="brand-badge">KT</div>
+                    <div class="brand-badge">kt</div>
                     <div class="brand-spec">
-                        <span class="brand-name">KOTA · PERVASIVE</span>
-                        <span class="brand-nomenclature" id="device-tag">Pixel 8 Cyberphysical Client</span>
+                        <span class="brand-name">kota · pervasive</span>
+                        <span class="brand-nomenclature" id="device-tag">pixel 8 client</span>
                     </div>
                 </div>
 
-                <div class="hardware-indicators">
+                <div class="masthead-controls">
+                    <!-- Status Lamps -->
                     <div class="indicator-box" id="ind-conn">
                         <span class="bit-lamp" id="lamp-conn"></span>
-                        <span id="conn-state">STANDBY</span>
+                        <span id="conn-state">standby</span>
                     </div>
                     <div class="indicator-box" id="ind-busy">
                         <span class="bit-lamp" id="lamp-busy"></span>
-                        <span id="busy-state">IDLE</span>
+                        <span id="busy-state">idle</span>
                     </div>
                     <div class="indicator-box" id="ind-power">
-                        <span>PWR</span>
-                        <span id="power-metric">0.0W · 0.0J</span>
+                        <span id="power-metric">0.0w · 0.0j</span>
                     </div>
 
+                    <!-- Digital Modal Triggers (FABs) -->
+                    <button type="button" class="fab-trigger-btn" onclick="openModal('conway')">[+ conway]</button>
+                    <button type="button" class="fab-trigger-btn" onclick="openModal('telemetry')">[+ telemetry]</button>
+                    <button type="button" class="fab-trigger-btn" onclick="openModal('controls')">[+ controls]</button>
+
+                    <!-- Finish Selector -->
                     <div class="finish-group">
-                        <button class="finish-btn active" onclick="setTheme('paper')" id="btn-theme-paper">Chalk</button>
-                        <button class="finish-btn" onclick="setTheme('obsidian')" id="btn-theme-obsidian">Carbon</button>
-                        <button class="finish-btn" onclick="setTheme('concrete')" id="btn-theme-concrete">Grey</button>
+                        <button class="finish-btn active" onclick="setTheme('paper')" id="btn-theme-paper">chalk</button>
+                        <button class="finish-btn" onclick="setTheme('obsidian')" id="btn-theme-obsidian">carbon</button>
+                        <button class="finish-btn" onclick="setTheme('concrete')" id="btn-theme-concrete">grey</button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Operational Complexity Deck: Conway's Game of Life & Byte Registers -->
-        <section class="operation-deck">
-            <!-- Conway Cell Automaton Pane -->
-            <div class="conway-pane" id="conway-container">
-                <canvas id="conway-canvas" class="conway-canvas"></canvas>
-                <div class="conway-overlay">
-                    <span class="conway-badge">CONWAY_AUTOMATON · B3/S23</span>
-                    <span id="conway-telemetry">GEN: 0001 · CELLS: 00 · ENTROPY: 0.00</span>
-                </div>
-            </div>
-
-            <!-- Byte Registers & Step Sparkline -->
-            <div class="byte-telemetry-pane">
-                <div>
-                    <div class="telemetry-row-label">
-                        <span>REGISTER_BUS [8-BIT]</span>
-                        <span id="hex-reg">0x00</span>
-                    </div>
-                    <div class="byte-register-grid" id="reg-bits">
-                        <div class="reg-bit-cell on" title="PWR">PWR</div>
-                        <div class="reg-bit-cell" title="ECO">ECO</div>
-                        <div class="reg-bit-cell" title="CLD">CLD</div>
-                        <div class="reg-bit-cell" title="GCP">GCP</div>
-                        <div class="reg-bit-cell" title="ACT">ACT</div>
-                        <div class="reg-bit-cell" title="TOK">TOK</div>
-                        <div class="reg-bit-cell" title="VXL">VXL</div>
-                        <div class="reg-bit-cell on" title="NET">NET</div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="telemetry-row-label">
-                        <span>STEP VELOCITY [MS]</span>
-                        <span id="last-step-ms">0 MS</span>
-                    </div>
-                    <div class="bounce-histogram" id="histogram-bars">
-                        <div class="bounce-bar" style="height: 10%;"></div>
-                        <div class="bounce-bar" style="height: 15%;"></div>
-                        <div class="bounce-bar" style="height: 25%;"></div>
-                        <div class="bounce-bar" style="height: 18%;"></div>
-                        <div class="bounce-bar" style="height: 40%;"></div>
-                        <div class="bounce-bar" style="height: 30%;"></div>
-                        <div class="bounce-bar" style="height: 55%;"></div>
-                        <div class="bounce-bar" style="height: 20%;"></div>
-                        <div class="bounce-bar" style="height: 35%;"></div>
-                        <div class="bounce-bar" style="height: 15%;"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Hardware Control Deck -->
-        <nav class="hardware-deck">
-            <div class="deck-group">
-                <span class="deck-caption">MODE:</span>
-                <div class="mode-keys" id="mode-buttons">
-                    <button class="mode-key active" id="btn-coder" onclick="changeMode('coder')">[01:CODER]</button>
-                    <button class="mode-key" id="btn-cpe" onclick="changeMode('cpe')">[02:CPE]</button>
-                    <button class="mode-key" id="btn-eval" onclick="changeMode('eval')">[03:EVAL]</button>
-                    <button class="mode-key" id="btn-research" onclick="changeMode('research')">[04:RSCH]</button>
-                    <button class="mode-key" id="btn-architect" onclick="changeMode('architect')">[05:ARCH]</button>
-                </div>
-            </div>
-
-            <div class="deck-group">
-                <span class="deck-caption">BUS:</span>
-                <div class="rocker-keys">
-                    <button type="button" class="rocker-key on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
-                        <span class="rocker-box"></span> PWR
-                    </button>
-                    <button type="button" class="rocker-key" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
-                        <span class="rocker-box"></span> ECO
-                    </button>
-                    <button type="button" class="rocker-key" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
-                        <span class="rocker-box"></span> CLOUD
-                    </button>
-                    <button type="button" class="rocker-key" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
-                        <span class="rocker-box"></span> GCP
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Transcript Frame -->
+        <!-- Transcript Frame (Expansive & Uncluttered) -->
         <main class="transcript-frame" id="output">
-            <div class="tear-rule"><span>PERVASIVE TUI LOG INITIALIZED</span></div>
+            <div class="tear-rule"><span>pervasive tui log</span></div>
             <div class="entry-system-inline">
                 <span>[00:00:00]</span>
-                <span>Connecting to local Kota controller runtime at <code>ws://localhost:8765/ws</code>...</span>
+                <span>connecting to local kota controller at <code>ws://localhost:8765/ws</code>...</span>
             </div>
         </main>
 
         <!-- Active Reasoning Ticker -->
         <div class="reasoning-ticker" id="reasoning-ticker">
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
                 <div class="ticker-bit-matrix">
                     <div class="ticker-bit"></div>
                     <div class="ticker-bit"></div>
                     <div class="ticker-bit"></div>
                     <div class="ticker-bit"></div>
                 </div>
-                <span>COGNITIVE VOXEL COMPUTE · REASONING</span>
+                <span>cognitive voxel synthesis · reasoning</span>
             </div>
-            <span id="ticker-status">[BUSY]</span>
+            <span id="ticker-status">[busy]</span>
         </div>
 
-        <!-- Command Input & Transmission Deck -->
+        <!-- Command Input & Transmission Dock -->
         <footer class="input-dock">
-            <!-- Punch Card Quick Action Chips -->
-            <div class="punch-chips-row">
-                <button type="button" class="punch-chip" onclick="quickSend('Review git diff and check modified files')">[ DIFF ]</button>
-                <button type="button" class="punch-chip" onclick="quickSend('Run cargo test and report test output')">[ TEST ]</button>
-                <button type="button" class="punch-chip" onclick="quickSend('/status')">[ STATUS ]</button>
-                <button type="button" class="punch-chip" onclick="quickSend('/reset')">[ RESET ]</button>
-                <button type="button" class="punch-chip" onclick="seedConwayLife()">[ SEED_LIFE ]</button>
-                <button type="button" class="punch-chip" onclick="clearOutput()">[ CLEAR ]</button>
+            <div class="chips-scroll-strip">
+                <div class="chips-group">
+                    <button type="button" class="punch-chip" onclick="quickSend('Review git diff and check modified files')">[diff]</button>
+                    <button type="button" class="punch-chip" onclick="quickSend('Run cargo test and report test output')">[test]</button>
+                    <button type="button" class="punch-chip" onclick="quickSend('/status')">[status]</button>
+                    <button type="button" class="punch-chip" onclick="quickSend('/reset')">[reset]</button>
+                    <button type="button" class="punch-chip" onclick="clearOutput()">[clear]</button>
+                </div>
+                <div class="chips-group">
+                    <button type="button" class="punch-chip" onclick="openModal('conway')">[conway]</button>
+                    <button type="button" class="punch-chip" onclick="openModal('telemetry')">[bus / regs]</button>
+                    <button type="button" class="punch-chip" onclick="openModal('controls')">[modes]</button>
+                </div>
             </div>
 
             <form class="input-command-box" id="input-form">
                 <span class="prompt-symbol">&gt;_</span>
-                <input type="text" id="cmd-input" class="cmd-text-input" placeholder="Execute command or query (e.g. /help, /modes)..." autocomplete="off" autocorrect="off" spellcheck="false">
-                <button type="submit" class="exec-button">EXECUTE</button>
+                <input type="text" id="cmd-input" class="cmd-text-input" placeholder="transmit instruction or /help..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button type="submit" class="exec-button">execute</button>
             </form>
         </footer>
 
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────
+         DIGITAL MODAL 1: CONWAY'S GAME OF LIFE CELLULAR AUTOMATON
+         ────────────────────────────────────────────────────────── -->
+    <div class="digital-modal-backdrop" id="modal-conway" onclick="closeModalOnBackdrop(event, 'conway')">
+        <div class="digital-modal-window">
+            <div class="modal-header-bar">
+                <span>┌ conway cellular automaton · b3/s23 ┐</span>
+                <button type="button" class="modal-close-btn" onclick="closeModal('conway')">[x close]</button>
+            </div>
+            <div class="modal-body-content">
+                <div class="conway-modal-pane" id="conway-container">
+                    <canvas id="conway-canvas" class="conway-canvas"></canvas>
+                </div>
+                <div class="conway-modal-stats">
+                    <span id="conway-telemetry">gen: 0001 · cells: 00 · entropy: 0.00</span>
+                    <div class="conway-modal-tools">
+                        <button type="button" class="punch-chip" onclick="seedConwayLife()">[seed life]</button>
+                        <button type="button" class="punch-chip" onclick="clearConway()">[clear grid]</button>
+                    </div>
+                </div>
+                <div style="font-size:9px; color:var(--ink-muted); line-height:1.4;">
+                    cellular automaton evolves with token flux. touch or drag on grid to spawn gliders.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────
+         DIGITAL MODAL 2: TELEMETRY & 8-BIT HARDWARE REGISTERS
+         ────────────────────────────────────────────────────────── -->
+    <div class="digital-modal-backdrop" id="modal-telemetry" onclick="closeModalOnBackdrop(event, 'telemetry')">
+        <div class="digital-modal-window">
+            <div class="modal-header-bar">
+                <span>┌ hardware telemetry & register bus ┐</span>
+                <button type="button" class="modal-close-btn" onclick="closeModal('telemetry')">[x close]</button>
+            </div>
+            <div class="modal-body-content">
+                <div class="telemetry-modal-grid">
+                    <div class="telemetry-block">
+                        <div class="telemetry-block-title">
+                            <span>register bus [8-bit]</span>
+                            <span id="hex-reg">0x00</span>
+                        </div>
+                        <div class="byte-register-grid" id="reg-bits">
+                            <div class="reg-bit-cell on" title="pwr">pwr</div>
+                            <div class="reg-bit-cell" title="eco">eco</div>
+                            <div class="reg-bit-cell" title="cld">cld</div>
+                            <div class="reg-bit-cell" title="gcp">gcp</div>
+                            <div class="reg-bit-cell" title="act">act</div>
+                            <div class="reg-bit-cell" title="tok">tok</div>
+                            <div class="reg-bit-cell" title="vxl">vxl</div>
+                            <div class="reg-bit-cell on" title="net">net</div>
+                        </div>
+                    </div>
+
+                    <div class="telemetry-block">
+                        <div class="telemetry-block-title">
+                            <span>step velocity</span>
+                            <span id="last-step-ms">0 ms</span>
+                        </div>
+                        <div class="bounce-histogram" id="histogram-bars">
+                            <div class="bounce-bar" style="height: 10%;"></div>
+                            <div class="bounce-bar" style="height: 15%;"></div>
+                            <div class="bounce-bar" style="height: 25%;"></div>
+                            <div class="bounce-bar" style="height: 18%;"></div>
+                            <div class="bounce-bar" style="height: 40%;"></div>
+                            <div class="bounce-bar" style="height: 30%;"></div>
+                            <div class="bounce-bar" style="height: 55%;"></div>
+                            <div class="bounce-bar" style="height: 20%;"></div>
+                            <div class="bounce-bar" style="height: 35%;"></div>
+                            <div class="bounce-bar" style="height: 15%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="telemetry-block">
+                    <div class="telemetry-block-title">
+                        <span>system power bus</span>
+                        <span id="telemetry-power-val">0.0w · 0.0j</span>
+                    </div>
+                    <div style="font-size:9.5px; color:var(--ink-secondary); line-height:1.5;">
+                        macpow sensor sampling active. real-time energy telemetry recorded to bigquery buffer.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────
+         DIGITAL MODAL 3: MODES & BUS CONTROLS
+         ────────────────────────────────────────────────────────── -->
+    <div class="digital-modal-backdrop" id="modal-controls" onclick="closeModalOnBackdrop(event, 'controls')">
+        <div class="digital-modal-window">
+            <div class="modal-header-bar">
+                <span>┌ agent mode & hardware bus switches ┐</span>
+                <button type="button" class="modal-close-btn" onclick="closeModal('controls')">[x close]</button>
+            </div>
+            <div class="modal-body-content">
+                <div class="controls-modal-grid">
+                    <div>
+                        <div class="telemetry-block-title" style="margin-bottom:4px;">
+                            <span>agent operational mode</span>
+                            <span id="active-mode-label">coder</span>
+                        </div>
+                        <div class="segmented-mode-keys" id="mode-buttons">
+                            <button class="mode-key active" id="btn-coder" onclick="changeMode('coder')">coder</button>
+                            <button class="mode-key" id="btn-cpe" onclick="changeMode('cpe')">cpe</button>
+                            <button class="mode-key" id="btn-eval" onclick="changeMode('eval')">eval</button>
+                            <button class="mode-key" id="btn-research" onclick="changeMode('research')">research</button>
+                            <button class="mode-key" id="btn-architect" onclick="changeMode('architect')">arch</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="telemetry-block-title" style="margin-bottom:4px;">
+                            <span>subsystem bus switches</span>
+                        </div>
+                        <div class="rocker-switch-grid">
+                            <button type="button" class="rocker-key on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
+                                <span class="rocker-box"></span> pwr
+                            </button>
+                            <button type="button" class="rocker-key" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
+                                <span class="rocker-box"></span> eco
+                            </button>
+                            <button type="button" class="rocker-key" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
+                                <span class="rocker-box"></span> cloud
+                            </button>
+                            <button type="button" class="rocker-key" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
+                                <span class="rocker-box"></span> gcp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1127,6 +1208,8 @@
         const lastStepMs = document.getElementById('last-step-ms');
         const hexReg = document.getElementById('hex-reg');
         const histogramBars = document.getElementById('histogram-bars');
+        const telemetryPowerVal = document.getElementById('telemetry-power-val');
+        const activeModeLabel = document.getElementById('active-mode-label');
 
         // Toggle state
         const toggleState = { power: true, eco: false, cloud: false, gcp: false };
@@ -1138,18 +1221,16 @@
         let recentDurations = [120, 85, 340, 210, 95, 410, 180, 290, 150, 220];
         let opCounter = 1;
 
-        // Display active host address in ruler
         if (window.location.host) {
-            hostAddrTag.textContent = `ADDR: ${window.location.host.toUpperCase()}`;
+            hostAddrTag.textContent = `addr: ${window.location.host.toLowerCase()}`;
         }
 
-        // Detect mobile / Pixel 8 client
         if (/Pixel/i.test(navigator.userAgent)) {
-            deviceTag.textContent = 'Pixel 8 Cyberphysical Client';
+            deviceTag.textContent = 'pixel 8 client';
         } else if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
-            deviceTag.textContent = 'Mobile Cyberphysical Client';
+            deviceTag.textContent = 'mobile client';
         } else {
-            deviceTag.textContent = 'Hardware Terminal Client';
+            deviceTag.textContent = 'hardware terminal';
         }
 
         // Marked setup with Highlight.js
@@ -1166,26 +1247,56 @@
         );
 
         // ──────────────────────────────────────────────────────────
-        // CONWAY'S GAME OF LIFE & CELLULAR AUTOMATA ENGINE
+        // DIGITAL MODAL MANAGEMENT
+        // ──────────────────────────────────────────────────────────
+        function openModal(name) {
+            const el = document.getElementById('modal-' + name);
+            if (el) {
+                el.classList.add('open');
+                if (name === 'conway') {
+                    setTimeout(initConway, 20);
+                }
+            }
+        }
+
+        function closeModal(name) {
+            const el = document.getElementById('modal-' + name);
+            if (el) el.classList.remove('open');
+        }
+
+        function closeModalOnBackdrop(e, name) {
+            if (e.target.classList.contains('digital-modal-backdrop')) {
+                closeModal(name);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.digital-modal-backdrop').forEach(m => m.classList.remove('open'));
+            }
+        });
+
+        // ──────────────────────────────────────────────────────────
+        // CONWAY'S GAME OF LIFE ENGINE
         // ──────────────────────────────────────────────────────────
         const conwayCanvas = document.getElementById('conway-canvas');
         const conwayCtx = conwayCanvas.getContext('2d');
         const conwayTelemetry = document.getElementById('conway-telemetry');
 
         let cellCols = 64;
-        let cellRows = 18;
+        let cellRows = 24;
         let cellSize = 6;
         let gridA = [];
         let gridB = [];
         let conwayGen = 1;
-        let conwayAnimTimer = null;
 
         function initConway() {
             const container = document.getElementById('conway-container');
+            if (!container) return;
             const rect = container.getBoundingClientRect();
-            cellSize = Math.max(4, Math.floor(rect.width / 80));
+            cellSize = Math.max(4, Math.floor(rect.width / 70));
             cellCols = Math.floor(rect.width / cellSize) || 64;
-            cellRows = Math.floor(rect.height / cellSize) || 18;
+            cellRows = Math.floor(rect.height / cellSize) || 24;
 
             conwayCanvas.width = cellCols * cellSize;
             conwayCanvas.height = cellRows * cellSize;
@@ -1199,25 +1310,17 @@
 
         function seedConwayGliders() {
             gridA.fill(0);
-            // Spawn multiple gliders and pulsars in the grid
             const seeds = [
-                // Glider 1
                 [2, 1], [3, 2], [1, 3], [2, 3], [3, 3],
-                // Glider 2
                 [18, 5], [19, 6], [17, 7], [18, 7], [19, 7],
-                // Blinker
                 [10, 8], [11, 8], [12, 8],
-                // Toad
-                [26, 4], [27, 4], [28, 4], [25, 5], [26, 5], [27, 5],
-                // Beacon
-                [38, 8], [39, 8], [38, 9], [41, 10], [41, 11], [40, 11]
+                [26, 4], [27, 4], [28, 4], [25, 5], [26, 5], [27, 5]
             ];
             seeds.forEach(([c, r]) => {
                 if (c < cellCols && r < cellRows) {
                     gridA[r * cellCols + c] = 1;
                 }
             });
-            // Random sparks across the grid
             for (let i = 0; i < (cellCols * cellRows) * 0.12; i++) {
                 const idx = Math.floor(Math.random() * (cellCols * cellRows));
                 gridA[idx] = 1;
@@ -1225,18 +1328,18 @@
         }
 
         function injectEntropy(count = 8) {
-            // Called on agent tokens, step started, tool calls
+            if (!gridA || gridA.length === 0) return;
             for (let i = 0; i < count; i++) {
                 const rx = Math.floor(Math.random() * cellCols);
                 const ry = Math.floor(Math.random() * cellRows);
                 gridA[ry * cellCols + rx] = 1;
-                // Add adjacent neighbor
                 if (rx + 1 < cellCols) gridA[ry * cellCols + (rx + 1)] = 1;
             }
             updateRegisterBits();
         }
 
         function stepConway() {
+            if (!gridA || gridA.length === 0) return;
             let livingCount = 0;
             const style = getComputedStyle(document.documentElement);
             const cellColor = style.getPropertyValue('--bit-cell-on').trim() || '#111214';
@@ -1244,7 +1347,6 @@
 
             conwayCtx.fillStyle = cellOff;
             conwayCtx.fillRect(0, 0, conwayCanvas.width, conwayCanvas.height);
-
             conwayCtx.fillStyle = cellColor;
 
             for (let r = 0; r < cellRows; r++) {
@@ -1252,7 +1354,6 @@
                     const idx = r * cellCols + c;
                     const self = gridA[idx];
 
-                    // Count 8 neighbors with toroidal wrapping
                     let neighbors = 0;
                     for (let dr = -1; dr <= 1; dr++) {
                         for (let dc = -1; dc <= 1; dc++) {
@@ -1263,7 +1364,6 @@
                         }
                     }
 
-                    // Conway's Rule B3/S23
                     let next = 0;
                     if (self === 1) {
                         next = (neighbors === 2 || neighbors === 3) ? 1 : 0;
@@ -1280,7 +1380,6 @@
                 }
             }
 
-            // Swap buffers
             const temp = gridA;
             gridA = gridB;
             gridB = temp;
@@ -1292,9 +1391,9 @@
         }
 
         function updateConwayTelemetry(count) {
-            const living = count !== undefined ? count : gridA.reduce((a, b) => a + b, 0);
-            const entropy = (living / (cellCols * cellRows)).toFixed(2);
-            conwayTelemetry.textContent = `GEN: ${String(conwayGen).padStart(4, '0')} · CELLS: ${String(living).padStart(2, '0')} · ENTROPY: ${entropy}`;
+            const living = count !== undefined ? count : (gridA ? gridA.reduce((a, b) => a + b, 0) : 0);
+            const entropy = (living / ((cellCols * cellRows) || 1)).toFixed(2);
+            conwayTelemetry.textContent = `gen: ${String(conwayGen).padStart(4, '0')} · cells: ${String(living).padStart(2, '0')} · entropy: ${entropy}`;
         }
 
         function seedConwayLife() {
@@ -1303,13 +1402,17 @@
             updateConwayTelemetry();
         }
 
-        // Interactive touch/click on Conway canvas
+        function clearConway() {
+            if (gridA) gridA.fill(0);
+            conwayGen = 1;
+            updateConwayTelemetry(0);
+        }
+
         conwayCanvas.addEventListener('pointerdown', (e) => {
             const rect = conwayCanvas.getBoundingClientRect();
             const x = Math.floor((e.clientX - rect.left) / (rect.width / cellCols));
             const y = Math.floor((e.clientY - rect.top) / (rect.height / cellRows));
             if (x >= 0 && x < cellCols && y >= 0 && y < cellRows) {
-                // Stamp a small glider at pointer position
                 const pattern = [[0, 0], [1, 1], [-1, 2], [0, 2], [1, 2]];
                 pattern.forEach(([dx, dy]) => {
                     const nx = (x + dx + cellCols) % cellCols;
@@ -1318,11 +1421,6 @@
                 });
             }
         });
-
-        window.addEventListener('resize', () => {
-            initConway();
-        });
-        setTimeout(initConway, 50);
 
         setInterval(stepConway, 120);
 
@@ -1337,26 +1435,26 @@
                 toggleState.cloud ? 1 : 0,
                 toggleState.gcp ? 1 : 0,
                 isBusy ? 1 : 0,
-                Math.random() > 0.5 ? 1 : 0, // TOK
-                1, // VXL
+                Math.random() > 0.5 ? 1 : 0,
+                1,
                 ws && ws.readyState === WebSocket.OPEN ? 1 : 0
             ];
             let byteVal = 0;
             bits.forEach((b, idx) => {
                 if (b) {
-                    cells[idx].classList.add('on');
+                    if (cells[idx]) cells[idx].classList.add('on');
                     byteVal |= (1 << (7 - idx));
                 } else {
-                    cells[idx].classList.remove('on');
+                    if (cells[idx]) cells[idx].classList.remove('on');
                 }
             });
-            hexReg.textContent = '0x' + byteVal.toString(16).toUpperCase().padStart(2, '0');
+            hexReg.textContent = '0x' + byteVal.toString(16).padStart(2, '0');
         }
 
         function pushDurationHistogram(ms) {
             recentDurations.shift();
             recentDurations.push(ms);
-            lastStepMs.textContent = `${ms} MS`;
+            lastStepMs.textContent = `${ms} ms`;
             const maxVal = Math.max(...recentDurations, 500);
             const bars = histogramBars.children;
             recentDurations.forEach((val, i) => {
@@ -1424,24 +1522,24 @@
 
             ws.onopen = () => {
                 lampConn.classList.add('active');
-                connState.textContent = 'ONLINE';
-                appendTearRule('SYSTEM BUS CONNECTED');
+                connState.textContent = 'online';
+                appendTearRule('system bus connected');
                 updateRegisterBits();
             };
 
             ws.onclose = (e) => {
                 lampConn.classList.remove('active');
-                connState.textContent = 'STANDBY';
+                connState.textContent = 'standby';
                 updateRegisterBits();
                 if (!token && (e.code === 1006 || e.code === 1008)) {
-                    const entered = prompt('Kota Controller authentication required. Enter password/token:');
+                    const entered = prompt('kota controller authentication required. enter password/token:');
                     if (entered) {
                         localStorage.setItem('kota_token', entered.trim());
                         setTimeout(connect, 300);
                         return;
                     }
                 }
-                appendTearRule('BUS DISCONNECTED · RETRYING');
+                appendTearRule('bus disconnected · retrying');
                 setTimeout(connect, 2000);
             };
 
@@ -1466,11 +1564,11 @@
             isBusy = state;
             if (state) {
                 lampBusy.classList.add('active', 'pulse');
-                busyState.textContent = 'BUSY';
+                busyState.textContent = 'busy';
                 reasoningTicker.classList.add('active');
             } else {
                 lampBusy.classList.remove('active', 'pulse');
-                busyState.textContent = 'IDLE';
+                busyState.textContent = 'idle';
                 reasoningTicker.classList.remove('active');
             }
             updateRegisterBits();
@@ -1499,17 +1597,16 @@
 
                         const div = document.createElement('div');
                         div.className = 'entry-system-inline';
-                        div.innerHTML = `<span>[SYS]</span><div>${DOMPurify.sanitize(content.replace(/\n/g, '<br>'))}</div>`;
+                        div.innerHTML = `<span>[sys]</span><div>${DOMPurify.sanitize(content.replace(/\n/g, '<br>'))}</div>`;
                         output.appendChild(div);
                     } else {
-                        // User message entry
                         currentAssistantBlock = null;
                         const block = document.createElement('div');
                         block.className = 'tui-entry entry-user';
                         block.innerHTML = `
                             <div class="entry-mast">
-                                <div><span class="entry-tag">TRANSMIT</span> [0x${(opCounter++).toString(16).padStart(2,'0').toUpperCase()}] // USER_INPUT</div>
-                                <div>HOST_TERMINAL</div>
+                                <div><span class="entry-tag">transmit</span> [0x${(opCounter++).toString(16).padStart(2,'0')}] // user input</div>
+                                <div>terminal</div>
                             </div>
                             <div class="entry-payload">${DOMPurify.sanitize(ev.text)}</div>
                         `;
@@ -1523,12 +1620,11 @@
                     currentAssistantBlock = null;
                     currentAssistantContentEl = null;
                     setBusy(true);
-                    appendTearRule(`OP_STEP #${ev.step} // DISPATCH`);
+                    appendTearRule(`step #${ev.step} // dispatch`);
                     injectEntropy(16);
                     break;
 
                 case 'Thinking':
-                    // Active ticker handles visual
                     break;
 
                 case 'Token':
@@ -1538,8 +1634,8 @@
                         currentAssistantBlock.className = 'tui-entry entry-assistant';
                         currentAssistantBlock.innerHTML = `
                             <div class="entry-mast">
-                                <div><span class="entry-tag">KOTA</span> [0x${(opCounter++).toString(16).padStart(2,'0').toUpperCase()}] // SYNTHESIS_STREAM</div>
-                                <div>ACTIVE_VOXEL</div>
+                                <div><span class="entry-tag">kota</span> [0x${(opCounter++).toString(16).padStart(2,'0')}] // synthesis stream</div>
+                                <div>active voxel</div>
                             </div>
                             <div class="entry-payload"></div>
                         `;
@@ -1557,8 +1653,8 @@
                     toolBlock.className = 'tui-entry entry-tool';
                     toolBlock.innerHTML = `
                         <div class="entry-mast">
-                            <div><span class="entry-tag">EXEC</span> TOOL: ${ev.tool}</div>
-                            <div>STATUS: PENDING</div>
+                            <div><span class="entry-tag">exec</span> tool: ${ev.tool}</div>
+                            <div>status: pending</div>
                         </div>
                     `;
                     output.appendChild(toolBlock);
@@ -1567,13 +1663,13 @@
                     break;
 
                 case 'ToolCallFinished':
-                    const statusText = ev.success ? 'OK' : 'FAIL';
+                    const statusText = ev.success ? 'ok' : 'fail';
                     const finBlock = document.createElement('div');
                     finBlock.className = 'tui-entry entry-tool';
                     finBlock.innerHTML = `
                         <div class="entry-mast">
-                            <div><span class="entry-tag">${statusText}</span> TOOL: ${ev.tool}</div>
-                            <div>${ev.duration_ms}MS</div>
+                            <div><span class="entry-tag">${statusText}</span> tool: ${ev.tool}</div>
+                            <div>${ev.duration_ms}ms</div>
                         </div>
                     `;
                     output.appendChild(finBlock);
@@ -1587,7 +1683,7 @@
                     break;
 
                 case 'Done':
-                    appendTearRule(`DONE // DURATION: ${ev.duration_ms}MS`);
+                    appendTearRule(`done // duration: ${ev.duration_ms}ms`);
                     pushDurationHistogram(ev.duration_ms);
                     setBusy(false);
                     currentAssistantBlock = null;
@@ -1596,7 +1692,10 @@
                     break;
 
                 case 'PowerUpdate':
-                    powerMetric.textContent = `${ev.watts.toFixed(1)}W · ${ev.joules.toFixed(1)}J`;
+                    powerMetric.textContent = `${ev.watts.toFixed(1)}w · ${ev.joules.toFixed(1)}j`;
+                    if (telemetryPowerVal) {
+                        telemetryPowerVal.textContent = `${ev.watts.toFixed(1)}w · ${ev.joules.toFixed(1)}j`;
+                    }
                     break;
 
                 case 'Error':
@@ -1604,7 +1703,7 @@
                     errBlock.className = 'tui-entry entry-error';
                     errBlock.innerHTML = `
                         <div class="entry-mast">
-                            <div><span class="entry-tag" style="background:var(--error-ink);">FAULT</span> RUNTIME_ERROR</div>
+                            <div><span class="entry-tag" style="background:var(--error-ink);">fault</span> runtime error</div>
                         </div>
                         <div class="entry-payload">${ev.message}</div>
                     `;
@@ -1628,6 +1727,7 @@
             document.querySelectorAll('.mode-key').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById(`btn-${mode}`);
             if (btn) btn.classList.add('active');
+            if (activeModeLabel) activeModeLabel.textContent = mode;
         }
 
         function updateToggleUI(name, state) {
@@ -1662,10 +1762,9 @@
 
         function clearOutput() {
             output.innerHTML = '';
-            appendTearRule('TRANSCRIPT BUFFER CLEARED');
+            appendTearRule('buffer cleared');
         }
 
-        // Auto-scroll when virtual keyboard toggles on mobile
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', () => {
                 output.scrollTop = output.scrollHeight;
