@@ -297,7 +297,7 @@ pub async fn run(
                             (KeyModifiers::CONTROL, KeyCode::Char('r')) => {
                                 app.output.clear();
                                 app.push_line(LineKind::System, "── conversation reset ──".into());
-                                // Note: agent reset would need a separate channel message
+                                let _ = input_tx.send(("/reset".to_string(), "tui".to_string()));
                             }
 
                             (_, KeyCode::PageUp) => {
@@ -776,7 +776,8 @@ fn draw(frame: &mut Frame, app: &App) {
 
 fn truncate(s: &str, max: usize) -> String {
     if s.len() > max {
-        format!("{}...", &s[..max])
+        let boundary = s.floor_char_boundary(max);
+        format!("{}...", &s[..boundary])
     } else {
         s.to_string()
     }
