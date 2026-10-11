@@ -1,0 +1,74 @@
+direction: right
+
+ui: User Interfaces {
+  style.fill: "#f8f9fa"
+  style.stroke: "#212529"
+  
+  tui: TUI Console {
+    shape: rectangle
+    tooltip: "ratatui · streaming HUD"
+  }
+  web: Remote Web Controller {
+    shape: rectangle
+    tooltip: "axum · WebSocket · LAN :8765"
+  }
+}
+
+runtime: Kota Agent Runtime {
+  style.fill: "#f1f3f5"
+  style.stroke: "#212529"
+
+  bus: Typed Event Bus {
+    shape: cylinder
+  }
+  agent: Agent Coordinator Loop {
+    shape: rectangle
+  }
+  mem: Memory Store {
+    shape: cylinder
+    tooltip: "SQLite · context & history"
+  }
+  sense: Hardware Sensing {
+    shape: rectangle
+    tooltip: "macpow telemetry · energy"
+  }
+}
+
+backend: Local LLM Backend {
+  style.fill: "#e9ecef"
+  style.stroke: "#212529"
+
+  llm: Inference Server {
+    shape: rectangle
+    tooltip: "Ollama · llama-server · vLLM"
+  }
+}
+
+sandbox: Tool Sandbox (--workdir) {
+  style.fill: "#f8f9fa"
+  style.stroke: "#212529"
+
+  tools: Built-in Tools {
+    shape: rectangle
+    tooltip: "read/write · bash · search · verify"
+  }
+  delegate: Recursive Delegation {
+    shape: rectangle
+    tooltip: "delegate_task"
+  }
+  sub: Isolated Subagent {
+    shape: rectangle
+    tooltip: "bounded context envelope"
+  }
+}
+
+ui.tui <-> runtime.bus: events
+ui.web <-> runtime.bus: events
+runtime.bus <-> runtime.agent
+runtime.agent <-> runtime.mem
+runtime.agent <-> runtime.sense
+runtime.agent <-> backend.llm: stream tokens & thoughts
+runtime.agent -> sandbox.tools: execute
+sandbox.tools -> runtime.agent: result
+sandbox.delegate -> sandbox.sub: spawns
+sandbox.sub -> sandbox.delegate: envelope
