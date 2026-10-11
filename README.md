@@ -12,13 +12,15 @@ A TUI agent coder & computing assistant that runs on local LLMs.
 ## What it does
 
 - Talks to any OpenAI-compatible local LLM (Ollama, llama-server, RamaLama, vLLM)
-- **Recursive Agent (RA) Delegation**: Delegate complex sub-tasks asynchronously to specialized subagents using the `delegate_task` tool to prevent context rot.
+- **Recursive Agent (RA) Delegation**: Delegate complex sub-tasks to isolated subagents with clean context envelopes using `delegate_task` to prevent context rot (bounded recursion depth).
 - **Agent-Native Documentation**: OpenWiki-style codebase context mapping (`AGENTS.md`) and automated CI synchronization.
-- 7 built-in tools: `read_file`, `write_file`, `list_dir`, `run_command`, `search`, `fetch_news`, `delegate_task`
-- Streams tokens and thinking/reasoning traces in real time (including subagent tokens with `Sub[mode]>` prefix)
-- Shows tool calls as they happen with timing
-- Tracks context budget so you don't silently overflow
-- Single binary, no Python, no Node.js
+- **8 built-in tools**: `read_file`, `write_file`, `list_dir`, `run_command`, `search`, `fetch_news`, `delegate_task`, `verify_paper` (plus MCP extensible tools).
+- **Confinement & Safety**: File operations are confined to `--workdir`, shell commands execute with working directory preservation, tool calls have timeouts, and execution loops have configurable step limits.
+- Streams tokens and thinking/reasoning traces in real time (including subagent tokens with `Sub[mode]>` prefix).
+- Shows tool calls as they happen with per-step timing and Apple Silicon energy telemetry (`macpow`).
+- Remote web controller binds to `127.0.0.1` by default (opt-in LAN with `--lan` and token authentication via `--password`).
+- Tracks context budget with proactive warnings before token exhaustion.
+- Single binary Rust runtime.
 
 ## Quick start
 
@@ -31,7 +33,7 @@ ollama pull qwen3:8b
 cargo run
 
 # Or with options:
-cargo run -- --model qwen3:8b --api-url http://localhost:11434/v1 --workdir ~/myproject
+cargo run -- --model qwen3:8b --api-url http://localhost:11434/v1 --workdir ~/myproject --max-steps 50 --tool-timeout 120
 ```
 
 ## Keybindings
@@ -59,8 +61,9 @@ cargo run -- --model qwen3:8b --api-url http://localhost:11434/v1 --workdir ~/my
                  │ run_cmd   │
                  │ search    │
                  │ fetch_news│
+                 │ verify_pap│
                  │ delegate  │───┐ (recursively spawns
-                 └───────────┘   │  nested sub-agents)
+                 └───────────┘   │  isolated sub-agents)
                        ▲         │
                        └─────────┘
 ```
