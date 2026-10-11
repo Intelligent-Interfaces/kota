@@ -38,6 +38,8 @@ struct App {
     joules: f32,
     art_mode: Option<ArtMode>,
     frame_count: u32,
+    port: u16,
+    lan_ip: Option<String>,
 }
 
 #[derive(Clone)]
@@ -52,58 +54,68 @@ enum LineKind {
 }
 
 impl App {
-    fn new(startup_mode: AgentMode, port: u16) -> Self {
+    fn new(startup_mode: AgentMode, port: u16, lan_ip: Option<String>) -> Self {
+        let mut banner = vec![
+            (LineKind::System, "                       )/_".into()),
+            (LineKind::System, "             _.--..---\"-,--c_".into()),
+            (LineKind::System, "        \\L..'           ._O__)_".into()),
+            (
+                LineKind::System,
+                ",-.     _.+  _  \\..--( /           🦎".into(),
+            ),
+            (LineKind::System, "  `\\.-''__.-' \\ (     \\_".into()),
+            (LineKind::System, "    `'''       `\\__   /\\".into()),
+            (LineKind::System, "                ')".into()),
+            (LineKind::System, "".into()),
+            (LineKind::System, "             _  __      _".into()),
+            (LineKind::System, "            | |/ /___  | |_  __ _".into()),
+            (
+                LineKind::System,
+                "            | ' // _ \\ | __|/ _` |".into(),
+            ),
+            (
+                LineKind::System,
+                "            | . \\ (_) || |_| (_| |".into(),
+            ),
+            (
+                LineKind::System,
+                "            |_|\\_\\___/  \\__|\\__,_|".into(),
+            ),
+            (
+                LineKind::System,
+                "            [  COMPUTING ASSIST  ]".into(),
+            ),
+            (LineKind::System, "".into()),
+            (
+                LineKind::System,
+                " ── SYSTEM LOADED ──────────────────────────────────────────".into(),
+            ),
+            (
+                LineKind::System,
+                format!("  • Local  : http://localhost:{} (Local UI)", port),
+            ),
+        ];
+
+        if let Some(ref ip) = lan_ip {
+            banner.push((
+                LineKind::System,
+                format!("  • Pixel 8: http://{}:{} (Phone / Remote)", ip, port),
+            ));
+        }
+
+        banner.push((
+            LineKind::System,
+            "  • Keys   : Ctrl+C (Quit) | Ctrl+R (Reset)".into(),
+        ));
+        banner.push((
+            LineKind::System,
+            " ───────────────────────────────────────────────────────────".into(),
+        ));
+        banner.push((LineKind::System, "".into()));
+
         Self {
             input: String::new(),
-            output: vec![
-                (LineKind::System, "                       )/_".into()),
-                (LineKind::System, "             _.--..---\"-,--c_".into()),
-                (LineKind::System, "        \\L..'           ._O__)_".into()),
-                (
-                    LineKind::System,
-                    ",-.     _.+  _  \\..--( /           🦎".into(),
-                ),
-                (LineKind::System, "  `\\.-''__.-' \\ (     \\_".into()),
-                (LineKind::System, "    `'''       `\\__   /\\".into()),
-                (LineKind::System, "                ')".into()),
-                (LineKind::System, "".into()),
-                (LineKind::System, "             _  __      _".into()),
-                (LineKind::System, "            | |/ /___  | |_  __ _".into()),
-                (
-                    LineKind::System,
-                    "            | ' // _ \\ | __|/ _` |".into(),
-                ),
-                (
-                    LineKind::System,
-                    "            | . \\ (_) || |_| (_| |".into(),
-                ),
-                (
-                    LineKind::System,
-                    "            |_|\\_\\___/  \\__|\\__,_|".into(),
-                ),
-                (
-                    LineKind::System,
-                    "            [  COMPUTING ASSIST  ]".into(),
-                ),
-                (LineKind::System, "".into()),
-                (
-                    LineKind::System,
-                    " ── SYSTEM LOADED ──────────────────────────────────────────".into(),
-                ),
-                (
-                    LineKind::System,
-                    format!("  • Port  : http://localhost:{} (Remote UI)", port),
-                ),
-                (
-                    LineKind::System,
-                    "  • Keys  : Ctrl+C (Quit) | Ctrl+R (Reset)".into(),
-                ),
-                (
-                    LineKind::System,
-                    " ───────────────────────────────────────────────────────────".into(),
-                ),
-                (LineKind::System, "".into()),
-            ],
+            output: banner,
             scroll: 0,
             busy: false,
             thinking_buf: String::new(),
@@ -117,6 +129,8 @@ impl App {
             joules: 0.0,
             art_mode: None,
             frame_count: 0,
+            port,
+            lan_ip,
         }
     }
 
@@ -266,13 +280,14 @@ pub async fn run(
     input_tx: mpsc::UnboundedSender<(String, String)>,
     startup_mode: AgentMode,
     port: u16,
+    lan_ip: Option<String>,
 ) -> anyhow::Result<()> {
     enable_raw_mode()?;
     stdout().execute(EnterAlternateScreen)?;
     stdout().execute(EnableMouseCapture)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
-    let mut app = App::new(startup_mode, port);
+    let mut app = App::new(startup_mode, port, lan_ip);
 
     loop {
         terminal.draw(|frame| draw(frame, &app))?;
@@ -757,8 +772,12 @@ fn draw(frame: &mut Frame, app: &App) {
     } else {
         format!(" | 🔧 {}", app.active_tools.join(", "))
     };
+    let phone_str = match &app.lan_ip {
+        Some(ip) => format!(" | phone: http://{}:{}", ip, app.port),
+        None => format!(" | web: :{}", app.port),
+    };
     let status = format!(
-        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps | ⚡ {:.1}W ({:.1}J){}{} | Ctrl+C quit",
+        " mode: {} | step {} | last: {}ms | tx: {:.1}kbps | rx: {:.1}kbps | ⚡ {:.1}W ({:.1}J){}{}{} | Ctrl+C quit",
         app.mode.to_str().to_uppercase(),
         app.step_count,
         app.last_duration_ms,
@@ -767,6 +786,7 @@ fn draw(frame: &mut Frame, app: &App) {
         app.watts,
         app.joules,
         tools_str,
+        phone_str,
         scroll_str,
     );
     let status_widget =
