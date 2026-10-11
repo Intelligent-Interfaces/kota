@@ -202,6 +202,10 @@ impl Agent {
         tx: broadcast::Sender<AgentEvent>,
     ) -> anyhow::Result<()> {
         // Save to Turso DB
+        let _ = self
+            .memory
+            .save_conversation(&self.session_id, self.mode.to_str())
+            .await;
         self.memory
             .save_message(&self.session_id, "user", user_input)
             .await?;
