@@ -708,7 +708,11 @@
         // ── CONNECTION ─────────────────────────────
         function connect() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+            let token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('kota_token') || '';
+            const wsUrl = token 
+                ? `${protocol}//${window.location.host}/ws?token=${encodeURIComponent(token)}`
+                : `${protocol}//${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 pillConn.classList.add('active');
@@ -716,9 +720,17 @@
                 appendSep('Connected');
             };
 
-            ws.onclose = () => {
+            ws.onclose = (e) => {
                 pillConn.classList.remove('active');
                 pillConn.querySelector('span').textContent = 'Offline';
+                if (!token && (e.code === 1006 || e.code === 1008)) {
+                    const entered = prompt('Kota Controller authentication required. Enter password/token:');
+                    if (entered) {
+                        localStorage.setItem('kota_token', entered.trim());
+                        setTimeout(connect, 300);
+                        return;
+                    }
+                }
                 appendSep('Disconnected — retrying...');
                 setTimeout(connect, 2000);
             };
