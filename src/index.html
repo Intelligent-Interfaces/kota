@@ -1,652 +1,960 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="matrix">
+<html lang="en" data-theme="paper">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kota Remote</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kota Remote · System Interface</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ──────────────────────────────────────────
-           THEME SYSTEM
-        ────────────────────────────────────────── */
+        /* ──────────────────────────────────────────────────────────
+           MONOCHROMATIC / SWISS TACTILE DESIGN SYSTEM
+           Inspired by perforated physical card specimens & Dieter Rams Braun
+           ────────────────────────────────────────────────────────── */
         :root {
-            --accent: #64ffda;
-            --accent2: #00b4d8;
-            --bg-body: #0f1117;
-            --bg-panel: #161b22;
-            --bg-card: #1c2128;
-            --bg-input: #0d1117;
-            --border: #30363d;
-            --border-light: #21262d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-muted: #484f58;
-            --msg-user: #fbbf24;
-            --msg-assistant: #64ffda;
-            --msg-system: #6e7681;
-            --msg-tool: #f97316;
-            --msg-thinking: #6e7681;
-            --btn-bg: #21262d;
-            --btn-hover: #30363d;
-            --led-glow: rgba(100,255,218,0.4);
+            /* Paper / Chalk Specimen (Default) */
+            --bg-outer: #ECEAE4;
+            --bg-panel: #F7F6F2;
+            --bg-card: #FFFFFF;
+            --bg-inset: #F0EEE8;
+            --border-heavy: #1D1E22;
+            --border-mid: #D3D0C7;
+            --border-light: #E5E3DC;
+            --border-hairline: rgba(29, 30, 34, 0.08);
+            
+            --text-primary: #18191C;
+            --text-secondary: #585B63;
+            --text-muted: #8E929C;
+            --text-inverse: #FFFFFF;
+
+            --accent: #18191C;
+            --accent-muted: #6E727D;
+            --badge-bg: #EAE8E1;
+            
+            --btn-bg: #FFFFFF;
+            --btn-border: #D3D0C7;
+            --btn-active-bg: #18191C;
+            --btn-active-text: #FFFFFF;
+
+            --dot-color: rgba(24, 25, 28, 0.22);
+            --dot-active: rgba(24, 25, 28, 0.85);
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+            --shadow-inset: inset 0 1px 2px rgba(0,0,0,0.06);
         }
 
-        [data-theme="matrix"] {
-            --accent: #64ffda;
-            --accent2: #00ff88;
-            --bg-body: #0a0e0a;
-            --bg-panel: #0f1410;
-            --bg-card: #141d15;
-            --bg-input: #080c08;
-            --border: #1a2e1a;
-            --border-light: #122012;
-            --text-primary: #a8d5b5;
-            --text-secondary: #5a8a65;
-            --text-muted: #2a4a2e;
-            --msg-user: #facc15;
-            --msg-assistant: #64ffda;
-            --msg-system: #4a6e50;
-            --msg-tool: #ff6b35;
-            --msg-thinking: #3a5a40;
-            --btn-bg: #0f1c10;
-            --btn-hover: #162217;
-            --led-glow: rgba(100,255,218,0.5);
+        [data-theme="obsidian"] {
+            /* Matte Basalt / Carbon Specimen */
+            --bg-outer: #0B0C0E;
+            --bg-panel: #131417;
+            --bg-card: #1B1D22;
+            --bg-inset: #0F1013;
+            --border-heavy: #F0F1F5;
+            --border-mid: #2E323A;
+            --border-light: #23262D;
+            --border-hairline: rgba(255, 255, 255, 0.08);
+            
+            --text-primary: #EDEDF0;
+            --text-secondary: #A0A4B0;
+            --text-muted: #636774;
+            --text-inverse: #0B0C0E;
+
+            --accent: #F0F1F5;
+            --accent-muted: #9DA1AD;
+            --badge-bg: #23262E;
+            
+            --btn-bg: #1B1D22;
+            --btn-border: #2E323A;
+            --btn-active-bg: #F0F1F5;
+            --btn-active-text: #0B0C0E;
+
+            --dot-color: rgba(255, 255, 255, 0.16);
+            --dot-active: rgba(255, 255, 255, 0.9);
+            --shadow-card: 0 2px 8px rgba(0,0,0,0.4);
+            --shadow-inset: inset 0 1px 3px rgba(0,0,0,0.5);
         }
 
-        [data-theme="midnight"] {
-            --accent: #818cf8;
-            --accent2: #a78bfa;
-            --bg-body: #070b18;
-            --bg-panel: #0d1224;
-            --bg-card: #131929;
-            --bg-input: #060a15;
-            --border: #1e2a4a;
-            --border-light: #162038;
-            --text-primary: #c7d2fe;
-            --text-secondary: #6e7ab0;
-            --text-muted: #2e3a60;
-            --msg-user: #f472b6;
-            --msg-assistant: #818cf8;
-            --msg-system: #4e5a90;
-            --msg-tool: #fb923c;
-            --msg-thinking: #3e4870;
-            --btn-bg: #111828;
-            --btn-hover: #1a2438;
-            --led-glow: rgba(129,140,248,0.5);
+        [data-theme="concrete"] {
+            /* Raw Brutalist Grey Specimen */
+            --bg-outer: #DFE0DC;
+            --bg-panel: #EAEBE7;
+            --bg-card: #F4F5F1;
+            --bg-inset: #D6D8D3;
+            --border-heavy: #252729;
+            --border-mid: #B8B9B4;
+            --border-light: #CDCEC9;
+            --border-hairline: rgba(37, 39, 41, 0.08);
+            
+            --text-primary: #212325;
+            --text-secondary: #5C5E62;
+            --text-muted: #8E9197;
+            --text-inverse: #FFFFFF;
+
+            --accent: #212325;
+            --accent-muted: #666970;
+            --badge-bg: #DCDDD8;
+            
+            --btn-bg: #F4F5F1;
+            --btn-border: #B8B9B4;
+            --btn-active-bg: #212325;
+            --btn-active-text: #F4F5F1;
+
+            --dot-color: rgba(33, 35, 37, 0.20);
+            --dot-active: rgba(33, 35, 37, 0.85);
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-inset: inset 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        [data-theme="amber"] {
-            --accent: #f59e0b;
-            --accent2: #fbbf24;
-            --bg-body: #0e0b00;
-            --bg-panel: #191200;
-            --bg-card: #211900;
-            --bg-input: #0b0800;
-            --border: #3b2e00;
-            --border-light: #2c2200;
-            --text-primary: #fde68a;
-            --text-secondary: #a07c10;
-            --text-muted: #5a4500;
-            --msg-user: #fb923c;
-            --msg-assistant: #fde68a;
-            --msg-system: #7a5c10;
-            --msg-tool: #f87171;
-            --msg-thinking: #5a4a10;
-            --btn-bg: #1c1400;
-            --btn-hover: #2a1e00;
-            --led-glow: rgba(245,158,11,0.5);
-        }
-
-        [data-theme="slate"] {
-            --accent: #38bdf8;
-            --accent2: #7dd3fc;
-            --bg-body: #0c1321;
-            --bg-panel: #13202f;
-            --bg-card: #192739;
-            --bg-input: #0a1020;
-            --border: #243347;
-            --border-light: #1c2a3a;
-            --text-primary: #cdd6f4;
-            --text-secondary: #7a9ab5;
-            --text-muted: #3a546a;
-            --msg-user: #a6e3a1;
-            --msg-assistant: #89dceb;
-            --msg-system: #5a7a95;
-            --msg-tool: #f38ba8;
-            --msg-thinking: #4a6a80;
-            --btn-bg: #162030;
-            --btn-hover: #1e2c40;
-            --led-glow: rgba(56,189,248,0.5);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            background: var(--bg-body);
-            color: var(--text-primary);
-            font-family: 'Inter', 'Space Grotesk', sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 8px;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            transition: background 0.3s, color 0.3s;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ──────────────────────────────────────────
-           MAIN PANEL
-        ────────────────────────────────────────── */
-        .panel {
-            flex: 1;
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            background: var(--bg-outer);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           CONTAINER / SPECIMEN CARD SHELL
+           ────────────────────────────────────────────────────────── */
+        .app-shell {
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: var(--bg-panel);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+            border-left: 1px solid var(--border-hairline);
+            border-right: 1px solid var(--border-hairline);
+            position: relative;
         }
 
-        /* ──────────────────────────────────────────
-           HEADER
-        ────────────────────────────────────────── */
-        .header {
+        /* ──────────────────────────────────────────────────────────
+           HEADER: Swiss Minimalist Header with Halftone Accents
+           ────────────────────────────────────────────────────────── */
+        .specimen-header {
+            padding: 14px 20px 12px;
+            border-bottom: 1px solid var(--border-mid);
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .header-top-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-card);
-            flex-shrink: 0;
         }
 
-        .brand {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 13px;
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modular Monochromatic Stencil Badge (Echoing the card's Lab AIR mark) */
+        .brand-stencil {
+            width: 28px;
+            height: 28px;
+            background: var(--text-primary);
+            color: var(--bg-panel);
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            letter-spacing: 3px;
-            color: var(--accent);
-            text-shadow: 0 0 12px var(--led-glow);
-            flex-shrink: 0;
+            font-size: 11px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            user-select: none;
         }
 
-        .header-spacer { flex: 1; }
+        .brand-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
 
-        .status-pills {
+        .brand-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .header-status-group {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .pill {
-            display: flex;
+        .status-pill {
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border-light);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 0.5px;
-            color: var(--text-muted);
-            background: var(--bg-body);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 3px 8px;
             text-transform: uppercase;
+            color: var(--text-secondary);
         }
 
-        .pill.active { color: var(--accent); border-color: var(--accent); }
-        .pill-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-            flex-shrink: 0;
-        }
-        .pill.active .pill-dot {
-            box-shadow: 0 0 6px currentColor;
-        }
-
-        .power-display {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            color: var(--accent);
-            text-shadow: 0 0 8px var(--led-glow);
-            background: var(--bg-body);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 3px 10px;
-            white-space: nowrap;
-        }
-
-        /* ──────────────────────────────────────────
-           TOOLBAR (Modes + Toggles)
-        ────────────────────────────────────────── */
-        .toolbar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 16px;
-            background: var(--bg-body);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            flex-wrap: nowrap;
-            flex-shrink: 0;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Hide scrollbar for Firefox */
-        }
-        .toolbar::-webkit-scrollbar {
-            display: none; /* Hide scrollbar for Chrome/Safari */
-        }
-
-        .toolbar-section {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .toolbar-divider {
-            width: 1px;
-            height: 20px;
-            background: var(--border);
-            margin: 0 4px;
-        }
-
-        .toolbar-label {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-right: 2px;
-        }
-
-        .mode-btn {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            padding: 4px 10px;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .mode-btn:hover { color: var(--text-secondary); background: var(--btn-hover); }
-        .mode-btn.active {
-            color: var(--accent);
-            border-color: var(--accent);
-            background: var(--btn-bg);
-            text-shadow: 0 0 8px var(--led-glow);
-        }
-
-        /* Toggle switches */
-        .toggle-wrap {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
-        .toggle-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            user-select: none;
-            transition: color 0.2s;
-        }
-        .toggle-wrap.on .toggle-label { color: var(--accent); }
-
-        .toggle-track {
-            width: 28px;
-            height: 16px;
-            border-radius: 8px;
-            background: var(--border);
-            border: 1px solid var(--border-light);
-            position: relative;
-            transition: background 0.2s, border-color 0.2s;
-            flex-shrink: 0;
-        }
-        .toggle-wrap.on .toggle-track {
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 8px var(--led-glow);
-        }
-        .toggle-thumb {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 10px;
-            height: 10px;
+        .status-dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: var(--text-muted);
-            transition: left 0.2s, background 0.2s;
-        }
-        .toggle-wrap.on .toggle-thumb {
-            left: 14px;
-            background: var(--bg-body);
+            transition: background 0.2s, transform 0.2s;
         }
 
-        /* Theme picker */
-        .theme-swatches {
-            display: flex;
-            gap: 4px;
+        .status-pill.online .status-dot {
+            background: var(--text-primary);
+        }
+
+        .status-pill.busy .status-dot {
+            background: var(--text-primary);
+            transform: scale(1.3);
+            animation: pulse-dot 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .telemetry-pill {
+            display: inline-flex;
             align-items: center;
+            padding: 4px 10px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border-light);
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            color: var(--text-secondary);
+            white-space: nowrap;
         }
-        .swatch {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.15s, border-color 0.15s;
-        }
-        .swatch:hover { transform: scale(1.2); }
-        .swatch.active { border-color: var(--text-primary); }
-        .swatch-matrix { background: #64ffda; }
-        .swatch-midnight { background: #818cf8; }
-        .swatch-amber { background: #f59e0b; }
-        .swatch-slate { background: #38bdf8; }
 
-        /* ──────────────────────────────────────────
-           MESSAGE LOG
-        ────────────────────────────────────────── */
-        .msg-log {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
+        /* ──────────────────────────────────────────────────────────
+           PERFORATED HALFTONE SPECIMEN CARD STRIP
+           Visual homage to the dot-matrix perforated card held to the sky
+           ────────────────────────────────────────────────────────── */
+        .halftone-specimen-strip {
+            position: relative;
+            background: var(--bg-inset);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .halftone-matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.45;
+        }
+
+        .halftone-caption-left {
+            position: relative;
+            z-index: 1;
             display: flex;
             flex-direction: column;
             gap: 2px;
-            scroll-behavior: smooth;
         }
 
-        .msg-log::-webkit-scrollbar { width: 4px; }
-        .msg-log::-webkit-scrollbar-track { background: transparent; }
-        .msg-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-        .message {
-            font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            padding: 2px 0;
+        .halftone-label-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--text-primary);
         }
 
-        .message.user    { color: var(--msg-user); }
-        .message.assistant { color: var(--msg-assistant); }
-        .message.system  { color: var(--msg-system); font-size: 11px; }
-        .message.tool    { color: var(--msg-tool); }
-        .message.thinking { color: var(--msg-thinking); font-style: italic; }
-        .message.error   { color: #f87171; }
-
-        /* Markdown rendering */
-        .message.assistant p { margin: 0.3em 0; }
-        .message.assistant pre {
-            background: var(--bg-body);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 8px 0;
-            overflow-x: auto;
-            font-size: 12px;
-        }
-        .message.assistant code {
-            font-family: 'JetBrains Mono', monospace;
-            background: var(--bg-card);
-            padding: 1px 5px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        .message.assistant pre code { padding: 0; background: transparent; }
-        .message.assistant ul { list-style: disc; margin-left: 20px; margin: 4px 0; }
-        .message.assistant ol { list-style: decimal; margin-left: 20px; margin: 4px 0; }
-        .message.assistant h1,
-        .message.assistant h2,
-        .message.assistant h3 { color: var(--text-primary); margin: 0.8em 0 0.3em; font-weight: 600; }
-        .message.assistant a { color: var(--accent2); text-decoration: underline; }
-
-        /* ──────────────────────────────────────────
-           RESPONSIVE MOBILE OVERRIDES (Pixel 8 / Mobile)
-           ────────────────────────────────────────── */
-
-        @media (max-width: 640px) {
-            body {
-                padding: 0;
-            }
-            .panel {
-                border-radius: 0;
-                border: none;
-            }
-            .header {
-                padding: 8px 12px;
-            }
-            .brand {
-                font-size: 11px;
-                letter-spacing: 1.5px;
-            }
-            .power-display {
-                font-size: 10px;
-                padding: 2px 8px;
-            }
-            .toolbar {
-                padding: 6px 12px;
-                gap: 10px;
-            }
-            .toolbar-label {
-                font-size: 8px;
-            }
-            .mode-btn {
-                font-size: 9px;
-                padding: 3px 6px;
-            }
-            .toggle-label {
-                font-size: 9px;
-            }
-            .msg-log {
-                padding: 12px;
-            }
-            .message {
-                font-size: 12px;
-            }
-            .input-area {
-                padding: 8px;
-                gap: 6px;
-            }
-            .cmd-input {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            .send-btn {
-                padding: 8px 16px;
-                font-size: 11px;
-            }
+        .halftone-label-desc {
+            font-size: 9px;
+            color: var(--text-secondary);
+            letter-spacing: 0.2px;
         }
 
-        /* Separator line */
-        .sep-line {
+        .halftone-caption-right {
+            position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin: 6px 0;
+            gap: 6px;
         }
-        .sep-line span {
-            font-size: 10px;
+
+        /* Minimal tactile theme swatches */
+        .theme-selector {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+        }
+
+        .theme-button {
+            border: none;
+            background: transparent;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
             color: var(--text-muted);
-            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.15s;
+        }
+
+        .theme-button.active {
+            background: var(--text-primary);
+            color: var(--bg-panel);
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           TACTILE CONTROL DECK / TOOLBAR
+           ────────────────────────────────────────────────────────── */
+        .control-deck {
+            padding: 10px 16px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            scrollbar-width: none;
+        }
+        .control-deck::-webkit-scrollbar { display: none; }
+
+        .deck-section {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .deck-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }
+
+        /* Dieter Rams style recessed pill segmented control */
+        .mode-segmented-group {
+            display: flex;
+            background: var(--bg-inset);
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            gap: 2px;
+        }
+
+        .mode-item-btn {
+            background: transparent;
+            border: none;
+            padding: 5px 9px;
+            border-radius: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
             white-space: nowrap;
         }
-        .sep-line::before, .sep-line::after {
+
+        .mode-item-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .mode-item-btn.active {
+            background: var(--btn-active-bg);
+            color: var(--btn-active-text);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Physical tactile rocker toggles (No emojis) */
+        .toggle-switch-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hardware-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--btn-border);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s;
+        }
+
+        .hardware-toggle:hover {
+            border-color: var(--text-primary);
+        }
+
+        .toggle-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1.5px solid var(--text-muted);
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .hardware-toggle.on .toggle-indicator {
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .hardware-toggle-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .hardware-toggle.on .hardware-toggle-text {
+            color: var(--text-primary);
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           MESSAGE LOG / EDITORIAL TRANSCRIPT
+           ────────────────────────────────────────────────────────── */
+        .transcript-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+            background: var(--bg-panel);
+        }
+
+        .transcript-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .transcript-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .transcript-container::-webkit-scrollbar-thumb {
+            background: var(--border-mid);
+            border-radius: 10px;
+        }
+
+        .divider-rule {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .divider-rule::before,
+        .divider-rule::after {
             content: '';
             flex: 1;
             height: 1px;
             background: var(--border-light);
         }
 
-        /* ──────────────────────────────────────────
-           INPUT AREA
-        ────────────────────────────────────────── */
-        .input-area {
-            padding: 12px 16px;
-            border-top: 1px solid var(--border);
-            background: var(--bg-card);
+        .divider-rule span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Entry Blocks */
+        .entry-block {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 100%;
+        }
+
+        .entry-header {
+            display: flex;
             align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .entry-tag {
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--badge-bg);
+            color: var(--text-primary);
+        }
+
+        .entry-tag.tag-user {
+            background: var(--text-primary);
+            color: var(--bg-panel);
+        }
+
+        .entry-tag.tag-tool {
+            background: var(--bg-inset);
+            border: 1px solid var(--border-mid);
+            color: var(--text-secondary);
+        }
+
+        .entry-body {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        /* User entry styling */
+        .entry-user {
+            align-self: flex-end;
+            max-width: 85%;
+        }
+
+        .entry-user .entry-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-mid);
+            padding: 10px 14px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+        }
+
+        /* Assistant entry styling */
+        .entry-assistant {
+            align-self: flex-start;
+            width: 100%;
+        }
+
+        .entry-assistant .entry-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 14px 18px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Markdown elements inside assistant response */
+        .entry-content p {
+            margin: 0.4em 0;
+        }
+        .entry-content p:first-child { margin-top: 0; }
+        .entry-content p:last-child { margin-bottom: 0; }
+
+        .entry-content pre {
+            background: var(--bg-inset);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .entry-content code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-inset);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            border: 1px solid var(--border-hairline);
+        }
+
+        .entry-content pre code {
+            padding: 0;
+            background: transparent;
+            border: none;
+        }
+
+        .entry-content ul, .entry-content ol {
+            margin: 6px 0 6px 20px;
+        }
+
+        .entry-content h1, .entry-content h2, .entry-content h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text-primary);
+            margin: 1em 0 0.4em;
+            font-weight: 700;
+        }
+
+        .entry-content h1 { font-size: 16px; }
+        .entry-content h2 { font-size: 14px; }
+        .entry-content h3 { font-size: 13px; }
+
+        /* Tool call styling */
+        .entry-tool {
+            align-self: stretch;
+        }
+
+        .tool-call-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-left: 3px solid var(--text-secondary);
+            border-radius: 4px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .tool-name-spec {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tool-meta-badge {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* System notification */
+        .entry-system {
+            align-self: stretch;
+            padding: 4px 0;
+        }
+
+        .system-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            padding-left: 8px;
+            border-left: 2px solid var(--border-light);
+        }
+
+        .entry-error {
+            background: rgba(220, 38, 38, 0.06);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: #b91c1c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           THINKING / GENERATING INDICATOR
+           ────────────────────────────────────────────────────────── */
+        .thinking-bar {
+            display: none;
+            padding: 0 20px 10px;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .thinking-bar.visible {
+            display: flex;
+        }
+
+        .stipple-pulse-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .stipple-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: dot-shimmer 1.4s infinite ease-in-out;
+        }
+        .stipple-dot:nth-child(2) { animation-delay: 0.2s; }
+        .stipple-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-shimmer {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           INPUT FIELD & TRANSMIT BAR
+           ────────────────────────────────────────────────────────── */
+        .input-bar-container {
+            padding: 12px 18px 16px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-mid);
             flex-shrink: 0;
         }
 
-        .cmd-input {
-            flex: 1;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
+        .input-form-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border-mid);
             border-radius: 8px;
-            color: var(--text-primary);
-            padding: 10px 14px;
+            padding: 4px 6px 4px 14px;
+            box-shadow: var(--shadow-inset);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .input-form-inner:focus-within {
+            border-color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .cmd-text-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
             font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-primary);
+            padding: 8px 0;
         }
-        .cmd-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--led-glow);
-        }
-        .cmd-input::placeholder { color: var(--text-muted); }
 
-        .send-btn {
-            background: var(--accent);
+        .cmd-text-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .transmit-button {
+            background: var(--text-primary);
+            color: var(--bg-panel);
             border: none;
-            border-radius: 8px;
-            color: var(--bg-body);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
             font-weight: 700;
-            font-size: 12px;
-            letter-spacing: 1px;
-            padding: 10px 20px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
             cursor: pointer;
             transition: opacity 0.15s, transform 0.1s;
-            flex-shrink: 0;
         }
-        .send-btn:hover { opacity: 0.85; }
-        .send-btn:active { transform: scale(0.97); }
 
-        /* Thinking animation */
-        @keyframes pulse-opacity { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-        .thinking-indicator {
-            display: none;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 0;
+        .transmit-button:hover {
+            opacity: 0.88;
         }
-        .thinking-indicator.visible { display: flex; }
-        .thinking-dot {
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: var(--msg-thinking);
-            animation: pulse-opacity 1.2s ease-in-out infinite;
+        .transmit-button:active {
+            transform: scale(0.97);
         }
-        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
-        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
 
+        /* ──────────────────────────────────────────────────────────
+           MOBILE RESPONSIVENESS
+           ────────────────────────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .app-shell {
+                border: none;
+            }
+            .specimen-header {
+                padding: 12px 14px 10px;
+                gap: 8px;
+            }
+            .control-deck {
+                padding: 8px 12px;
+            }
+            .transcript-container {
+                padding: 14px 12px;
+                gap: 12px;
+            }
+            .input-bar-container {
+                padding: 10px 12px 14px;
+            }
+            .brand-title {
+                font-size: 13px;
+            }
+            .halftone-specimen-strip {
+                display: none; /* Keep clean and uncluttered on small screens */
+            }
+            .entry-user {
+                max-width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="panel">
+    <div class="app-shell">
 
-        <!-- Header -->
-        <div class="header">
-            <div class="brand">KOTA //</div>
-            <div class="status-pills">
-                <div class="pill" id="pill-conn">
-                    <div class="pill-dot"></div>
-                    <span>Offline</span>
+        <!-- Specimen Header -->
+        <header class="specimen-header">
+            <div class="header-top-row">
+                <div class="brand-block">
+                    <div class="brand-stencil">KT</div>
+                    <div class="brand-meta">
+                        <span class="brand-title">KOTA</span>
+                        <span class="brand-subtitle">Studio · Runtime</span>
+                    </div>
                 </div>
-                <div class="pill" id="pill-busy">
-                    <div class="pill-dot"></div>
-                    <span>Idle</span>
+
+                <div class="header-status-group">
+                    <div class="status-pill" id="pill-conn">
+                        <span class="status-dot"></span>
+                        <span id="conn-text">OFFLINE</span>
+                    </div>
+                    <div class="status-pill" id="pill-busy">
+                        <span class="status-dot"></span>
+                        <span id="busy-text">IDLE</span>
+                    </div>
+                    <div class="telemetry-pill" id="power-display">0.0 W · 0.0 J</div>
                 </div>
             </div>
-            <div class="header-spacer"></div>
-            <div class="power-display" id="power-display">⚡ 0.0W · 0.0J</div>
+
+            <!-- Perforated Halftone Card Specimen (Echoing the attached physical specimen card) -->
+            <div class="halftone-specimen-strip">
+                <canvas id="halftoneCanvas" class="halftone-matrix-canvas"></canvas>
+                <div class="halftone-caption-left">
+                    <span class="halftone-label-title">Design Studio for Autonomous Invariants</span>
+                    <span class="halftone-label-desc">Local neural engine with hardware energy telemetry & bounded policy envelope.</span>
+                </div>
+                <div class="halftone-caption-right">
+                    <div class="theme-selector">
+                        <button class="theme-button active" onclick="setTheme('paper')" id="btn-theme-paper">Chalk</button>
+                        <button class="theme-button" onclick="setTheme('obsidian')" id="btn-theme-obsidian">Carbon</button>
+                        <button class="theme-button" onclick="setTheme('concrete')" id="btn-theme-concrete">Grey</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tactile Control Deck -->
+        <nav class="control-deck">
+            <div class="deck-section">
+                <span class="deck-label">MODE</span>
+                <div class="mode-segmented-group" id="mode-buttons">
+                    <button class="mode-item-btn active" id="btn-coder" onclick="changeMode('coder')">Coder</button>
+                    <button class="mode-item-btn" id="btn-cpe" onclick="changeMode('cpe')">CPE</button>
+                    <button class="mode-item-btn" id="btn-eval" onclick="changeMode('eval')">Eval</button>
+                    <button class="mode-item-btn" id="btn-research" onclick="changeMode('research')">Research</button>
+                    <button class="mode-item-btn" id="btn-architect" onclick="changeMode('architect')">Arch</button>
+                </div>
+            </div>
+
+            <div class="deck-section toggle-switch-group">
+                <span class="deck-label">SYSTEM</span>
+                <!-- Sensor Switch -->
+                <div class="hardware-toggle on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
+                    <span class="toggle-indicator"></span>
+                    <span class="hardware-toggle-text">PWR</span>
+                </div>
+                <!-- Eco Switch -->
+                <div class="hardware-toggle" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
+                    <span class="toggle-indicator"></span>
+                    <span class="hardware-toggle-text">ECO</span>
+                </div>
+                <!-- Cloud Switch -->
+                <div class="hardware-toggle" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
+                    <span class="toggle-indicator"></span>
+                    <span class="hardware-toggle-text">CLOUD</span>
+                </div>
+                <!-- GCP Switch -->
+                <div class="hardware-toggle" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
+                    <span class="toggle-indicator"></span>
+                    <span class="hardware-toggle-text">GCP</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Transcript Container -->
+        <main class="transcript-container" id="output">
+            <div class="divider-rule"><span>SESSION STANDBY</span></div>
+            <div class="entry-block entry-system">
+                <div class="system-content">Connecting to local Kota controller runtime...</div>
+            </div>
+        </main>
+
+        <!-- Generating / Thinking Bar -->
+        <div class="thinking-bar" id="thinking-indicator">
+            <div class="stipple-pulse-row">
+                <div class="stipple-dot"></div>
+                <div class="stipple-dot"></div>
+                <div class="stipple-dot"></div>
+            </div>
+            <span>REASONING · SYNTHESIZING RESPONSE</span>
         </div>
 
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <!-- Agent Modes -->
-            <span class="toolbar-label">Mode</span>
-            <div class="toolbar-section" id="mode-buttons">
-                <button class="mode-btn active" id="btn-coder"   onclick="changeMode('coder')">Coder</button>
-                <button class="mode-btn"        id="btn-cpe"     onclick="changeMode('cpe')">CPE</button>
-                <button class="mode-btn"        id="btn-eval"    onclick="changeMode('eval')">Eval</button>
-                <button class="mode-btn"        id="btn-research" onclick="changeMode('research')">Research</button>
-                <button class="mode-btn"        id="btn-architect" onclick="changeMode('architect')">Arch</button>
-            </div>
+        <!-- Input Bar -->
+        <footer class="input-bar-container">
+            <form class="input-form-inner" id="input-form">
+                <input type="text" id="cmd-input" class="cmd-text-input" placeholder="Transmit instruction or /help..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button type="submit" class="transmit-button">Transmit</button>
+            </form>
+        </footer>
 
-            <div class="toolbar-divider"></div>
-
-            <!-- Power Toggle -->
-            <div class="toggle-wrap on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
-                <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label">⚡ Sensor</span>
-            </div>
-
-            <!-- Eco Toggle -->
-            <div class="toggle-wrap" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
-                <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label">🌿 Eco</span>
-            </div>
-
-            <!-- Cloud Toggle -->
-            <div class="toggle-wrap" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
-                <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label">☁ Cloud</span>
-            </div>
-
-            <!-- GCP Toggle -->
-            <div class="toggle-wrap" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
-                <div class="toggle-track"><div class="toggle-thumb"></div></div>
-                <span class="toggle-label">🌐 GCP</span>
-            </div>
-
-            <div class="toolbar-divider"></div>
-
-            <!-- Theme Swatches -->
-            <span class="toolbar-label">Theme</span>
-            <div class="theme-swatches">
-                <div class="swatch swatch-matrix active"   id="swatch-matrix"   title="Matrix"   onclick="setTheme('matrix')"></div>
-                <div class="swatch swatch-midnight"        id="swatch-midnight" title="Midnight"  onclick="setTheme('midnight')"></div>
-                <div class="swatch swatch-amber"           id="swatch-amber"    title="Amber"     onclick="setTheme('amber')"></div>
-                <div class="swatch swatch-slate"           id="swatch-slate"    title="Slate"     onclick="setTheme('slate')"></div>
-            </div>
-        </div>
-
-        <!-- Message Log -->
-        <div class="msg-log" id="output">
-            <div class="sep-line"><span>KOTA REMOTE</span></div>
-            <div class="message system">Waiting for connection...</div>
-        </div>
-
-        <!-- Thinking indicator -->
-        <div class="thinking-indicator" id="thinking-indicator" style="padding: 0 16px 8px;">
-            <div class="thinking-dot"></div>
-            <div class="thinking-dot"></div>
-            <div class="thinking-dot"></div>
-            <span style="font-size:11px; color: var(--text-muted); font-family: monospace;">thinking...</span>
-        </div>
-
-        <!-- Input -->
-        <form class="input-area" id="input-form">
-            <input type="text" id="cmd-input" class="cmd-input" placeholder="Message kota... (or /help)" autocomplete="off" autocorrect="off" spellcheck="false">
-            <button type="submit" class="send-btn">Send</button>
-        </form>
     </div>
 
     <script>
@@ -654,7 +962,9 @@
         const form = document.getElementById('input-form');
         const input = document.getElementById('cmd-input');
         const pillConn = document.getElementById('pill-conn');
+        const connText = document.getElementById('conn-text');
         const pillBusy = document.getElementById('pill-busy');
+        const busyText = document.getElementById('busy-text');
         const powerDisplay = document.getElementById('power-display');
         const thinkingIndicator = document.getElementById('thinking-indicator');
 
@@ -663,10 +973,10 @@
 
         let ws;
         let isBusy = false;
-        let currentAssistantLine = null;
-        let isThinking = false;
+        let currentAssistantBlock = null;
+        let currentAssistantContentEl = null;
 
-        // Marked setup
+        // Marked setup with Highlight.js
         const { Marked } = window.marked;
         const { markedHighlight } = window.markedHighlight;
         const markedInstance = new Marked(
@@ -679,18 +989,66 @@
             })
         );
 
-        // ── THEME ──────────────────────────────────
+        // ── TACTILE HALFTONE CANVAS GENERATOR ──────────
+        // Generates an authentic perforated dot-matrix pattern inspired by the photo
+        function renderHalftoneBackground() {
+            const canvas = document.getElementById('halftoneCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+
+            ctx.clearRect(0, 0, rect.width, rect.height);
+
+            const dotSpacing = 8;
+            const cols = Math.ceil(rect.width / dotSpacing);
+            const rows = Math.ceil(rect.height / dotSpacing);
+
+            // Fetch active dot color from CSS variable
+            const style = getComputedStyle(document.documentElement);
+            const dotColor = style.getPropertyValue('--dot-color').trim() || 'rgba(0,0,0,0.18)';
+
+            ctx.fillStyle = dotColor;
+
+            for (let c = 0; c < cols; c++) {
+                for (let r = 0; r < rows; r++) {
+                    const x = c * dotSpacing + dotSpacing / 2;
+                    const y = r * dotSpacing + dotSpacing / 2;
+                    // Modulate dot radius based on coordinate curve to form subtle perforated silhouette
+                    const dx = (x - rect.width * 0.45) / (rect.width * 0.5);
+                    const dy = (y - rect.height * 0.5) / (rect.height * 0.5);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const radius = Math.max(0.6, Math.min(2.8, (1.8 - dist * 0.8) + (Math.sin(c * 0.4) * 0.3)));
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        window.addEventListener('resize', renderHalftoneBackground);
+        setTimeout(renderHalftoneBackground, 60);
+
+        // ── THEME SELECTION ─────────────────────────────
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
-            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-            const sw = document.getElementById('swatch-' + theme);
-            if (sw) sw.classList.add('active');
+            document.querySelectorAll('.theme-button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('btn-theme-' + theme);
+            if (btn) btn.classList.add('active');
             localStorage.setItem('kota-theme', theme);
+            setTimeout(renderHalftoneBackground, 30);
         }
-        const savedTheme = localStorage.getItem('kota-theme');
-        if (savedTheme) setTheme(savedTheme);
 
-        // ── TOGGLES ────────────────────────────────
+        const savedTheme = localStorage.getItem('kota-theme') || 'paper';
+        setTheme(savedTheme);
+
+        // ── TOGGLE CONTROLS ─────────────────────────────
         function toggleCmd(name, elId) {
             toggleState[name] = !toggleState[name];
             const el = document.getElementById(elId);
@@ -705,7 +1063,7 @@
             }
         }
 
-        // ── CONNECTION ─────────────────────────────
+        // ── CONNECTION HANDLER ──────────────────────────
         function connect() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             let token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('kota_token') || '';
@@ -715,14 +1073,14 @@
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                pillConn.classList.add('active');
-                pillConn.querySelector('span').textContent = 'Online';
-                appendSep('Connected');
+                pillConn.classList.add('online');
+                connText.textContent = 'ONLINE';
+                appendRule('CONNECTED');
             };
 
             ws.onclose = (e) => {
-                pillConn.classList.remove('active');
-                pillConn.querySelector('span').textContent = 'Offline';
+                pillConn.classList.remove('online');
+                connText.textContent = 'OFFLINE';
                 if (!token && (e.code === 1006 || e.code === 1008)) {
                     const entered = prompt('Kota Controller authentication required. Enter password/token:');
                     if (entered) {
@@ -731,7 +1089,7 @@
                         return;
                     }
                 }
-                appendSep('Disconnected — retrying...');
+                appendRule('OFFLINE · RECONNECTING');
                 setTimeout(connect, 2000);
             };
 
@@ -741,19 +1099,10 @@
             };
         }
 
-        // ── UI HELPERS ─────────────────────────────
-        function appendLine(type, text) {
+        // ── TRANSCRIPT HELPERS ──────────────────────────
+        function appendRule(label) {
             const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.innerText = text;
-            output.appendChild(div);
-            output.scrollTop = output.scrollHeight;
-            return div;
-        }
-
-        function appendSep(label) {
-            const div = document.createElement('div');
-            div.className = 'sep-line';
+            div.className = 'divider-rule';
             div.innerHTML = `<span>${label}</span>`;
             output.appendChild(div);
             output.scrollTop = output.scrollHeight;
@@ -762,16 +1111,16 @@
         function setBusy(state) {
             isBusy = state;
             if (state) {
-                pillBusy.classList.add('active');
-                pillBusy.querySelector('span').textContent = 'Busy';
+                pillBusy.classList.add('busy');
+                busyText.textContent = 'BUSY';
             } else {
-                pillBusy.classList.remove('active');
-                pillBusy.querySelector('span').textContent = 'Idle';
+                pillBusy.classList.remove('busy');
+                busyText.textContent = 'IDLE';
                 thinkingIndicator.classList.remove('visible');
             }
         }
 
-        // ── EVENT HANDLER ──────────────────────────
+        // ── EVENT ROUTER ────────────────────────────────
         function handleEvent(ev) {
             switch (ev.type) {
                 case 'UserMessage':
@@ -781,7 +1130,6 @@
                             const m = ev.text.replace('SYSTEM: Mode changed to ', '').trim().toLowerCase();
                             updateModeUI(m);
                         }
-                        // Detect eco/cloud/power/gcp system confirmations to update toggles
                         if (ev.text.includes('Eco mode on')) updateToggleUI('eco', true);
                         if (ev.text.includes('Eco mode off')) updateToggleUI('eco', false);
                         if (ev.text.includes('Cloud mode on')) updateToggleUI('cloud', true);
@@ -791,48 +1139,84 @@
                         if (ev.text.includes('Power monitoring enabled')) updateToggleUI('power', true);
                         if (ev.text.includes('Power monitoring disabled')) updateToggleUI('power', false);
 
-                        for (const line of content.split('\n')) {
-                            appendLine('system', `  ${line}`);
-                        }
-                    } else if (ev.source === 'terminal') {
-                        appendLine('user', `💻 ${ev.text}`);
+                        const block = document.createElement('div');
+                        block.className = 'entry-block entry-system';
+                        block.innerHTML = `<div class="system-content">${DOMPurify.sanitize(content.replace(/\n/g, '<br>'))}</div>`;
+                        output.appendChild(block);
                     } else {
-                        appendLine('user', `→ ${ev.text}`);
+                        // User message entry
+                        currentAssistantBlock = null;
+                        const block = document.createElement('div');
+                        block.className = 'entry-block entry-user';
+                        block.innerHTML = `
+                            <div class="entry-header" style="justify-content: flex-end;">
+                                <span class="entry-tag tag-user">TRANSMIT</span>
+                            </div>
+                            <div class="entry-content">${DOMPurify.sanitize(ev.text)}</div>
+                        `;
+                        output.appendChild(block);
                     }
+                    output.scrollTop = output.scrollHeight;
                     break;
 
                 case 'StepStarted':
-                    currentAssistantLine = null;
-                    isThinking = false;
+                    currentAssistantBlock = null;
+                    currentAssistantContentEl = null;
                     thinkingIndicator.classList.add('visible');
                     setBusy(true);
-                    appendSep(`Step ${ev.step}`);
+                    appendRule(`STEP ${ev.step}`);
                     break;
 
                 case 'Thinking':
-                    // Don't show raw thinking in the log, just the indicator
+                    // Subtle indicator active
                     break;
 
                 case 'Token':
                     thinkingIndicator.classList.remove('visible');
-                    if (!currentAssistantLine) {
-                        currentAssistantLine = document.createElement('div');
-                        currentAssistantLine.className = 'message assistant';
-                        currentAssistantLine.rawText = '';
-                        output.appendChild(currentAssistantLine);
+                    if (!currentAssistantBlock) {
+                        currentAssistantBlock = document.createElement('div');
+                        currentAssistantBlock.className = 'entry-block entry-assistant';
+                        currentAssistantBlock.innerHTML = `
+                            <div class="entry-header">
+                                <span class="entry-tag">KOTA</span>
+                                <span>SYNTHESIS</span>
+                            </div>
+                            <div class="entry-content"></div>
+                        `;
+                        output.appendChild(currentAssistantBlock);
+                        currentAssistantContentEl = currentAssistantBlock.querySelector('.entry-content');
+                        currentAssistantContentEl.rawText = '';
                     }
-                    currentAssistantLine.rawText += ev.text;
-                    currentAssistantLine.innerHTML = DOMPurify.sanitize(markedInstance.parse(currentAssistantLine.rawText));
+                    currentAssistantContentEl.rawText += ev.text;
+                    currentAssistantContentEl.innerHTML = DOMPurify.sanitize(markedInstance.parse(currentAssistantContentEl.rawText));
                     output.scrollTop = output.scrollHeight;
                     break;
 
                 case 'ToolCallStarted':
-                    appendLine('tool', `⚙  ${ev.tool}(...)`);
+                    const toolBlock = document.createElement('div');
+                    toolBlock.className = 'entry-block entry-tool';
+                    toolBlock.innerHTML = `
+                        <div class="tool-call-banner">
+                            <div><span class="tool-meta-badge">EXEC</span> <span class="tool-name-spec">${ev.tool}</span></div>
+                            <div class="tool-meta-badge">PENDING</div>
+                        </div>
+                    `;
+                    output.appendChild(toolBlock);
+                    output.scrollTop = output.scrollHeight;
                     break;
 
                 case 'ToolCallFinished':
-                    const icon = ev.success ? '✓' : '✗';
-                    appendLine('tool', `${icon}  ${ev.tool} · ${ev.duration_ms}ms`);
+                    const statusText = ev.success ? 'OK' : 'FAIL';
+                    const finBlock = document.createElement('div');
+                    finBlock.className = 'entry-block entry-tool';
+                    finBlock.innerHTML = `
+                        <div class="tool-call-banner" style="border-left-color: ${ev.success ? 'var(--text-primary)' : '#b91c1c'};">
+                            <div><span class="tool-meta-badge">${statusText}</span> <span class="tool-name-spec">${ev.tool}</span></div>
+                            <div class="tool-meta-badge">${ev.duration_ms}ms</div>
+                        </div>
+                    `;
+                    output.appendChild(finBlock);
+                    output.scrollTop = output.scrollHeight;
                     break;
 
                 case 'CommandFinished':
@@ -840,23 +1224,28 @@
                     break;
 
                 case 'Done':
-                    appendSep(`Done · ${ev.duration_ms}ms`);
+                    appendRule(`DONE · ${ev.duration_ms}ms`);
                     setBusy(false);
-                    currentAssistantLine = null;
+                    currentAssistantBlock = null;
+                    currentAssistantContentEl = null;
                     break;
 
                 case 'PowerUpdate':
-                    powerDisplay.textContent = `⚡ ${ev.watts.toFixed(1)}W · ${ev.joules.toFixed(1)}J`;
+                    powerDisplay.textContent = `${ev.watts.toFixed(1)} W · ${ev.joules.toFixed(1)} J`;
                     break;
 
                 case 'Error':
-                    appendLine('error', `✗ ${ev.message}`);
+                    const errBlock = document.createElement('div');
+                    errBlock.className = 'entry-block entry-error';
+                    errBlock.textContent = `ERROR: ${ev.message}`;
+                    output.appendChild(errBlock);
                     setBusy(false);
+                    output.scrollTop = output.scrollHeight;
                     break;
             }
         }
 
-        // ── MODE UI ────────────────────────────────
+        // ── MODE CONTROLS ───────────────────────────────
         function changeMode(mode) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(`/mode ${mode}`);
@@ -864,7 +1253,7 @@
         }
 
         function updateModeUI(mode) {
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-item-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById(`btn-${mode}`);
             if (btn) btn.classList.add('active');
         }
@@ -877,7 +1266,7 @@
             else el.classList.remove('on');
         }
 
-        // ── INPUT ──────────────────────────────────
+        // ── FORM SUBMISSION ─────────────────────────────
         form.onsubmit = (e) => {
             e.preventDefault();
             const val = input.value.trim();
