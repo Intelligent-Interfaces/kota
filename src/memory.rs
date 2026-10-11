@@ -58,6 +58,12 @@ impl MemoryStore {
     ) -> Result<()> {
         self.conn
             .execute(
+                "INSERT OR IGNORE INTO conversations (id, mode) VALUES (?1, ?2)",
+                (conversation_id.to_string(), "coder".to_string()),
+            )
+            .await?;
+        self.conn
+            .execute(
                 "INSERT INTO messages (conversation_id, role, content) VALUES (?1, ?2, ?3)",
                 (
                     conversation_id.to_string(),
