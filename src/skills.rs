@@ -10,9 +10,9 @@ pub struct SkillComposer {
 }
 
 impl SkillComposer {
-    pub fn new(skills_dir: &str) -> Self {
+    pub fn new<P: Into<PathBuf>>(skills_dir: P) -> Self {
         Self {
-            skills_dir: PathBuf::from(skills_dir),
+            skills_dir: skills_dir.into(),
         }
     }
 
