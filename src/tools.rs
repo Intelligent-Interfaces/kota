@@ -7,14 +7,36 @@ use tokio::process::Command;
 /// Each variant maps to a tool the model can call.
 #[derive(Debug)]
 pub enum ToolCall {
-    ReadFile { path: PathBuf },
-    WriteFile { path: PathBuf, content: String },
-    ListDir { path: PathBuf },
-    RunCommand { command: String },
-    Search { pattern: String, path: PathBuf },
-    FetchNews { query: String },
-    DelegateTask { task: String, mode: String },
-    VerifyPaper { path: PathBuf, check_claims: bool },
+    ReadFile {
+        path: PathBuf,
+    },
+    WriteFile {
+        path: PathBuf,
+        content: String,
+    },
+    ListDir {
+        path: PathBuf,
+    },
+    RunCommand {
+        command: String,
+        workdir: PathBuf,
+        timeout_secs: u64,
+    },
+    Search {
+        pattern: String,
+        path: PathBuf,
+    },
+    FetchNews {
+        query: String,
+    },
+    DelegateTask {
+        task: String,
+        mode: String,
+    },
+    VerifyPaper {
+        path: PathBuf,
+        check_claims: bool,
+    },
 }
 
 #[derive(Debug)]
@@ -23,10 +45,94 @@ pub struct ToolResult {
     pub output: String,
 }
 
+/// Safely truncate a UTF-8 string to at most `max_bytes` without slicing through code points.
+pub fn safe_truncate(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        s
+    } else {
+        &s[..s.floor_char_boundary(max_bytes)]
+    }
+}
+
+/// Normalizes path components without resolving symlinks on disk.
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut components = Vec::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => {
+                if let Some(std::path::Component::Normal(_)) = components.last() {
+                    components.pop();
+                } else {
+                    components.push(component);
+                }
+            }
+            c => components.push(c),
+        }
+    }
+    components.into_iter().collect()
+}
+
+/// Confines file paths strictly to the specified working directory.
+pub fn resolve_contained_path(workdir: &Path, user_path: &str) -> anyhow::Result<PathBuf> {
+    let trimmed = user_path.trim();
+    if trimmed.is_empty() {
+        return Ok(workdir.to_path_buf());
+    }
+
+    let p = Path::new(trimmed);
+    let target = if p.is_absolute() {
+        p.to_path_buf()
+    } else {
+        workdir.join(p)
+    };
+
+    let base_workdir = if workdir.is_absolute() {
+        normalize_path(workdir)
+    } else {
+        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        normalize_path(&cwd.join(workdir))
+    };
+
+    let norm_target = if target.is_absolute() {
+        normalize_path(&target)
+    } else {
+        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        normalize_path(&cwd.join(&target))
+    };
+
+    if !norm_target.starts_with(&base_workdir) {
+        anyhow::bail!(
+            "Path traversal rejected: '{}' resolves outside working directory '{}'",
+            user_path,
+            workdir.display()
+        );
+    }
+
+    // Check symlink traversal if path exists on disk
+    if let (Ok(canon_workdir), Ok(canon_target)) = (workdir.canonicalize(), target.canonicalize()) {
+        if !canon_target.starts_with(&canon_workdir) {
+            anyhow::bail!(
+                "Symlink traversal rejected: '{}' resolves outside working directory '{}'",
+                user_path,
+                canon_workdir.display()
+            );
+        }
+        return Ok(canon_target);
+    }
+
+    Ok(target)
+}
+
 /// Parse a tool call from the model's JSON arguments
-pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::Result<ToolCall> {
+pub fn parse_tool_call(
+    name: &str,
+    args_json: &str,
+    workdir: &Path,
+    timeout_secs: u64,
+) -> anyhow::Result<ToolCall> {
     let args: serde_json::Value = serde_json::from_str(args_json)
-        .unwrap_or_else(|_| serde_json::Value::Object(serde_json::Map::new()));
+        .map_err(|e| anyhow::anyhow!("Invalid tool argument JSON ({}): '{}'", e, args_json))?;
 
     match name {
         "delegate_task" => {
@@ -39,36 +145,38 @@ pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::R
         }
         "read_file" => {
             let path = args["path"].as_str().unwrap_or("");
-            Ok(ToolCall::ReadFile {
-                path: workdir.join(path),
-            })
+            let resolved = resolve_contained_path(workdir, path)?;
+            Ok(ToolCall::ReadFile { path: resolved })
         }
         "write_file" => {
             let path = args["path"].as_str().unwrap_or("");
             let content = args["content"].as_str().unwrap_or("");
+            let resolved = resolve_contained_path(workdir, path)?;
             Ok(ToolCall::WriteFile {
-                path: workdir.join(path),
+                path: resolved,
                 content: content.to_string(),
             })
         }
         "list_dir" => {
             let path = args["path"].as_str().unwrap_or(".");
-            Ok(ToolCall::ListDir {
-                path: workdir.join(path),
-            })
+            let resolved = resolve_contained_path(workdir, path)?;
+            Ok(ToolCall::ListDir { path: resolved })
         }
         "run_command" => {
             let command = args["command"].as_str().unwrap_or("");
             Ok(ToolCall::RunCommand {
                 command: command.to_string(),
+                workdir: workdir.to_path_buf(),
+                timeout_secs,
             })
         }
         "search" => {
             let pattern = args["pattern"].as_str().unwrap_or("");
             let path = args["path"].as_str().unwrap_or(".");
+            let resolved = resolve_contained_path(workdir, path)?;
             Ok(ToolCall::Search {
                 pattern: pattern.to_string(),
-                path: workdir.join(path),
+                path: resolved,
             })
         }
         "fetch_news" => {
@@ -80,8 +188,9 @@ pub fn parse_tool_call(name: &str, args_json: &str, workdir: &Path) -> anyhow::R
         "verify_paper" => {
             let path = args["path"].as_str().unwrap_or("");
             let check_claims = args["check_claims"].as_bool().unwrap_or(true);
+            let resolved = resolve_contained_path(workdir, path)?;
             Ok(ToolCall::VerifyPaper {
-                path: workdir.join(path),
+                path: resolved,
                 check_claims,
             })
         }
@@ -95,11 +204,11 @@ pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> To
         ToolCall::ReadFile { path } => {
             match tokio::fs::read_to_string(path).await {
                 Ok(content) => {
-                    // Truncate large files
+                    // Safe UTF-8 truncation for large files
                     let preview = if content.len() > 8000 {
                         format!(
                             "{}...\n[truncated, {} total bytes]",
-                            &content[..8000],
+                            safe_truncate(&content, 8000),
                             content.len()
                         )
                     } else {
@@ -159,11 +268,16 @@ pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> To
             },
         },
 
-        ToolCall::RunCommand { command } => {
-            let result = Command::new("bash").arg("-c").arg(command).output().await;
+        ToolCall::RunCommand { command, workdir, timeout_secs } => {
+            let mut cmd = Command::new("bash");
+            cmd.arg("-c").arg(command);
+            cmd.current_dir(workdir);
 
-            match result {
-                Ok(output) => {
+            let timeout_duration = std::time::Duration::from_secs(*timeout_secs);
+            let run_future = cmd.output();
+
+            match tokio::time::timeout(timeout_duration, run_future).await {
+                Ok(Ok(output)) => {
                     let stdout = String::from_utf8_lossy(&output.stdout);
                     let stderr = String::from_utf8_lossy(&output.stderr);
                     let combined = if stderr.is_empty() {
@@ -171,9 +285,9 @@ pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> To
                     } else {
                         format!("{}\nSTDERR:\n{}", stdout, stderr)
                     };
-                    // Truncate long output
+                    // Safe UTF-8 truncation
                     let truncated = if combined.len() > 4000 {
-                        format!("{}...\n[truncated]", &combined[..4000])
+                        format!("{}...\n[truncated]", safe_truncate(&combined, 4000))
                     } else {
                         combined
                     };
@@ -182,25 +296,26 @@ pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> To
                         output: truncated,
                     }
                 }
-                Err(e) => ToolResult {
+                Ok(Err(e)) => ToolResult {
                     success: false,
                     output: format!("Error running command: {}", e),
+                },
+                Err(_) => ToolResult {
+                    success: false,
+                    output: format!("Command timed out after {} seconds.", timeout_secs),
                 },
             }
         }
 
         ToolCall::Search { pattern, path } => {
-            // Use grep for search
-            let result = Command::new("grep")
-                .args(["-rn", "--include=*", pattern, &path.to_string_lossy()])
-                .output()
-                .await;
-
-            match result {
-                Ok(output) => {
+            // Use grep for search with a 30s timeout
+            let mut cmd = Command::new("grep");
+            cmd.args(["-rn", "--include=*", pattern, &path.to_string_lossy()]);
+            match tokio::time::timeout(std::time::Duration::from_secs(30), cmd.output()).await {
+                Ok(Ok(output)) => {
                     let stdout = String::from_utf8_lossy(&output.stdout);
                     let truncated = if stdout.len() > 4000 {
-                        format!("{}...\n[truncated]", &stdout[..4000])
+                        format!("{}...\n[truncated]", safe_truncate(&stdout, 4000))
                     } else {
                         stdout.to_string()
                     };
@@ -213,22 +328,32 @@ pub async fn execute(call: &ToolCall, llm: Option<&crate::llm::LlmClient>) -> To
                         },
                     }
                 }
-                Err(e) => ToolResult {
+                Ok(Err(e)) => ToolResult {
                     success: false,
                     output: format!("Error searching: {}", e),
+                },
+                Err(_) => ToolResult {
+                    success: false,
+                    output: "Search timed out after 30 seconds.".to_string(),
                 },
             }
         }
 
-        ToolCall::FetchNews { query } => match fetch_arxiv(query).await {
-            Ok(content) => ToolResult {
-                success: true,
-                output: content,
-            },
-            Err(e) => ToolResult {
-                success: false,
-                output: format!("Error fetching news: {}", e),
-            },
+        ToolCall::FetchNews { query } => {
+            match tokio::time::timeout(std::time::Duration::from_secs(30), fetch_arxiv(query)).await {
+                Ok(Ok(content)) => ToolResult {
+                    success: true,
+                    output: content,
+                },
+                Ok(Err(e)) => ToolResult {
+                    success: false,
+                    output: format!("Error fetching news: {}", e),
+                },
+                Err(_) => ToolResult {
+                    success: false,
+                    output: "arXiv request timed out after 30 seconds.".to_string(),
+                },
+            }
         },
         ToolCall::DelegateTask { task, mode } => ToolResult {
             success: false,
@@ -527,7 +652,7 @@ mod tests {
     fn test_parse_delegate_task() {
         let workdir = Path::new(".");
         let args = r#"{"task": "Analyze code", "mode": "coder"}"#;
-        let call = parse_tool_call("delegate_task", args, workdir).unwrap();
+        let call = parse_tool_call("delegate_task", args, workdir, 60).unwrap();
         match call {
             ToolCall::DelegateTask { task, mode } => {
                 assert_eq!(task, "Analyze code");
@@ -541,7 +666,7 @@ mod tests {
     fn test_parse_verify_paper() {
         let workdir = Path::new("/workspace");
         let args = r#"{"path": "papers/paper.tex", "check_claims": true}"#;
-        let call = parse_tool_call("verify_paper", args, workdir).unwrap();
+        let call = parse_tool_call("verify_paper", args, workdir, 60).unwrap();
         match call {
             ToolCall::VerifyPaper { path, check_claims } => {
                 assert_eq!(path, Path::new("/workspace/papers/paper.tex"));
@@ -549,5 +674,39 @@ mod tests {
             }
             _ => panic!("Expected VerifyPaper call"),
         }
+    }
+
+    #[test]
+    fn test_safe_truncate_multibyte() {
+        // Multi-byte character: 🦎 is 4 bytes: [240, 159, 166, 142]
+        let s = "kota 🦎 rocks";
+        // Byte length is 5 + 4 + 6 = 15 bytes.
+        // Cutting at 6, 7, 8 would slice into the 4-byte lizard emoji and panic with &s[..idx]
+        assert_eq!(safe_truncate(s, 5), "kota ");
+        assert_eq!(safe_truncate(s, 6), "kota ");
+        assert_eq!(safe_truncate(s, 7), "kota ");
+        assert_eq!(safe_truncate(s, 8), "kota ");
+        assert_eq!(safe_truncate(s, 9), "kota 🦎");
+        assert_eq!(safe_truncate(s, 20), "kota 🦎 rocks");
+    }
+
+    #[test]
+    fn test_resolve_contained_path() {
+        let workdir = Path::new("/workspace");
+        assert!(resolve_contained_path(workdir, "sub/file.txt").is_ok());
+        assert!(resolve_contained_path(workdir, "/workspace/sub/file.txt").is_ok());
+
+        // Traversal attempts must fail
+        assert!(resolve_contained_path(workdir, "../etc/passwd").is_err());
+        assert!(resolve_contained_path(workdir, "/etc/passwd").is_err());
+        assert!(resolve_contained_path(workdir, "sub/../../secret").is_err());
+    }
+
+    #[test]
+    fn test_json_parse_error_verbatim() {
+        let workdir = Path::new(".");
+        let malformed = r#"{"task": "Analyze code", "#;
+        let err = parse_tool_call("delegate_task", malformed, workdir, 60).unwrap_err();
+        assert!(err.to_string().contains("Invalid tool argument JSON"));
     }
 }
