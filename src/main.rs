@@ -38,6 +38,18 @@ struct Cli {
     #[arg(long, default_value_t = 24000)]
     max_tokens: usize,
 
+    /// Max steps the agent loop can take per query
+    #[arg(long, default_value_t = 50)]
+    max_steps: usize,
+
+    /// Timeout in seconds for individual tool calls
+    #[arg(long, default_value_t = 120)]
+    tool_timeout: u64,
+
+    /// Maximum delegation depth for subagents
+    #[arg(long, default_value_t = 3)]
+    max_delegation_depth: usize,
+
     /// Initial mode (coder, cpe, eval, research, librarian)
     #[arg(long, default_value = "coder")]
     mode: String,
@@ -45,6 +57,14 @@ struct Cli {
     /// Port for the remote web server UI
     #[arg(long, default_value_t = 8765)]
     port: u16,
+
+    /// Bind remote controller to 0.0.0.0 (LAN) instead of 127.0.0.1 (Localhost)
+    #[arg(long)]
+    lan: bool,
+
+    /// Password or auth token required to access the remote web controller
+    #[arg(long)]
+    password: Option<String>,
 
     /// A single query to run non-interactively and print to stdout
     #[arg(long)]
@@ -203,8 +223,17 @@ async fn main() -> anyhow::Result<()> {
 
     let llm_client = llm::LlmClient::new(&cli.api_url, &cli.model);
     let startup_mode = agent::AgentMode::from_str(&cli.mode);
-    let mut agent =
-        agent::Agent::new(llm_client, cli.max_tokens, &cli.workdir, startup_mode).await?;
+    let mut agent = agent::Agent::new(
+        llm_client,
+        cli.max_tokens,
+        cli.max_steps,
+        cli.tool_timeout,
+        0,
+        cli.max_delegation_depth,
+        &cli.workdir,
+        startup_mode,
+    )
+    .await?;
 
     if let Some(query) = cli.query {
         let (tx, mut rx) = tokio::sync::broadcast::channel::<events::AgentEvent>(100);
@@ -300,6 +329,7 @@ async fn main() -> anyhow::Result<()> {
                 let help_text = "\
 Available local commands (do not consume tokens or write to history):
   /help         - Display this help message
+  /reset        - Reset conversation history and step counter (also Ctrl+R)
   /modes        - List all available agent modes and descriptions
   /status       - Display current agent configuration & session status
   /mode <name>  - Switch the agent to a different mode
@@ -310,6 +340,20 @@ Available local commands (do not consume tokens or write to history):
   /art <type>   - Render an interactive ASCII animation (cat, clouds, plasma, lizard)";
                 let _ = tx_clone.send(events::AgentEvent::UserMessage {
                     text: format!("SYSTEM:\n{}", help_text),
+                    source: "system".to_string(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::CommandFinished);
+                continue;
+            }
+
+            if trimmed == "/reset" {
+                agent.reset();
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: user_input.clone(),
+                    source: source.clone(),
+                });
+                let _ = tx_clone.send(events::AgentEvent::UserMessage {
+                    text: "SYSTEM:\n── Conversation history and step counter reset ──".to_string(),
                     source: "system".to_string(),
                 });
                 let _ = tx_clone.send(events::AgentEvent::CommandFinished);
@@ -558,11 +602,13 @@ Available agent modes (composed of weighted skill vectors):
         }
     });
 
+    let host = if cli.lan { "0.0.0.0" } else { "127.0.0.1" };
     let port = cli.port;
+    let password = cli.password.clone();
     let tx_server = tx.clone();
     let input_tx_server = input_tx.clone();
     tokio::spawn(async move {
-        server::start(port, input_tx_server, tx_server).await;
+        server::start(host, port, password, input_tx_server, tx_server).await;
     });
 
     let tx_telemetry = tx.clone();
