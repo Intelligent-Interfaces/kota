@@ -47,25 +47,42 @@ cargo run -- --model qwen3:8b --api-url http://localhost:11434/v1 --workdir ~/my
 
 ## Architecture
 
-```
-┌──────────┐     ┌───────────┐     ┌──────────────────────────┐
-│  TUI     │◄───►│  Agent    │◄───►│  Local LLM               │
-│ (ratatui)│     │  Loop     │     │  Ollama / llama-server / |
-└──────────┘     └─────┬─────┘     │  vLLM (for Nemotron)     │
-                       │           └──────────────────────────┘
-                 ┌─────▼─────┐
-                 │  Tools    │
-                 │ read_file │
-                 │ write_file│
-                 │ list_dir  │
-                 │ run_cmd   │
-                 │ search    │
-                 │ fetch_news│
-                 │ verify_pap│
-                 │ delegate  │───┐ (recursively spawns
-                 └───────────┘   │  isolated sub-agents)
-                       ▲         │
-                       └─────────┘
+```mermaid
+flowchart TB
+    subgraph UI ["User Interfaces"]
+        direction LR
+        TUI["TUI Console<br/><i>ratatui · streaming HUD</i>"]
+        WEB["Remote Web Controller<br/><i>axum · WebSocket · LAN :8765</i>"]
+    end
+
+    subgraph RUNTIME ["Kota Agent Runtime"]
+        direction TB
+        BUS[("Typed Event Bus<br/><i>tokio::broadcast</i>")]
+        AGENT["Agent Coordinator Loop<br/><i>state machine · step limit · budget</i>"]
+        MEM[("Memory Store<br/><i>SQLite · context & history</i>")]
+        SENSE["Hardware Sensing<br/><i>macpow telemetry · energy</i>"]
+    end
+
+    subgraph BACKEND ["Local LLM Backend (OpenAI-compatible)"]
+        LLM["Inference Server<br/><i>Ollama · llama-server · vLLM</i>"]
+    end
+
+    subgraph SANDBOX ["Tool Execution Sandbox (Confined to --workdir)"]
+        direction TB
+        TOOLS["Built-in Tools<br/><i>read_file · write_file · list_dir<br/>run_command · search · fetch_news<br/>verify_paper</i>"]
+        DELEGATE["Recursive Delegation<br/><i>delegate_task</i>"]
+        CHILD["Isolated Subagent<br/><i>bounded-depth context envelope</i>"]
+    end
+
+    UI <-->|Bidirectional Events| BUS
+    BUS <--> AGENT
+    AGENT <--> MEM
+    AGENT <--> SENSE
+    AGENT <-->|Stream Tokens & Thoughts| BACKEND
+    AGENT -->|Invoke Tool| SANDBOX
+    SANDBOX -->|Tool Result| AGENT
+    DELEGATE -.->|Spawns Subagent| CHILD
+    CHILD -.->|Returns Summary Envelope| DELEGATE
 ```
 
 The agent loop:
@@ -75,7 +92,7 @@ The agent loop:
 3. If model emits a tool call → execute it, append result, go to 1
 4. If model emits a final message → done
 
-All events flow through a typed channel. The TUI subscribes and renders them.
+All events flow through a typed broadcast channel (`tokio::broadcast`). Both the terminal TUI and remote web controller subscribe and render them in real time.
 
 ## Hardware & Inference Guide
 
