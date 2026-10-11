@@ -922,27 +922,34 @@
 
         .remote-hardware-chassis {
             width: 100%;
-            max-width: 240px;
+            max-width: 184px;
             background: var(--bg-panel);
             border: 1px solid var(--border-heavy);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.4);
-            padding: 9px 9px 8px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+            padding: 7px 7px 6px;
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 5px;
             position: relative;
             user-select: none;
             margin: auto 0;
             transition: transform 0.08s ease;
         }
 
+        .remote-hardware-chassis.expanding {
+            transform: scale(1.06);
+            opacity: 0;
+            filter: blur(1px);
+            transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.07s ease;
+        }
+
         .remote-top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 2px 4px;
+            padding: 0 1px 3px;
             border-bottom: 1px solid var(--border-light);
-            font-size: 8.5px;
+            font-size: 8px;
             color: var(--ink-secondary);
             text-transform: lowercase;
         }
@@ -951,19 +958,20 @@
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
             letter-spacing: 0.5px;
+            font-size: 8.5px;
         }
 
         .remote-pwr-status {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .remote-pwr-lamp {
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
             background: #008A2E;
-            box-shadow: 0 0 4px rgba(0, 138, 46, 0.6);
+            box-shadow: 0 0 3px rgba(0, 138, 46, 0.6);
             display: inline-block;
         }
 
@@ -971,11 +979,11 @@
             background: var(--bg-card);
             border: 1px solid var(--border-heavy);
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
-            padding: 6px 7px;
+            padding: 4px 5px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
             transition: all 0.08s ease;
         }
         .remote-screen-bezel:hover {
@@ -990,7 +998,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 8px;
+            font-size: 7.5px;
             color: var(--ink-muted);
             text-transform: lowercase;
         }
@@ -998,9 +1006,10 @@
         .screen-pill {
             background: var(--ink-primary);
             color: var(--bg-card);
-            padding: 1px 4px;
+            padding: 1px 3px;
             font-weight: 700;
-            font-size: 7.5px;
+            font-size: 7px;
+            line-height: 1;
         }
 
         .screen-tag {
@@ -1010,7 +1019,7 @@
         }
 
         .screen-oscilloscope-frame {
-            height: 26px;
+            height: 22px;
             background: var(--bg-inset);
             border: 1px solid var(--border-light);
             overflow: hidden;
@@ -1034,9 +1043,9 @@
             border: none;
             border-right: 1px solid var(--border-light);
             background: transparent;
-            padding: 5px 0;
+            padding: 4px 0;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 8px;
+            font-size: 7.5px;
             font-weight: 600;
             color: var(--ink-secondary);
             cursor: pointer;
@@ -1059,15 +1068,15 @@
         .remote-keypad-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 4px;
+            gap: 3px;
         }
 
         .remote-key-btn {
             border: 1px solid var(--border-heavy);
             background: var(--bg-card);
-            padding: 6px 2px;
+            padding: 4px 2px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 600;
             color: var(--ink-primary);
             text-transform: lowercase;
@@ -1092,25 +1101,20 @@
             box-shadow: 1px 1px 0px var(--border-heavy);
         }
 
-        .remote-prompt-dock .prompt-symbol {
-            padding: 0 4px 0 6px;
-            font-size: 9px;
-        }
-
         .remote-cmd-input {
             flex: 1;
             border: none;
             background: transparent;
             outline: none;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--ink-primary);
-            padding: 6px 0 6px 6px;
+            padding: 5px 0 5px 5px;
             min-width: 0;
         }
         .remote-cmd-input::placeholder {
             color: var(--ink-muted);
-            font-size: 9.5px;
+            font-size: 8.5px;
             text-transform: lowercase;
         }
 
@@ -1119,9 +1123,9 @@
             border-left: 1px solid var(--border-heavy);
             background: var(--ink-primary);
             color: var(--bg-card);
-            padding: 6px 9px;
+            padding: 5px 7px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 700;
             cursor: pointer;
             transition: opacity 0.08s ease;
@@ -1135,11 +1139,11 @@
             border: 1px solid var(--border-heavy);
             background: var(--bg-inset);
             color: var(--ink-primary);
-            padding: 7px;
+            padding: 5px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 9.5px;
+            font-size: 8.5px;
             font-weight: 700;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
             text-transform: lowercase;
             cursor: pointer;
             box-shadow: 1px 1px 0px var(--border-heavy);
@@ -1159,8 +1163,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 2px;
+            padding-top: 1px;
         }
+
+        .remote-theme-pips {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .theme-pip {
+            width: 8px;
+            height: 8px;
+            border: 1px solid var(--border-heavy);
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
+        .theme-pip:hover {
+            transform: scale(1.15);
+        }
+        .theme-pip.active {
+            box-shadow: 0 0 0 1px var(--ink-primary);
+        }
+        #rbtn-theme-paper { background: #ECEAE4; }
+        #rbtn-theme-obsidian { background: #111317; }
+        #rbtn-theme-concrete { background: #D8D9D4; }
 
         .dock-remote-pill {
             border: 1px solid var(--border-heavy);
@@ -1201,6 +1230,21 @@
             from {
                 opacity: 0.2;
                 transform: scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #remote-landing-stage.active {
+            animation: remote-snap-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes remote-snap-in {
+            from {
+                opacity: 0.2;
+                transform: scale(0.96);
             }
             to {
                 opacity: 1;
@@ -1263,21 +1307,21 @@
     <div id="remote-landing-stage" class="stage-view active">
         <div class="remote-hardware-chassis">
             <div class="remote-top-bar">
-                <span class="remote-model-badge">kt · 8765</span>
+                <span class="remote-model-badge">kt</span>
                 <div class="remote-pwr-status">
                     <span class="remote-pwr-lamp" id="remote-pwr-led"></span>
                 </div>
             </div>
 
             <!-- Micro-Display Screen: Tap to expand -->
-            <div class="remote-screen-bezel" onclick="switchView('console')" title="Tap to expand TUI console">
+            <div class="remote-screen-bezel" onclick="switchView('console')" title="expand tui">
                 <div class="screen-mast">
                     <span id="remote-mode-name" class="screen-pill">coder</span>
                     <span id="remote-screen-watts">0.0w</span>
-                    <span class="screen-tag">expand ↗</span>
+                    <span class="screen-tag">↗</span>
                 </div>
                 <div class="screen-oscilloscope-frame">
-                    <canvas id="mini-scope-canvas" class="mini-scope-canvas" width="220" height="26"></canvas>
+                    <canvas id="mini-scope-canvas" class="mini-scope-canvas" width="168" height="22"></canvas>
                 </div>
             </div>
 
@@ -1292,29 +1336,29 @@
 
             <!-- Tactile 4-Key Quick Pad -->
             <div class="remote-keypad-grid">
-                <button type="button" class="remote-key-btn" onclick="quickSend('Review git diff and check modified files')">[diff]</button>
-                <button type="button" class="remote-key-btn" onclick="quickSend('Run cargo test and report test output')">[test]</button>
-                <button type="button" class="remote-key-btn" onclick="quickSend('/status')">[status]</button>
-                <button type="button" class="remote-key-btn" onclick="quickSend('/reset')">[reset]</button>
+                <button type="button" class="remote-key-btn" onclick="quickSend('Review git diff and check modified files')">diff</button>
+                <button type="button" class="remote-key-btn" onclick="quickSend('Run cargo test and report test output')">test</button>
+                <button type="button" class="remote-key-btn" onclick="quickSend('/status')">stat</button>
+                <button type="button" class="remote-key-btn" onclick="quickSend('/reset')">rst</button>
             </div>
 
             <!-- Compact Prompt Dock -->
             <form class="remote-prompt-dock" id="remote-form" onsubmit="handleRemoteSubmit(event)">
-                <input type="text" id="remote-cmd-input" class="remote-cmd-input" placeholder="ask anything..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <input type="text" id="remote-cmd-input" class="remote-cmd-input" placeholder="prompt..." autocomplete="off" autocorrect="off" spellcheck="false">
                 <button type="submit" class="remote-create-btn">→</button>
             </form>
 
             <!-- Expand Button -->
             <button type="button" class="remote-expand-btn" onclick="switchView('console')">
-                <span>expand tui console ↗</span>
+                <span>tui ↗</span>
             </button>
 
-            <!-- Theme Finishes -->
+            <!-- Theme Finishes (Micro Pips) -->
             <div class="remote-footer-bar">
-                <div class="finish-group">
-                    <button class="finish-btn active" onclick="setTheme('paper')" id="rbtn-theme-paper">chalk</button>
-                    <button class="finish-btn" onclick="setTheme('obsidian')" id="rbtn-theme-obsidian">carbon</button>
-                    <button class="finish-btn" onclick="setTheme('concrete')" id="rbtn-theme-concrete">grey</button>
+                <div class="remote-theme-pips">
+                    <button type="button" class="theme-pip active" onclick="setTheme('paper')" id="rbtn-theme-paper" title="chalk"></button>
+                    <button type="button" class="theme-pip" onclick="setTheme('obsidian')" id="rbtn-theme-obsidian" title="carbon"></button>
+                    <button type="button" class="theme-pip" onclick="setTheme('concrete')" id="rbtn-theme-concrete" title="grey"></button>
                 </div>
             </div>
         </div>
@@ -1329,7 +1373,7 @@
         <header class="masthead-frame">
             <div class="tech-ruler-strip">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="dock-remote-pill" onclick="switchView('remote')" title="Return to pocket controller">◂ pocket remote</button>
+                    <button type="button" class="dock-remote-pill" onclick="switchView('remote')" title="Return to pocket controller">◂ remote</button>
                     <span>[kota companion · 8765]</span>
                 </div>
                 <span class="ruler-ticks">|··|··|··|··|</span>
@@ -1583,13 +1627,16 @@
 
         function switchView(viewName) {
             if (viewName === 'console') {
-                if (remoteLandingStage) remoteLandingStage.classList.remove('active');
-                if (consoleStage) consoleStage.classList.add('active');
-                window.location.hash = 'console';
+                const chassis = document.querySelector('.remote-hardware-chassis');
+                if (chassis) chassis.classList.add('expanding');
                 setTimeout(() => {
+                    if (remoteLandingStage) remoteLandingStage.classList.remove('active');
+                    if (chassis) chassis.classList.remove('expanding');
+                    if (consoleStage) consoleStage.classList.add('active');
+                    window.location.hash = 'console';
                     if (output) output.scrollTop = output.scrollHeight;
                     if (input) input.focus();
-                }, 30);
+                }, 80);
             } else {
                 if (consoleStage) consoleStage.classList.remove('active');
                 if (remoteLandingStage) remoteLandingStage.classList.add('active');
@@ -1618,6 +1665,11 @@
 
         function drawMiniScope() {
             if (!miniCtx || !miniCanvas) return;
+            const rect = miniCanvas.getBoundingClientRect();
+            if (rect.width > 0 && Math.round(miniCanvas.width) !== Math.round(rect.width)) {
+                miniCanvas.width = Math.round(rect.width);
+                miniCanvas.height = Math.round(rect.height);
+            }
             const w = miniCanvas.width;
             const h = miniCanvas.height;
             miniCtx.clearRect(0, 0, w, h);
@@ -1918,7 +1970,7 @@
 
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
-            document.querySelectorAll('.finish-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.finish-btn, .theme-pip').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById('btn-theme-' + theme);
             if (btn) btn.classList.add('active');
             const rbtn = document.getElementById('rbtn-theme-' + theme);
