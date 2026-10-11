@@ -922,64 +922,29 @@
 
         .remote-hardware-chassis {
             width: 100%;
-            max-width: 360px;
+            max-width: 240px;
             background: var(--bg-panel);
-            border: 1.5px solid var(--border-heavy);
-            box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4);
-            padding: 14px 14px 14px;
+            border: 1px solid var(--border-heavy);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.4);
+            padding: 9px 9px 8px;
             display: flex;
             flex-direction: column;
-            gap: 9px;
+            gap: 7px;
             position: relative;
             user-select: none;
             margin: auto 0;
+            transition: transform 0.08s ease;
         }
-
-        .chassis-rivet {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border: 1px solid var(--border-mid);
-            background: var(--bg-inset);
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 6px;
-            line-height: 1;
-            color: var(--ink-muted);
-        }
-        .chassis-rivet::after {
-            content: '+';
-        }
-        .chassis-rivet.r-tl { top: 4px; left: 4px; }
-        .chassis-rivet.r-tr { top: 4px; right: 4px; }
-        .chassis-rivet.r-bl { bottom: 4px; left: 4px; }
-        .chassis-rivet.r-br { bottom: 4px; right: 4px; }
 
         .remote-top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 2px 2px 5px;
+            padding: 0 2px 4px;
             border-bottom: 1px solid var(--border-light);
             font-size: 8.5px;
             color: var(--ink-secondary);
             text-transform: lowercase;
-        }
-
-        .remote-antenna-hub {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .antenna-nub {
-            width: 6px;
-            height: 6px;
-            background: var(--ink-primary);
-            border: 1px solid var(--border-heavy);
-            display: inline-block;
         }
 
         .remote-model-badge {
@@ -995,27 +960,27 @@
         }
 
         .remote-pwr-lamp {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             background: #008A2E;
-            box-shadow: 0 0 5px rgba(0, 138, 46, 0.6);
+            box-shadow: 0 0 4px rgba(0, 138, 46, 0.6);
             display: inline-block;
         }
 
         .remote-screen-bezel {
             background: var(--bg-card);
-            border: 1.5px solid var(--border-heavy);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-            padding: 8px 10px;
+            border: 1px solid var(--border-heavy);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+            padding: 6px 7px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            gap: 4px;
+            transition: all 0.08s ease;
         }
         .remote-screen-bezel:hover {
             border-color: var(--ink-primary);
-            box-shadow: 2px 2px 0px var(--border-heavy);
+            box-shadow: 1px 1px 0px var(--border-heavy);
         }
         .remote-screen-bezel:active {
             transform: scale(0.99);
@@ -1025,15 +990,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 8.5px;
+            font-size: 8px;
             color: var(--ink-muted);
             text-transform: lowercase;
-        }
-
-        .screen-brand {
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
 
         .screen-pill {
@@ -1041,22 +1000,17 @@
             color: var(--bg-card);
             padding: 1px 4px;
             font-weight: 700;
-            font-size: 8px;
+            font-size: 7.5px;
         }
 
         .screen-tag {
             font-weight: 600;
             color: var(--ink-secondary);
-        }
-
-        .screen-telemetry {
-            display: flex;
-            gap: 6px;
-            font-weight: 600;
+            font-size: 7.5px;
         }
 
         .screen-oscilloscope-frame {
-            height: 38px;
+            height: 26px;
             background: var(--bg-inset);
             border: 1px solid var(--border-light);
             overflow: hidden;
@@ -1067,49 +1021,6 @@
             width: 100%;
             height: 100%;
             display: block;
-        }
-
-        .screen-status-body {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .screen-status-headline {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            line-height: 1.2;
-            color: var(--ink-primary);
-            text-transform: lowercase;
-        }
-
-        .screen-status-sub {
-            font-size: 9px;
-            color: var(--ink-secondary);
-            text-transform: lowercase;
-        }
-
-        .screen-dock-cue {
-            border-top: 1px dashed var(--border-light);
-            padding-top: 4px;
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--ink-muted);
-            text-align: center;
-            letter-spacing: 0.5px;
-            text-transform: lowercase;
-        }
-
-        .remote-section-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--ink-muted);
-            text-transform: lowercase;
-            letter-spacing: 0.5px;
-            padding: 0 1px;
         }
 
         .remote-mode-strip {
@@ -1123,14 +1034,15 @@
             border: none;
             border-right: 1px solid var(--border-light);
             background: transparent;
-            padding: 6px 0;
+            padding: 5px 0;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 600;
             color: var(--ink-secondary);
             cursor: pointer;
             text-transform: lowercase;
             transition: all 0.08s ease;
+            text-align: center;
         }
         .remote-mode-key:last-child {
             border-right: none;
@@ -1146,22 +1058,23 @@
 
         .remote-keypad-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
         }
 
         .remote-key-btn {
             border: 1px solid var(--border-heavy);
             background: var(--bg-card);
-            padding: 7px 3px;
+            padding: 6px 2px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 600;
             color: var(--ink-primary);
             text-transform: lowercase;
             cursor: pointer;
             box-shadow: 1px 1px 0px var(--border-heavy);
             transition: all 0.08s ease;
+            text-align: center;
         }
         .remote-key-btn:hover {
             background: var(--bg-inset);
@@ -1179,19 +1092,25 @@
             box-shadow: 1px 1px 0px var(--border-heavy);
         }
 
+        .remote-prompt-dock .prompt-symbol {
+            padding: 0 4px 0 6px;
+            font-size: 9px;
+        }
+
         .remote-cmd-input {
             flex: 1;
             border: none;
             background: transparent;
             outline: none;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
+            font-size: 11px;
             color: var(--ink-primary);
-            padding: 7px 0;
+            padding: 6px 0 6px 6px;
+            min-width: 0;
         }
         .remote-cmd-input::placeholder {
             color: var(--ink-muted);
-            font-size: 11px;
+            font-size: 9.5px;
             text-transform: lowercase;
         }
 
@@ -1200,28 +1119,30 @@
             border-left: 1px solid var(--border-heavy);
             background: var(--ink-primary);
             color: var(--bg-card);
-            padding: 7px 11px;
+            padding: 6px 9px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 9.5px;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.6px;
-            text-transform: lowercase;
             cursor: pointer;
+            transition: opacity 0.08s ease;
+        }
+        .remote-create-btn:hover {
+            opacity: 0.9;
         }
 
         .remote-expand-btn {
             width: 100%;
-            border: 1.5px solid var(--border-heavy);
+            border: 1px solid var(--border-heavy);
             background: var(--bg-inset);
             color: var(--ink-primary);
-            padding: 9px;
+            padding: 7px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 11px;
+            font-size: 9.5px;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             text-transform: lowercase;
             cursor: pointer;
-            box-shadow: 2px 2px 0px var(--border-heavy);
+            box-shadow: 1px 1px 0px var(--border-heavy);
             transition: all 0.08s ease;
             text-align: center;
         }
@@ -1231,22 +1152,14 @@
         }
         .remote-expand-btn:active {
             transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px var(--border-heavy);
+            box-shadow: none;
         }
 
         .remote-footer-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding-top: 4px;
-            border-top: 1px solid var(--border-light);
-        }
-
-        .remote-serial-text {
-            font-size: 7.5px;
-            color: var(--ink-muted);
-            text-transform: lowercase;
-            letter-spacing: 0.4px;
+            justify-content: center;
+            padding-top: 2px;
         }
 
         .dock-remote-pill {
@@ -1277,6 +1190,22 @@
             cursor: pointer;
             padding: 0;
             display: flex;
+        }
+
+        /* Fast, responsive TUI expansion animation */
+        #console-stage {
+            animation: tui-fast-expand 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes tui-fast-expand {
+            from {
+                opacity: 0.2;
+                transform: scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* ──────────────────────────────────────────────────────────
@@ -1329,90 +1258,59 @@
 <body>
 
     <!-- ══════════════════════════════════════════════════════════
-         STAGE 1: MINI REMOTE CONTROLLER (LANDING DECK)
+         STAGE 1: MINI REMOTE CONTROLLER (SLIM POCKET DECK)
          ══════════════════════════════════════════════════════════ -->
     <div id="remote-landing-stage" class="stage-view active">
         <div class="remote-hardware-chassis">
-            <div class="chassis-rivet r-tl"></div>
-            <div class="chassis-rivet r-tr"></div>
-            <div class="chassis-rivet r-bl"></div>
-            <div class="chassis-rivet r-br"></div>
-
             <div class="remote-top-bar">
-                <div class="remote-antenna-hub">
-                    <span class="antenna-nub"></span>
-                    <span class="antenna-freq">8765 mhz · direct</span>
-                </div>
-                <div class="remote-model-badge">kt · deck-01</div>
+                <span class="remote-model-badge">kt · 8765</span>
                 <div class="remote-pwr-status">
                     <span class="remote-pwr-lamp" id="remote-pwr-led"></span>
-                    <span id="remote-pwr-text">pwr on</span>
                 </div>
             </div>
 
-            <div class="remote-screen-bezel" onclick="switchView('console')" title="Tap screen to expand full TUI console">
+            <!-- Micro-Display Screen: Tap to expand -->
+            <div class="remote-screen-bezel" onclick="switchView('console')" title="Tap to expand TUI console">
                 <div class="screen-mast">
-                    <div class="screen-brand">
-                        <span class="screen-pill">kota</span>
-                        <span class="screen-tag">companion</span>
-                    </div>
-                    <div class="screen-telemetry">
-                        <span id="remote-screen-watts">0.0w</span>
-                        <span id="remote-screen-conn">linked</span>
-                    </div>
+                    <span id="remote-mode-name" class="screen-pill">coder</span>
+                    <span id="remote-screen-watts">0.0w</span>
+                    <span class="screen-tag">expand ↗</span>
                 </div>
-
                 <div class="screen-oscilloscope-frame">
-                    <canvas id="mini-scope-canvas" class="mini-scope-canvas" width="310" height="38"></canvas>
-                </div>
-
-                <div class="screen-status-body">
-                    <div class="screen-status-headline" id="remote-headline">ready to create together</div>
-                    <div class="screen-status-sub" id="remote-subtext">mode: <strong id="remote-mode-name">coder</strong> · tap to open console ↗</div>
-                </div>
-
-                <div class="screen-dock-cue">
-                    <span>[ tap screen to open tui console ↗ ]</span>
+                    <canvas id="mini-scope-canvas" class="mini-scope-canvas" width="220" height="26"></canvas>
                 </div>
             </div>
 
-            <div class="remote-section-label">
-                <span>operational mode</span>
-                <span id="remote-mode-badge-label">coder</span>
-            </div>
+            <!-- Mode Selector Chiclets -->
             <div class="remote-mode-strip">
-                <button type="button" class="remote-mode-key active" id="rmode-coder" onclick="changeMode('coder')">coder</button>
+                <button type="button" class="remote-mode-key active" id="rmode-coder" onclick="changeMode('coder')">code</button>
                 <button type="button" class="remote-mode-key" id="rmode-cpe" onclick="changeMode('cpe')">cpe</button>
                 <button type="button" class="remote-mode-key" id="rmode-eval" onclick="changeMode('eval')">eval</button>
-                <button type="button" class="remote-mode-key" id="rmode-research" onclick="changeMode('research')">research</button>
+                <button type="button" class="remote-mode-key" id="rmode-research" onclick="changeMode('research')">res</button>
                 <button type="button" class="remote-mode-key" id="rmode-architect" onclick="changeMode('architect')">arch</button>
             </div>
 
-            <div class="remote-section-label">
-                <span>quick companion actions</span>
-                <span>direct keys</span>
-            </div>
+            <!-- Tactile 4-Key Quick Pad -->
             <div class="remote-keypad-grid">
                 <button type="button" class="remote-key-btn" onclick="quickSend('Review git diff and check modified files')">[diff]</button>
                 <button type="button" class="remote-key-btn" onclick="quickSend('Run cargo test and report test output')">[test]</button>
                 <button type="button" class="remote-key-btn" onclick="quickSend('/status')">[status]</button>
                 <button type="button" class="remote-key-btn" onclick="quickSend('/reset')">[reset]</button>
-                <button type="button" class="remote-key-btn" onclick="clearOutput(); switchView('console');">[clear]</button>
-                <button type="button" class="remote-key-btn" onclick="openModalFromRemote('conway')">[conway]</button>
             </div>
 
+            <!-- Compact Prompt Dock -->
             <form class="remote-prompt-dock" id="remote-form" onsubmit="handleRemoteSubmit(event)">
-                <span class="prompt-symbol">&gt;_</span>
-                <input type="text" id="remote-cmd-input" class="remote-cmd-input" placeholder="let's build together..." autocomplete="off" autocorrect="off" spellcheck="false">
-                <button type="submit" class="remote-create-btn">create</button>
+                <input type="text" id="remote-cmd-input" class="remote-cmd-input" placeholder="ask anything..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button type="submit" class="remote-create-btn">→</button>
             </form>
 
+            <!-- Expand Button -->
             <button type="button" class="remote-expand-btn" onclick="switchView('console')">
-                <span>open expanded tui console ↗</span>
+                <span>expand tui console ↗</span>
             </button>
 
+            <!-- Theme Finishes -->
             <div class="remote-footer-bar">
-                <div class="remote-serial-text">sn: kt-2026-media-lab // direct</div>
                 <div class="finish-group">
                     <button class="finish-btn active" onclick="setTheme('paper')" id="rbtn-theme-paper">chalk</button>
                     <button class="finish-btn" onclick="setTheme('obsidian')" id="rbtn-theme-obsidian">carbon</button>
