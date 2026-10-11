@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#ECEAE4" id="meta-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Kota Remote · System Interface</title>
+    <title>KOTA · Pervasive Cyberphysical Terminal</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
@@ -14,109 +14,107 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ──────────────────────────────────────────────────────────
-           MONOCHROMATIC / SWISS TACTILE DESIGN SYSTEM
-           Inspired by perforated physical card specimens & Dieter Rams Braun
+           CYBERPHYSICAL / PERVASIVE HARDWARE DESIGN SYSTEM
+           Grid-like, bit-like, byte-graphics, Conway's Game of Life, E-Paper
            ────────────────────────────────────────────────────────── */
         :root {
-            /* Paper / Chalk Specimen (Default) */
+            /* Chalk / E-Ink Technical Paper */
             --bg-outer: #ECEAE4;
-            --bg-panel: #F7F6F2;
+            --bg-panel: #F5F4EE;
             --bg-card: #FFFFFF;
-            --bg-inset: #F0EEE8;
-            --border-heavy: #1D1E22;
-            --border-mid: #D3D0C7;
-            --border-light: #E5E3DC;
-            --border-hairline: rgba(29, 30, 34, 0.08);
+            --bg-inset: #EDEDE6;
             
-            --text-primary: #18191C;
-            --text-secondary: #585B63;
-            --text-muted: #8E929C;
-            --text-inverse: #FFFFFF;
+            --ink-primary: #111214;
+            --ink-secondary: #484B52;
+            --ink-muted: #7A7E88;
+            --ink-faint: #B5B8C0;
+            --ink-inverse: #FFFFFF;
 
-            --accent: #18191C;
-            --accent-muted: #6E727D;
-            --badge-bg: #EAE8E1;
-            
-            --btn-bg: #FFFFFF;
-            --btn-border: #D3D0C7;
-            --btn-active-bg: #18191C;
-            --btn-active-text: #FFFFFF;
+            --border-heavy: #111214;
+            --border-mid: #2A2D33;
+            --border-light: #D4D2C9;
+            --border-hairline: rgba(17, 18, 20, 0.14);
 
-            --dot-color: rgba(24, 25, 28, 0.22);
-            --dot-active: rgba(24, 25, 28, 0.85);
-            --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
-            --shadow-inset: inset 0 1px 2px rgba(0,0,0,0.06);
+            --accent: #111214;
+            --accent-bg: #111214;
+            --accent-text: #FFFFFF;
+            --error-ink: #A31515;
+            --error-bg: rgba(163, 21, 21, 0.08);
+
+            --grid-line: rgba(17, 18, 20, 0.08);
+            --bit-cell-off: rgba(17, 18, 20, 0.07);
+            --bit-cell-on: #111214;
+            --shadow-hardware: 1px 1px 0px rgba(17, 18, 20, 0.2);
         }
 
         [data-theme="obsidian"] {
-            /* Matte Basalt / Carbon Specimen */
-            --bg-outer: #0B0C0E;
-            --bg-panel: #131417;
-            --bg-card: #1B1D22;
-            --bg-inset: #0F1013;
-            --border-heavy: #F0F1F5;
-            --border-mid: #2E323A;
-            --border-light: #23262D;
-            --border-hairline: rgba(255, 255, 255, 0.08);
+            /* Matte Basalt / Carbon Terminal */
+            --bg-outer: #090A0D;
+            --bg-panel: #111317;
+            --bg-card: #181A20;
+            --bg-inset: #0D0E12;
             
-            --text-primary: #EDEDF0;
-            --text-secondary: #A0A4B0;
-            --text-muted: #636774;
-            --text-inverse: #0B0C0E;
+            --ink-primary: #EAEBF0;
+            --ink-secondary: #A0A4B0;
+            --ink-muted: #666A78;
+            --ink-faint: #3A3E4A;
+            --ink-inverse: #090A0D;
 
-            --accent: #F0F1F5;
-            --accent-muted: #9DA1AD;
-            --badge-bg: #23262E;
-            
-            --btn-bg: #1B1D22;
-            --btn-border: #2E323A;
-            --btn-active-bg: #F0F1F5;
-            --btn-active-text: #0B0C0E;
+            --border-heavy: #EAEBF0;
+            --border-mid: #505462;
+            --border-light: #2A2D38;
+            --border-hairline: rgba(234, 235, 240, 0.14);
 
-            --dot-color: rgba(255, 255, 255, 0.16);
-            --dot-active: rgba(255, 255, 255, 0.9);
-            --shadow-card: 0 2px 8px rgba(0,0,0,0.4);
-            --shadow-inset: inset 0 1px 3px rgba(0,0,0,0.5);
+            --accent: #EAEBF0;
+            --accent-bg: #EAEBF0;
+            --accent-text: #090A0D;
+            --error-ink: #FF6B6B;
+            --error-bg: rgba(255, 107, 107, 0.12);
+
+            --grid-line: rgba(234, 235, 240, 0.07);
+            --bit-cell-off: rgba(234, 235, 240, 0.08);
+            --bit-cell-on: #EAEBF0;
+            --shadow-hardware: 1px 1px 0px rgba(0, 0, 0, 0.6);
         }
 
         [data-theme="concrete"] {
-            /* Raw Brutalist Grey Specimen */
-            --bg-outer: #DFE0DC;
-            --bg-panel: #EAEBE7;
-            --bg-card: #F4F5F1;
-            --bg-inset: #D6D8D3;
-            --border-heavy: #252729;
-            --border-mid: #B8B9B4;
-            --border-light: #CDCEC9;
-            --border-hairline: rgba(37, 39, 41, 0.08);
+            /* Brutalist Industrial Grey Chassis */
+            --bg-outer: #D8D9D4;
+            --bg-panel: #E4E5E0;
+            --bg-card: #ECEEE9;
+            --bg-inset: #D0D2CD;
             
-            --text-primary: #212325;
-            --text-secondary: #5C5E62;
-            --text-muted: #8E9197;
-            --text-inverse: #FFFFFF;
+            --ink-primary: #1C1E20;
+            --ink-secondary: #52565C;
+            --ink-muted: #82868E;
+            --ink-faint: #B0B3BA;
+            --ink-inverse: #FFFFFF;
 
-            --accent: #212325;
-            --accent-muted: #666970;
-            --badge-bg: #DCDDD8;
-            
-            --btn-bg: #F4F5F1;
-            --btn-border: #B8B9B4;
-            --btn-active-bg: #212325;
-            --btn-active-text: #F4F5F1;
+            --border-heavy: #1C1E20;
+            --border-mid: #3C4046;
+            --border-light: #C0C2BC;
+            --border-hairline: rgba(28, 30, 32, 0.15);
 
-            --dot-color: rgba(33, 35, 37, 0.20);
-            --dot-active: rgba(33, 35, 37, 0.85);
-            --shadow-card: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-inset: inset 0 1px 2px rgba(0,0,0,0.05);
+            --accent: #1C1E20;
+            --accent-bg: #1C1E20;
+            --accent-text: #ECEEE9;
+            --error-ink: #B91C1C;
+            --error-bg: rgba(185, 28, 28, 0.09);
+
+            --grid-line: rgba(28, 30, 32, 0.08);
+            --bit-cell-off: rgba(28, 30, 32, 0.08);
+            --bit-cell-on: #1C1E20;
+            --shadow-hardware: 1px 1px 0px rgba(28, 30, 32, 0.25);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            border-radius: 0 !important; /* Pure technical planar aesthetic */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -124,659 +122,735 @@
             height: 100%;
             height: 100dvh;
             background: var(--bg-outer);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+            color: var(--ink-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.45;
             -webkit-font-smoothing: antialiased;
             overflow: hidden;
+            overscroll-behavior-y: contain;
             display: flex;
             justify-content: center;
         }
 
+        /* Technical Coordinate Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         /* ──────────────────────────────────────────────────────────
-           CONTAINER / SPECIMEN CARD SHELL
+           CHASSIS / APP SHELL
            ────────────────────────────────────────────────────────── */
-        .app-shell {
+        .chassis-shell {
             width: 100%;
-            max-width: 900px;
+            max-width: 960px;
             height: 100%;
             display: flex;
             flex-direction: column;
             background: var(--bg-panel);
-            border-left: 1px solid var(--border-hairline);
-            border-right: 1px solid var(--border-hairline);
+            border-left: 1px solid var(--border-heavy);
+            border-right: 1px solid var(--border-heavy);
             position: relative;
+            z-index: 1;
+            box-shadow: 0 0 30px rgba(0,0,0,0.06);
         }
 
         /* ──────────────────────────────────────────────────────────
-           HEADER: Swiss Minimalist Header with Halftone Accents
+           MASTHEAD: PERVASIVE E-PAPER / SCHEMATIC HEADER
            ────────────────────────────────────────────────────────── */
-        .specimen-header {
-            padding: 14px 20px 12px;
-            border-bottom: 1px solid var(--border-mid);
+        .masthead-frame {
             background: var(--bg-card);
+            border-bottom: 1px solid var(--border-heavy);
             display: flex;
             flex-direction: column;
-            gap: 12px;
             flex-shrink: 0;
         }
 
-        .header-top-row {
+        /* Top Technical Ruler */
+        .tech-ruler-strip {
+            padding: 3px 12px;
+            background: var(--bg-inset);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9px;
+            letter-spacing: 0.8px;
+            color: var(--ink-muted);
+            user-select: none;
+        }
+
+        .ruler-ticks {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 2px;
+            opacity: 0.6;
+        }
+
+        .masthead-main {
+            padding: 10px 14px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .brand-block {
+        .brand-cluster {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        /* Modular Monochromatic Stencil Badge (Echoing the card's Lab AIR mark) */
-        .brand-stencil {
-            width: 28px;
-            height: 28px;
-            background: var(--text-primary);
-            color: var(--bg-panel);
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: -0.5px;
+        /* 2-Bit Stencil Mark */
+        .brand-badge {
+            width: 32px;
+            height: 32px;
+            background: var(--ink-primary);
+            color: var(--bg-card);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            user-select: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            border: 1px solid var(--border-heavy);
+            position: relative;
+        }
+        .brand-badge::after {
+            content: '+';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            font-size: 8px;
+            color: var(--ink-primary);
         }
 
-        .brand-meta {
+        .brand-spec {
             display: flex;
             flex-direction: column;
             gap: 1px;
         }
 
-        .brand-title {
+        .brand-name {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 14px;
             font-weight: 700;
-            letter-spacing: 1.2px;
+            font-size: 15px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: var(--text-primary);
             line-height: 1.1;
         }
 
-        .brand-subtitle {
-            font-size: 9px;
-            font-weight: 500;
+        .brand-nomenclature {
+            font-size: 8.5px;
             letter-spacing: 0.8px;
-            color: var(--text-muted);
+            color: var(--ink-muted);
             text-transform: uppercase;
         }
 
-        .header-status-group {
+        /* Hardware Telemetry Indicators */
+        .hardware-indicators {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
+        .indicator-box {
+            padding: 3px 7px;
             background: var(--bg-inset);
             border: 1px solid var(--border-light);
-            border-radius: 100px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .status-pill.online .status-dot {
-            background: var(--text-primary);
-        }
-
-        .status-pill.busy .status-dot {
-            background: var(--text-primary);
-            transform: scale(1.3);
-            animation: pulse-dot 1.2s infinite ease-in-out;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        .telemetry-pill {
             display: inline-flex;
             align-items: center;
-            padding: 4px 10px;
-            background: var(--bg-inset);
-            border: 1px solid var(--border-light);
-            border-radius: 100px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-            color: var(--text-secondary);
+            gap: 5px;
             white-space: nowrap;
         }
 
+        .bit-lamp {
+            width: 6px;
+            height: 6px;
+            border: 1px solid var(--ink-primary);
+            background: transparent;
+            display: inline-block;
+        }
+
+        .bit-lamp.active {
+            background: var(--ink-primary);
+        }
+
+        .bit-lamp.pulse {
+            animation: bit-strobe 1s infinite steps(2);
+        }
+
+        @keyframes bit-strobe {
+            0%, 100% { background: var(--ink-primary); }
+            50% { background: transparent; }
+        }
+
+        /* Finish Selector (Chalk / Carbon / Grey) */
+        .finish-group {
+            display: flex;
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-card);
+        }
+
+        .finish-btn {
+            border: none;
+            background: transparent;
+            padding: 3px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            color: var(--ink-muted);
+            border-right: 1px solid var(--border-light);
+        }
+        .finish-btn:last-child { border-right: none; }
+        .finish-btn.active {
+            background: var(--ink-primary);
+            color: var(--bg-panel);
+        }
+
         /* ──────────────────────────────────────────────────────────
-           PERFORATED HALFTONE SPECIMEN CARD STRIP
-           Visual homage to the dot-matrix perforated card held to the sky
+           OPERATIONAL TELEMETRY DECK:
+           CONWAY'S GAME OF LIFE & BYTE REGISTERS
            ────────────────────────────────────────────────────────── */
-        .halftone-specimen-strip {
+        .operation-deck {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-heavy);
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 0;
+            flex-shrink: 0;
+        }
+
+        /* Conway Cell Automaton Pane */
+        .conway-pane {
             position: relative;
             background: var(--bg-inset);
+            border-right: 1px solid var(--border-heavy);
+            height: 110px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conway-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: pixelated;
+            cursor: crosshair;
+        }
+
+        .conway-overlay {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            right: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
+            font-size: 8.5px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--ink-primary);
+            text-shadow: 0 0 2px var(--bg-panel);
+        }
+
+        .conway-badge {
+            background: var(--bg-card);
+            padding: 1px 5px;
+            border: 1px solid var(--border-heavy);
+        }
+
+        /* Byte Register & Sparkline Pane */
+        .byte-telemetry-pane {
+            padding: 8px 10px;
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .telemetry-row-label {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 8-Bit Register Display */
+        .byte-register-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            background: var(--bg-inset);
+            padding: 3px;
             border: 1px solid var(--border-light);
-            border-radius: 8px;
+        }
+
+        .reg-bit-cell {
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7.5px;
+            font-weight: 700;
+            border: 1px solid var(--border-hairline);
+            background: var(--bg-card);
+            color: var(--ink-muted);
+            user-select: none;
+        }
+
+        .reg-bit-cell.on {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+            border-color: var(--ink-primary);
+        }
+
+        /* Segmented Step Bounce Histogram */
+        .bounce-histogram {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 28px;
+            background: var(--bg-inset);
+            padding: 3px 4px;
+            border: 1px solid var(--border-light);
+        }
+
+        .bounce-bar {
+            flex: 1;
+            background: var(--ink-primary);
+            min-height: 2px;
+            height: 12%;
+            transition: height 0.2s ease-out;
+        }
+
+        /* ──────────────────────────────────────────────────────────
+           HARDWARE CONTROL DECK (TACTILE RECTANGULAR KEYS)
+           ────────────────────────────────────────────────────────── */
+        .hardware-deck {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-heavy);
             padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            overflow: hidden;
-        }
-
-        .halftone-matrix-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.45;
-        }
-
-        .halftone-caption-left {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .halftone-label-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-            color: var(--text-primary);
-        }
-
-        .halftone-label-desc {
-            font-size: 9px;
-            color: var(--text-secondary);
-            letter-spacing: 0.2px;
-        }
-
-        .halftone-caption-right {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Minimal tactile theme swatches */
-        .theme-selector {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-card);
-            padding: 2px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-        }
-
-        .theme-button {
-            border: none;
-            background: transparent;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            font-weight: 600;
-            text-transform: uppercase;
-            padding: 3px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.15s;
-        }
-
-        .theme-button.active {
-            background: var(--text-primary);
-            color: var(--bg-panel);
-        }
-
-        /* ──────────────────────────────────────────────────────────
-           TACTILE CONTROL DECK / TOOLBAR
-           ────────────────────────────────────────────────────────── */
-        .control-deck {
-            padding: 10px 16px;
-            background: var(--bg-panel);
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             overflow-x: auto;
             flex-shrink: 0;
             scrollbar-width: none;
         }
-        .control-deck::-webkit-scrollbar { display: none; }
+        .hardware-deck::-webkit-scrollbar { display: none; }
 
-        .deck-section {
+        .deck-group {
             display: flex;
             align-items: center;
             gap: 4px;
             flex-shrink: 0;
         }
 
-        .deck-label {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 9px;
+        .deck-caption {
+            font-size: 8.5px;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--ink-muted);
             margin-right: 4px;
         }
 
-        /* Dieter Rams style recessed pill segmented control */
-        .mode-segmented-group {
+        /* Segmented Mode Keys */
+        .mode-keys {
             display: flex;
-            background: var(--bg-inset);
-            padding: 2px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-            gap: 2px;
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-card);
         }
 
-        .mode-item-btn {
-            background: transparent;
+        .mode-key {
             border: none;
-            padding: 5px 9px;
-            border-radius: 4px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
+            background: transparent;
+            padding: 5px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
-            color: var(--text-secondary);
+            color: var(--ink-secondary);
+            border-right: 1px solid var(--border-light);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: background 0.1s, color 0.1s;
             white-space: nowrap;
         }
+        .mode-key:last-child { border-right: none; }
 
-        .mode-item-btn:hover {
-            color: var(--text-primary);
+        .mode-key:hover {
+            color: var(--ink-primary);
         }
 
-        .mode-item-btn.active {
-            background: var(--btn-active-bg);
-            color: var(--btn-active-text);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .mode-key.active {
+            background: var(--ink-primary);
+            color: var(--bg-panel);
+            font-weight: 700;
         }
 
-        /* Physical tactile rocker toggles (No emojis) */
-        .toggle-switch-group {
+        /* Rocker Switch Keys */
+        .rocker-keys {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .hardware-toggle {
+        .rocker-key {
+            background: var(--bg-card);
+            border: 1px solid var(--border-heavy);
+            padding: 4px 7px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: var(--bg-card);
-            border: 1px solid var(--btn-border);
-            padding: 4px 8px;
-            border-radius: 6px;
+            gap: 5px;
             cursor: pointer;
             user-select: none;
-            transition: all 0.15s;
-        }
-
-        .hardware-toggle:hover {
-            border-color: var(--text-primary);
-        }
-
-        .toggle-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 1.5px solid var(--text-muted);
-            background: transparent;
-            transition: all 0.2s;
-        }
-
-        .hardware-toggle.on .toggle-indicator {
-            background: var(--text-primary);
-            border-color: var(--text-primary);
-        }
-
-        .hardware-toggle-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
-            color: var(--text-secondary);
+            color: var(--ink-secondary);
         }
 
-        .hardware-toggle.on .hardware-toggle-text {
-            color: var(--text-primary);
+        .rocker-key.on {
+            color: var(--ink-primary);
+            font-weight: 700;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .rocker-box {
+            width: 7px;
+            height: 7px;
+            border: 1px solid var(--border-heavy);
+            background: transparent;
+        }
+
+        .rocker-key.on .rocker-box {
+            background: var(--ink-primary);
         }
 
         /* ──────────────────────────────────────────────────────────
-           MESSAGE LOG / EDITORIAL TRANSCRIPT
+           TUI LOG TRANSCRIPT (CYBERPHYSICAL TERMINAL ENTRIES)
            ────────────────────────────────────────────────────────── */
-        .transcript-container {
+        .transcript-frame {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 20px;
+            padding: 14px 14px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
             scroll-behavior: smooth;
             background: var(--bg-panel);
+            position: relative;
         }
 
-        .transcript-container::-webkit-scrollbar {
-            width: 5px;
+        .transcript-frame::-webkit-scrollbar {
+            width: 4px;
         }
-        .transcript-container::-webkit-scrollbar-track {
+        .transcript-frame::-webkit-scrollbar-track {
             background: transparent;
         }
-        .transcript-container::-webkit-scrollbar-thumb {
+        .transcript-frame::-webkit-scrollbar-thumb {
             background: var(--border-mid);
-            border-radius: 10px;
         }
 
-        .divider-rule {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 8px 0;
-        }
-
-        .divider-rule::before,
-        .divider-rule::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-light);
-        }
-
-        .divider-rule span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        /* Entry Blocks */
-        .entry-block {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-width: 100%;
-        }
-
-        .entry-header {
+        /* Section Tear-Divider */
+        .tear-rule {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            font-weight: 600;
+            margin: 4px 0;
+            user-select: none;
+        }
+
+        .tear-rule::before,
+        .tear-rule::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: repeating-linear-gradient(90deg, var(--border-heavy), var(--border-heavy) 4px, transparent 4px, transparent 8px);
+        }
+
+        .tear-rule span {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            white-space: nowrap;
+        }
+
+        /* Terminal Entry Cards */
+        .tui-entry {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-heavy);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-hardware);
+            position: relative;
+        }
+
+        /* Corner Registration Marks */
+        .tui-entry::before {
+            content: '┌';
+            position: absolute;
+            top: -5px;
+            left: -3px;
+            font-size: 8px;
+            color: var(--border-heavy);
+            pointer-events: none;
+        }
+        .tui-entry::after {
+            content: '┘';
+            position: absolute;
+            bottom: -5px;
+            right: -3px;
+            font-size: 8px;
+            color: var(--border-heavy);
+            pointer-events: none;
+        }
+
+        .entry-mast {
+            padding: 4px 8px;
+            background: var(--bg-inset);
+            border-bottom: 1px solid var(--border-heavy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9px;
+            font-weight: 700;
             letter-spacing: 0.6px;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--ink-secondary);
         }
 
         .entry-tag {
-            padding: 1px 6px;
-            border-radius: 3px;
-            font-size: 9px;
+            background: var(--ink-primary);
+            color: var(--bg-card);
+            padding: 1px 4px;
+            font-size: 8px;
             font-weight: 700;
-            background: var(--badge-bg);
-            color: var(--text-primary);
+            letter-spacing: 0.5px;
         }
 
-        .entry-tag.tag-user {
-            background: var(--text-primary);
-            color: var(--bg-panel);
+        .tui-entry.entry-user {
+            border-left: 3px solid var(--ink-primary);
         }
 
-        .entry-tag.tag-tool {
-            background: var(--bg-inset);
-            border: 1px solid var(--border-mid);
-            color: var(--text-secondary);
+        .tui-entry.entry-assistant {
+            border-left: 3px solid var(--border-heavy);
         }
 
-        .entry-body {
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: var(--text-primary);
+        .tui-entry.entry-tool {
+            border-left: 3px solid var(--ink-secondary);
         }
 
-        /* User entry styling */
-        .entry-user {
-            align-self: flex-end;
-            max-width: 85%;
+        .tui-entry.entry-error {
+            border-left: 3px solid var(--error-ink);
+            background: var(--error-bg);
         }
 
-        .entry-user .entry-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-mid);
-            padding: 10px 14px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-card);
-            font-family: 'Inter', sans-serif;
-            font-size: 13.5px;
+        .entry-payload {
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.55;
+            color: var(--ink-primary);
+            word-break: break-word;
         }
 
-        /* Assistant entry styling */
-        .entry-assistant {
-            align-self: flex-start;
-            width: 100%;
-        }
-
-        .entry-assistant .entry-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            padding: 14px 18px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-card);
-        }
-
-        /* Markdown elements inside assistant response */
-        .entry-content p {
+        /* Markdown formatting */
+        .entry-payload p {
             margin: 0.4em 0;
         }
-        .entry-content p:first-child { margin-top: 0; }
-        .entry-content p:last-child { margin-bottom: 0; }
+        .entry-payload p:first-child { margin-top: 0; }
+        .entry-payload p:last-child { margin-bottom: 0; }
 
-        .entry-content pre {
+        .entry-payload pre {
             background: var(--bg-inset);
-            border: 1px solid var(--border-light);
-            border-radius: 6px;
-            padding: 12px 14px;
-            margin: 10px 0;
+            border: 1px solid var(--border-heavy);
+            padding: 10px 12px;
+            margin: 8px 0;
             overflow-x: auto;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            line-height: 1.5;
-            color: var(--text-primary);
+            font-size: 11.5px;
+            line-height: 1.45;
         }
 
-        .entry-content code {
+        .entry-payload code {
             font-family: 'JetBrains Mono', monospace;
             background: var(--bg-inset);
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 12px;
-            border: 1px solid var(--border-hairline);
+            padding: 1px 4px;
+            font-size: 11px;
+            border: 1px solid var(--border-light);
         }
 
-        .entry-content pre code {
+        .entry-payload pre code {
             padding: 0;
             background: transparent;
             border: none;
         }
 
-        .entry-content ul, .entry-content ol {
+        .entry-payload ul, .entry-payload ol {
             margin: 6px 0 6px 20px;
         }
 
-        .entry-content h1, .entry-content h2, .entry-content h3 {
+        .entry-payload h1, .entry-payload h2, .entry-payload h3 {
             font-family: 'Space Grotesk', sans-serif;
-            color: var(--text-primary);
-            margin: 1em 0 0.4em;
+            margin: 0.8em 0 0.3em;
             font-weight: 700;
-        }
-
-        .entry-content h1 { font-size: 16px; }
-        .entry-content h2 { font-size: 14px; }
-        .entry-content h3 { font-size: 13px; }
-
-        /* Tool call styling */
-        .entry-tool {
-            align-self: stretch;
-        }
-
-        .tool-call-banner {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-left: 3px solid var(--text-secondary);
-            border-radius: 4px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .tool-name-spec {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .tool-meta-badge {
-            font-size: 10px;
-            color: var(--text-muted);
             letter-spacing: 0.5px;
         }
+        .entry-payload h1 { font-size: 15px; }
+        .entry-payload h2 { font-size: 13.5px; }
+        .entry-payload h3 { font-size: 12.5px; }
 
-        /* System notification */
-        .entry-system {
-            align-self: stretch;
-            padding: 4px 0;
-        }
-
-        .system-content {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            padding-left: 8px;
-            border-left: 2px solid var(--border-light);
-        }
-
-        .entry-error {
-            background: rgba(220, 38, 38, 0.06);
-            border: 1px solid rgba(220, 38, 38, 0.2);
-            color: #b91c1c;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+        /* System Messages */
+        .entry-system-inline {
+            padding: 6px 10px;
+            background: var(--bg-inset);
+            border: 1px dashed var(--border-heavy);
+            font-size: 10.5px;
+            color: var(--ink-secondary);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
         }
 
         /* ──────────────────────────────────────────────────────────
-           THINKING / GENERATING INDICATOR
+           ACTIVE REASONING / GENERATION STREAMER
            ────────────────────────────────────────────────────────── */
-        .thinking-bar {
+        .reasoning-ticker {
             display: none;
-            padding: 0 20px 10px;
-            align-items: center;
-            gap: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 0.6px;
+            padding: 6px 12px;
+            background: var(--bg-inset);
+            border-top: 1px solid var(--border-heavy);
+            font-size: 9.5px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--ink-secondary);
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .thinking-bar.visible {
+        .reasoning-ticker.active {
             display: flex;
         }
 
-        .stipple-pulse-row {
+        .ticker-bit-matrix {
             display: flex;
             gap: 4px;
         }
 
-        .stipple-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: var(--text-secondary);
-            animation: dot-shimmer 1.4s infinite ease-in-out;
+        .ticker-bit {
+            width: 5px;
+            height: 5px;
+            border: 1px solid var(--border-heavy);
+            animation: ticker-quad 1.2s infinite ease-in-out;
         }
-        .stipple-dot:nth-child(2) { animation-delay: 0.2s; }
-        .stipple-dot:nth-child(3) { animation-delay: 0.4s; }
+        .ticker-bit:nth-child(2) { animation-delay: 0.2s; }
+        .ticker-bit:nth-child(3) { animation-delay: 0.4s; }
+        .ticker-bit:nth-child(4) { animation-delay: 0.6s; }
 
-        @keyframes dot-shimmer {
-            0%, 100% { opacity: 0.2; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.1); }
+        @keyframes ticker-quad {
+            0%, 100% { background: transparent; }
+            50% { background: var(--ink-primary); }
         }
 
         /* ──────────────────────────────────────────────────────────
-           INPUT FIELD & TRANSMIT BAR
+           COMMAND INPUT & TRANSMISSION DECK
            ────────────────────────────────────────────────────────── */
-        .input-bar-container {
-            padding: 12px 18px 16px;
+        .input-dock {
+            padding: 8px 12px 12px;
             background: var(--bg-card);
-            border-top: 1px solid var(--border-mid);
+            border-top: 1px solid var(--border-heavy);
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .input-form-inner {
+        /* Punch-Card Quick Chips */
+        .punch-chips-row {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .punch-chips-row::-webkit-scrollbar { display: none; }
+
+        .punch-chip {
+            background: var(--bg-inset);
+            border: 1px solid var(--border-heavy);
+            color: var(--ink-secondary);
+            padding: 3px 7px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            flex-shrink: 0;
+            transition: all 0.1s;
+        }
+
+        .punch-chip:hover, .punch-chip:active {
+            background: var(--ink-primary);
+            color: var(--bg-card);
+        }
+
+        .input-command-box {
             display: flex;
             align-items: center;
-            gap: 10px;
+            border: 1px solid var(--border-heavy);
             background: var(--bg-inset);
-            border: 1px solid var(--border-mid);
-            border-radius: 8px;
-            padding: 4px 6px 4px 14px;
-            box-shadow: var(--shadow-inset);
-            transition: border-color 0.2s, background 0.2s;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
         }
 
-        .input-form-inner:focus-within {
-            border-color: var(--text-primary);
+        .input-command-box:focus-within {
             background: var(--bg-card);
+            outline: 1px solid var(--border-heavy);
+        }
+
+        .prompt-symbol {
+            padding: 0 8px 0 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            user-select: none;
         }
 
         .cmd-text-input {
@@ -786,298 +860,253 @@
             outline: none;
             font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
-            color: var(--text-primary);
-            padding: 8px 0;
+            color: var(--ink-primary);
+            padding: 9px 0;
         }
 
         .cmd-text-input::placeholder {
-            color: var(--text-muted);
+            color: var(--ink-muted);
             font-weight: 400;
         }
 
-        .transmit-button {
-            background: var(--text-primary);
-            color: var(--bg-panel);
+        .exec-button {
             border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
+            border-left: 1px solid var(--border-heavy);
+            background: var(--ink-primary);
+            color: var(--bg-card);
+            padding: 9px 16px;
             font-family: 'Space Grotesk', sans-serif;
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             cursor: pointer;
-            transition: opacity 0.15s, transform 0.1s;
+            transition: opacity 0.1s;
         }
-
-        .transmit-button:hover {
-            opacity: 0.88;
-        }
-        .transmit-button:active {
-            transform: scale(0.97);
-        }
+        .exec-button:hover { opacity: 0.9; }
+        .exec-button:active { opacity: 0.75; }
 
         /* ──────────────────────────────────────────────────────────
-           QUICK ACTION CHIPS (Mobile & Ergonomic Shortcuts)
-           ────────────────────────────────────────────────────────── */
-        .quick-chips-scroll {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 2px;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        .quick-chips-scroll::-webkit-scrollbar { display: none; }
-
-        .quick-chip {
-            background: var(--bg-inset);
-            border: 1px solid var(--border-light);
-            color: var(--text-secondary);
-            border-radius: 100px;
-            padding: 4px 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.15s;
-        }
-
-        .quick-chip:hover, .quick-chip:active {
-            background: var(--text-primary);
-            color: var(--bg-panel);
-            border-color: var(--text-primary);
-        }
-
-        /* ──────────────────────────────────────────────────────────
-           MOBILE RESPONSIVENESS (Pixel 8 / Touch Ergonomics)
+           MOBILE / PIXEL 8 RESPONSIVE OVERRIDES
            ────────────────────────────────────────────────────────── */
         @media (max-width: 640px) {
-            .app-shell {
-                border: none;
+            .chassis-shell {
+                border-left: none;
+                border-right: none;
             }
-            .specimen-header {
-                padding: 10px 14px 8px;
-                gap: 8px;
+            .operation-deck {
+                grid-template-columns: 1fr;
             }
-            .header-top-row {
-                gap: 8px;
+            .conway-pane {
+                height: 80px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-heavy);
             }
-            .brand-block {
-                gap: 8px;
+            .byte-telemetry-pane {
+                padding: 6px 8px;
             }
-            .brand-stencil {
-                width: 24px;
-                height: 24px;
-                font-size: 10px;
+            .masthead-main {
+                padding: 8px 10px;
             }
-            .brand-title {
-                font-size: 13px;
-                letter-spacing: 1px;
-            }
-            .brand-subtitle {
-                font-size: 8px;
-            }
-            .status-pill {
-                padding: 3px 8px;
-                font-size: 9px;
-            }
-            .telemetry-pill {
-                padding: 3px 8px;
-                font-size: 9px;
-            }
-            /* Render compact halftone card on Pixel 8 rather than hiding it */
-            .halftone-specimen-strip {
-                display: flex;
+            .hardware-deck {
                 padding: 6px 10px;
-                min-height: 38px;
             }
-            .halftone-label-title {
-                font-size: 8.5px;
-                letter-spacing: 0.5px;
-            }
-            .halftone-label-desc {
-                display: none; /* Hide multi-line caption to preserve vertical viewport */
-            }
-            .theme-selector {
-                padding: 1px;
-                gap: 2px;
-            }
-            .theme-button {
-                padding: 2px 5px;
-                font-size: 8px;
-            }
-            .control-deck {
-                padding: 8px 12px;
+            .transcript-frame {
+                padding: 10px 8px;
                 gap: 10px;
             }
-            .deck-label {
-                font-size: 8.5px;
-            }
-            .mode-item-btn {
-                padding: 4px 7px;
-                font-size: 9.5px;
-            }
-            .hardware-toggle {
-                padding: 3px 6px;
-                gap: 4px;
-            }
-            .hardware-toggle-text {
-                font-size: 9px;
-            }
-            .transcript-container {
-                padding: 12px 12px;
-                gap: 10px;
-            }
-            .entry-user {
-                max-width: 92%;
-            }
-            .entry-user .entry-content,
-            .entry-assistant .entry-content {
-                padding: 10px 12px;
-                font-size: 13px;
-            }
-            /* Crucial for Pixel 8: 16px font-size prevents Android Chrome auto-zoom on input focus */
             .cmd-text-input {
+                /* Essential: 16px font-size prevents Android Chrome auto-zoom on input focus */
                 font-size: 16px;
-                padding: 6px 0;
+                padding: 8px 0;
             }
-            .transmit-button {
-                padding: 7px 14px;
+            .exec-button {
+                padding: 8px 12px;
                 font-size: 10.5px;
             }
-            .input-bar-container {
-                padding: 8px 12px max(14px, env(safe-area-inset-bottom, 14px));
+            .input-dock {
+                padding: 6px 8px max(12px, env(safe-area-inset-bottom, 12px));
             }
-            .quick-chip {
-                padding: 4px 9px;
-                font-size: 9.5px;
+            .punch-chip {
+                padding: 3px 6px;
+                font-size: 8.5px;
+            }
+            .brand-name {
+                font-size: 13px;
+            }
+            .mode-key {
+                padding: 4px 6px;
+                font-size: 8.5px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-shell">
 
-        <!-- Specimen Header -->
-        <header class="specimen-header">
-            <div class="header-top-row">
-                <div class="brand-block">
-                    <div class="brand-stencil">KT</div>
-                    <div class="brand-meta">
-                        <span class="brand-title">KOTA</span>
-                        <span class="brand-subtitle" id="device-subtitle">Pixel 8 · Runtime</span>
-                    </div>
-                </div>
+    <div class="chassis-shell">
 
-                <div class="header-status-group">
-                    <div class="status-pill" id="pill-conn">
-                        <span class="status-dot"></span>
-                        <span id="conn-text">OFFLINE</span>
-                    </div>
-                    <div class="status-pill" id="pill-busy">
-                        <span class="status-dot"></span>
-                        <span id="busy-text">IDLE</span>
-                    </div>
-                    <div class="telemetry-pill" id="power-display">0.0 W · 0.0 J</div>
-                </div>
+        <!-- Masthead: Pervasive E-Paper Header -->
+        <header class="masthead-frame">
+            <div class="tech-ruler-strip">
+                <span>[INSTRUMENT_ID: KOTA-8765]</span>
+                <span class="ruler-ticks">|··|··|··|··|··|··|··|··|</span>
+                <span id="host-addr-tag">ADDR: LOCALHOST:8765</span>
             </div>
 
-            <!-- Perforated Halftone Card Specimen (Echoing the physical card aesthetic) -->
-            <div class="halftone-specimen-strip">
-                <canvas id="halftoneCanvas" class="halftone-matrix-canvas"></canvas>
-                <div class="halftone-caption-left">
-                    <span class="halftone-label-title">Design Studio for Autonomous Invariants</span>
-                    <span class="halftone-label-desc">Local neural engine with hardware energy telemetry & bounded policy envelope.</span>
+            <div class="masthead-main">
+                <div class="brand-cluster">
+                    <div class="brand-badge">KT</div>
+                    <div class="brand-spec">
+                        <span class="brand-name">KOTA · PERVASIVE</span>
+                        <span class="brand-nomenclature" id="device-tag">Pixel 8 Cyberphysical Client</span>
+                    </div>
                 </div>
-                <div class="halftone-caption-right">
-                    <div class="theme-selector">
-                        <button class="theme-button active" onclick="setTheme('paper')" id="btn-theme-paper">Chalk</button>
-                        <button class="theme-button" onclick="setTheme('obsidian')" id="btn-theme-obsidian">Carbon</button>
-                        <button class="theme-button" onclick="setTheme('concrete')" id="btn-theme-concrete">Grey</button>
+
+                <div class="hardware-indicators">
+                    <div class="indicator-box" id="ind-conn">
+                        <span class="bit-lamp" id="lamp-conn"></span>
+                        <span id="conn-state">STANDBY</span>
+                    </div>
+                    <div class="indicator-box" id="ind-busy">
+                        <span class="bit-lamp" id="lamp-busy"></span>
+                        <span id="busy-state">IDLE</span>
+                    </div>
+                    <div class="indicator-box" id="ind-power">
+                        <span>PWR</span>
+                        <span id="power-metric">0.0W · 0.0J</span>
+                    </div>
+
+                    <div class="finish-group">
+                        <button class="finish-btn active" onclick="setTheme('paper')" id="btn-theme-paper">Chalk</button>
+                        <button class="finish-btn" onclick="setTheme('obsidian')" id="btn-theme-obsidian">Carbon</button>
+                        <button class="finish-btn" onclick="setTheme('concrete')" id="btn-theme-concrete">Grey</button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Tactile Control Deck -->
-        <nav class="control-deck">
-            <div class="deck-section">
-                <span class="deck-label">MODE</span>
-                <div class="mode-segmented-group" id="mode-buttons">
-                    <button class="mode-item-btn active" id="btn-coder" onclick="changeMode('coder')">Coder</button>
-                    <button class="mode-item-btn" id="btn-cpe" onclick="changeMode('cpe')">CPE</button>
-                    <button class="mode-item-btn" id="btn-eval" onclick="changeMode('eval')">Eval</button>
-                    <button class="mode-item-btn" id="btn-research" onclick="changeMode('research')">Research</button>
-                    <button class="mode-item-btn" id="btn-architect" onclick="changeMode('architect')">Arch</button>
+        <!-- Operational Complexity Deck: Conway's Game of Life & Byte Registers -->
+        <section class="operation-deck">
+            <!-- Conway Cell Automaton Pane -->
+            <div class="conway-pane" id="conway-container">
+                <canvas id="conway-canvas" class="conway-canvas"></canvas>
+                <div class="conway-overlay">
+                    <span class="conway-badge">CONWAY_AUTOMATON · B3/S23</span>
+                    <span id="conway-telemetry">GEN: 0001 · CELLS: 00 · ENTROPY: 0.00</span>
                 </div>
             </div>
 
-            <div class="deck-section toggle-switch-group">
-                <span class="deck-label">SYSTEM</span>
-                <!-- Sensor Switch -->
-                <div class="hardware-toggle on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
-                    <span class="toggle-indicator"></span>
-                    <span class="hardware-toggle-text">PWR</span>
+            <!-- Byte Registers & Step Sparkline -->
+            <div class="byte-telemetry-pane">
+                <div>
+                    <div class="telemetry-row-label">
+                        <span>REGISTER_BUS [8-BIT]</span>
+                        <span id="hex-reg">0x00</span>
+                    </div>
+                    <div class="byte-register-grid" id="reg-bits">
+                        <div class="reg-bit-cell on" title="PWR">PWR</div>
+                        <div class="reg-bit-cell" title="ECO">ECO</div>
+                        <div class="reg-bit-cell" title="CLD">CLD</div>
+                        <div class="reg-bit-cell" title="GCP">GCP</div>
+                        <div class="reg-bit-cell" title="ACT">ACT</div>
+                        <div class="reg-bit-cell" title="TOK">TOK</div>
+                        <div class="reg-bit-cell" title="VXL">VXL</div>
+                        <div class="reg-bit-cell on" title="NET">NET</div>
+                    </div>
                 </div>
-                <!-- Eco Switch -->
-                <div class="hardware-toggle" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
-                    <span class="toggle-indicator"></span>
-                    <span class="hardware-toggle-text">ECO</span>
+
+                <div>
+                    <div class="telemetry-row-label">
+                        <span>STEP VELOCITY [MS]</span>
+                        <span id="last-step-ms">0 MS</span>
+                    </div>
+                    <div class="bounce-histogram" id="histogram-bars">
+                        <div class="bounce-bar" style="height: 10%;"></div>
+                        <div class="bounce-bar" style="height: 15%;"></div>
+                        <div class="bounce-bar" style="height: 25%;"></div>
+                        <div class="bounce-bar" style="height: 18%;"></div>
+                        <div class="bounce-bar" style="height: 40%;"></div>
+                        <div class="bounce-bar" style="height: 30%;"></div>
+                        <div class="bounce-bar" style="height: 55%;"></div>
+                        <div class="bounce-bar" style="height: 20%;"></div>
+                        <div class="bounce-bar" style="height: 35%;"></div>
+                        <div class="bounce-bar" style="height: 15%;"></div>
+                    </div>
                 </div>
-                <!-- Cloud Switch -->
-                <div class="hardware-toggle" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
-                    <span class="toggle-indicator"></span>
-                    <span class="hardware-toggle-text">CLOUD</span>
+            </div>
+        </section>
+
+        <!-- Hardware Control Deck -->
+        <nav class="hardware-deck">
+            <div class="deck-group">
+                <span class="deck-caption">MODE:</span>
+                <div class="mode-keys" id="mode-buttons">
+                    <button class="mode-key active" id="btn-coder" onclick="changeMode('coder')">[01:CODER]</button>
+                    <button class="mode-key" id="btn-cpe" onclick="changeMode('cpe')">[02:CPE]</button>
+                    <button class="mode-key" id="btn-eval" onclick="changeMode('eval')">[03:EVAL]</button>
+                    <button class="mode-key" id="btn-research" onclick="changeMode('research')">[04:RSCH]</button>
+                    <button class="mode-key" id="btn-architect" onclick="changeMode('architect')">[05:ARCH]</button>
                 </div>
-                <!-- GCP Switch -->
-                <div class="hardware-toggle" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
-                    <span class="toggle-indicator"></span>
-                    <span class="hardware-toggle-text">GCP</span>
+            </div>
+
+            <div class="deck-group">
+                <span class="deck-caption">BUS:</span>
+                <div class="rocker-keys">
+                    <button type="button" class="rocker-key on" id="toggle-power" onclick="toggleCmd('power', 'toggle-power')">
+                        <span class="rocker-box"></span> PWR
+                    </button>
+                    <button type="button" class="rocker-key" id="toggle-eco" onclick="toggleCmd('eco', 'toggle-eco')">
+                        <span class="rocker-box"></span> ECO
+                    </button>
+                    <button type="button" class="rocker-key" id="toggle-cloud" onclick="toggleCmd('cloud', 'toggle-cloud')">
+                        <span class="rocker-box"></span> CLOUD
+                    </button>
+                    <button type="button" class="rocker-key" id="toggle-gcp" onclick="toggleCmd('gcp', 'toggle-gcp')">
+                        <span class="rocker-box"></span> GCP
+                    </button>
                 </div>
             </div>
         </nav>
 
-        <!-- Transcript Container -->
-        <main class="transcript-container" id="output">
-            <div class="divider-rule"><span>SESSION STANDBY</span></div>
-            <div class="entry-block entry-system">
-                <div class="system-content">Connecting to local Kota controller runtime...</div>
+        <!-- Transcript Frame -->
+        <main class="transcript-frame" id="output">
+            <div class="tear-rule"><span>PERVASIVE TUI LOG INITIALIZED</span></div>
+            <div class="entry-system-inline">
+                <span>[00:00:00]</span>
+                <span>Connecting to local Kota controller runtime at <code>ws://localhost:8765/ws</code>...</span>
             </div>
         </main>
 
-        <!-- Generating / Thinking Bar -->
-        <div class="thinking-bar" id="thinking-indicator">
-            <div class="stipple-pulse-row">
-                <div class="stipple-dot"></div>
-                <div class="stipple-dot"></div>
-                <div class="stipple-dot"></div>
+        <!-- Active Reasoning Ticker -->
+        <div class="reasoning-ticker" id="reasoning-ticker">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div class="ticker-bit-matrix">
+                    <div class="ticker-bit"></div>
+                    <div class="ticker-bit"></div>
+                    <div class="ticker-bit"></div>
+                    <div class="ticker-bit"></div>
+                </div>
+                <span>COGNITIVE VOXEL COMPUTE · REASONING</span>
             </div>
-            <span>REASONING · SYNTHESIZING RESPONSE</span>
+            <span id="ticker-status">[BUSY]</span>
         </div>
 
-        <!-- Input Bar with Quick Action Chips -->
-        <footer class="input-bar-container">
-            <div class="quick-chips-scroll" id="quick-chips">
-                <button type="button" class="quick-chip" onclick="quickSend('Review git diff and check modified files')">Diff</button>
-                <button type="button" class="quick-chip" onclick="quickSend('Run cargo test and report test output')">Test</button>
-                <button type="button" class="quick-chip" onclick="quickSend('/status')">Status</button>
-                <button type="button" class="quick-chip" onclick="quickSend('/reset')">Reset</button>
-                <button type="button" class="quick-chip" onclick="quickToggle('power')">Power</button>
-                <button type="button" class="quick-chip" onclick="quickToggle('eco')">Eco</button>
-                <button type="button" class="quick-chip" onclick="quickToggle('cloud')">Cloud</button>
-                <button type="button" class="quick-chip" onclick="quickToggle('gcp')">GCP</button>
-                <button type="button" class="quick-chip" onclick="clearOutput()">Clear</button>
+        <!-- Command Input & Transmission Deck -->
+        <footer class="input-dock">
+            <!-- Punch Card Quick Action Chips -->
+            <div class="punch-chips-row">
+                <button type="button" class="punch-chip" onclick="quickSend('Review git diff and check modified files')">[ DIFF ]</button>
+                <button type="button" class="punch-chip" onclick="quickSend('Run cargo test and report test output')">[ TEST ]</button>
+                <button type="button" class="punch-chip" onclick="quickSend('/status')">[ STATUS ]</button>
+                <button type="button" class="punch-chip" onclick="quickSend('/reset')">[ RESET ]</button>
+                <button type="button" class="punch-chip" onclick="seedConwayLife()">[ SEED_LIFE ]</button>
+                <button type="button" class="punch-chip" onclick="clearOutput()">[ CLEAR ]</button>
             </div>
-            <form class="input-form-inner" id="input-form">
-                <input type="text" id="cmd-input" class="cmd-text-input" placeholder="Transmit instruction or /help..." autocomplete="off" autocorrect="off" spellcheck="false">
-                <button type="submit" class="transmit-button">Transmit</button>
+
+            <form class="input-command-box" id="input-form">
+                <span class="prompt-symbol">&gt;_</span>
+                <input type="text" id="cmd-input" class="cmd-text-input" placeholder="Execute command or query (e.g. /help, /modes)..." autocomplete="off" autocorrect="off" spellcheck="false">
+                <button type="submit" class="exec-button">EXECUTE</button>
             </form>
         </footer>
 
@@ -1087,12 +1116,17 @@
         const output = document.getElementById('output');
         const form = document.getElementById('input-form');
         const input = document.getElementById('cmd-input');
-        const pillConn = document.getElementById('pill-conn');
-        const connText = document.getElementById('conn-text');
-        const pillBusy = document.getElementById('pill-busy');
-        const busyText = document.getElementById('busy-text');
-        const powerDisplay = document.getElementById('power-display');
-        const thinkingIndicator = document.getElementById('thinking-indicator');
+        const lampConn = document.getElementById('lamp-conn');
+        const connState = document.getElementById('conn-state');
+        const lampBusy = document.getElementById('lamp-busy');
+        const busyState = document.getElementById('busy-state');
+        const powerMetric = document.getElementById('power-metric');
+        const reasoningTicker = document.getElementById('reasoning-ticker');
+        const hostAddrTag = document.getElementById('host-addr-tag');
+        const deviceTag = document.getElementById('device-tag');
+        const lastStepMs = document.getElementById('last-step-ms');
+        const hexReg = document.getElementById('hex-reg');
+        const histogramBars = document.getElementById('histogram-bars');
 
         // Toggle state
         const toggleState = { power: true, eco: false, cloud: false, gcp: false };
@@ -1101,6 +1135,22 @@
         let isBusy = false;
         let currentAssistantBlock = null;
         let currentAssistantContentEl = null;
+        let recentDurations = [120, 85, 340, 210, 95, 410, 180, 290, 150, 220];
+        let opCounter = 1;
+
+        // Display active host address in ruler
+        if (window.location.host) {
+            hostAddrTag.textContent = `ADDR: ${window.location.host.toUpperCase()}`;
+        }
+
+        // Detect mobile / Pixel 8 client
+        if (/Pixel/i.test(navigator.userAgent)) {
+            deviceTag.textContent = 'Pixel 8 Cyberphysical Client';
+        } else if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
+            deviceTag.textContent = 'Mobile Cyberphysical Client';
+        } else {
+            deviceTag.textContent = 'Hardware Terminal Client';
+        }
 
         // Marked setup with Highlight.js
         const { Marked } = window.marked;
@@ -1115,62 +1165,220 @@
             })
         );
 
-        // ── TACTILE HALFTONE CANVAS GENERATOR ──────────
-        // Generates an authentic perforated dot-matrix pattern inspired by the photo
-        function renderHalftoneBackground() {
-            const canvas = document.getElementById('halftoneCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            if (rect.width === 0 || rect.height === 0) return;
+        // ──────────────────────────────────────────────────────────
+        // CONWAY'S GAME OF LIFE & CELLULAR AUTOMATA ENGINE
+        // ──────────────────────────────────────────────────────────
+        const conwayCanvas = document.getElementById('conway-canvas');
+        const conwayCtx = conwayCanvas.getContext('2d');
+        const conwayTelemetry = document.getElementById('conway-telemetry');
 
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
+        let cellCols = 64;
+        let cellRows = 18;
+        let cellSize = 6;
+        let gridA = [];
+        let gridB = [];
+        let conwayGen = 1;
+        let conwayAnimTimer = null;
 
-            ctx.clearRect(0, 0, rect.width, rect.height);
+        function initConway() {
+            const container = document.getElementById('conway-container');
+            const rect = container.getBoundingClientRect();
+            cellSize = Math.max(4, Math.floor(rect.width / 80));
+            cellCols = Math.floor(rect.width / cellSize) || 64;
+            cellRows = Math.floor(rect.height / cellSize) || 18;
 
-            const dotSpacing = 8;
-            const cols = Math.ceil(rect.width / dotSpacing);
-            const rows = Math.ceil(rect.height / dotSpacing);
+            conwayCanvas.width = cellCols * cellSize;
+            conwayCanvas.height = cellRows * cellSize;
 
-            // Fetch active dot color from CSS variable
-            const style = getComputedStyle(document.documentElement);
-            const dotColor = style.getPropertyValue('--dot-color').trim() || 'rgba(0,0,0,0.18)';
+            gridA = new Uint8Array(cellCols * cellRows);
+            gridB = new Uint8Array(cellCols * cellRows);
 
-            ctx.fillStyle = dotColor;
+            seedConwayGliders();
+            updateConwayTelemetry();
+        }
 
-            for (let c = 0; c < cols; c++) {
-                for (let r = 0; r < rows; r++) {
-                    const x = c * dotSpacing + dotSpacing / 2;
-                    const y = r * dotSpacing + dotSpacing / 2;
-                    // Modulate dot radius based on coordinate curve to form subtle perforated silhouette
-                    const dx = (x - rect.width * 0.45) / (rect.width * 0.5);
-                    const dy = (y - rect.height * 0.5) / (rect.height * 0.5);
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const radius = Math.max(0.6, Math.min(2.8, (1.8 - dist * 0.8) + (Math.sin(c * 0.4) * 0.3)));
-
-                    ctx.beginPath();
-                    ctx.arc(x, y, radius, 0, Math.PI * 2);
-                    ctx.fill();
+        function seedConwayGliders() {
+            gridA.fill(0);
+            // Spawn multiple gliders and pulsars in the grid
+            const seeds = [
+                // Glider 1
+                [2, 1], [3, 2], [1, 3], [2, 3], [3, 3],
+                // Glider 2
+                [18, 5], [19, 6], [17, 7], [18, 7], [19, 7],
+                // Blinker
+                [10, 8], [11, 8], [12, 8],
+                // Toad
+                [26, 4], [27, 4], [28, 4], [25, 5], [26, 5], [27, 5],
+                // Beacon
+                [38, 8], [39, 8], [38, 9], [41, 10], [41, 11], [40, 11]
+            ];
+            seeds.forEach(([c, r]) => {
+                if (c < cellCols && r < cellRows) {
+                    gridA[r * cellCols + c] = 1;
                 }
+            });
+            // Random sparks across the grid
+            for (let i = 0; i < (cellCols * cellRows) * 0.12; i++) {
+                const idx = Math.floor(Math.random() * (cellCols * cellRows));
+                gridA[idx] = 1;
             }
         }
 
-        window.addEventListener('resize', renderHalftoneBackground);
-        setTimeout(renderHalftoneBackground, 60);
+        function injectEntropy(count = 8) {
+            // Called on agent tokens, step started, tool calls
+            for (let i = 0; i < count; i++) {
+                const rx = Math.floor(Math.random() * cellCols);
+                const ry = Math.floor(Math.random() * cellRows);
+                gridA[ry * cellCols + rx] = 1;
+                // Add adjacent neighbor
+                if (rx + 1 < cellCols) gridA[ry * cellCols + (rx + 1)] = 1;
+            }
+            updateRegisterBits();
+        }
 
-        // ── THEME SELECTION ─────────────────────────────
+        function stepConway() {
+            let livingCount = 0;
+            const style = getComputedStyle(document.documentElement);
+            const cellColor = style.getPropertyValue('--bit-cell-on').trim() || '#111214';
+            const cellOff = style.getPropertyValue('--bit-cell-off').trim() || 'rgba(0,0,0,0.06)';
+
+            conwayCtx.fillStyle = cellOff;
+            conwayCtx.fillRect(0, 0, conwayCanvas.width, conwayCanvas.height);
+
+            conwayCtx.fillStyle = cellColor;
+
+            for (let r = 0; r < cellRows; r++) {
+                for (let c = 0; c < cellCols; c++) {
+                    const idx = r * cellCols + c;
+                    const self = gridA[idx];
+
+                    // Count 8 neighbors with toroidal wrapping
+                    let neighbors = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = (r + dr + cellRows) % cellRows;
+                            const nc = (c + dc + cellCols) % cellCols;
+                            neighbors += gridA[nr * cellCols + nc];
+                        }
+                    }
+
+                    // Conway's Rule B3/S23
+                    let next = 0;
+                    if (self === 1) {
+                        next = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+                    } else {
+                        next = (neighbors === 3) ? 1 : 0;
+                    }
+
+                    gridB[idx] = next;
+
+                    if (self === 1) {
+                        livingCount++;
+                        conwayCtx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                    }
+                }
+            }
+
+            // Swap buffers
+            const temp = gridA;
+            gridA = gridB;
+            gridB = temp;
+
+            conwayGen++;
+            if (conwayGen % 4 === 0) {
+                updateConwayTelemetry(livingCount);
+            }
+        }
+
+        function updateConwayTelemetry(count) {
+            const living = count !== undefined ? count : gridA.reduce((a, b) => a + b, 0);
+            const entropy = (living / (cellCols * cellRows)).toFixed(2);
+            conwayTelemetry.textContent = `GEN: ${String(conwayGen).padStart(4, '0')} · CELLS: ${String(living).padStart(2, '0')} · ENTROPY: ${entropy}`;
+        }
+
+        function seedConwayLife() {
+            seedConwayGliders();
+            conwayGen = 1;
+            updateConwayTelemetry();
+        }
+
+        // Interactive touch/click on Conway canvas
+        conwayCanvas.addEventListener('pointerdown', (e) => {
+            const rect = conwayCanvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / (rect.width / cellCols));
+            const y = Math.floor((e.clientY - rect.top) / (rect.height / cellRows));
+            if (x >= 0 && x < cellCols && y >= 0 && y < cellRows) {
+                // Stamp a small glider at pointer position
+                const pattern = [[0, 0], [1, 1], [-1, 2], [0, 2], [1, 2]];
+                pattern.forEach(([dx, dy]) => {
+                    const nx = (x + dx + cellCols) % cellCols;
+                    const ny = (y + dy + cellRows) % cellRows;
+                    gridA[ny * cellCols + nx] = 1;
+                });
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            initConway();
+        });
+        setTimeout(initConway, 50);
+
+        setInterval(stepConway, 120);
+
+        // ──────────────────────────────────────────────────────────
+        // HARDWARE REGISTERS & SPARKLINE
+        // ──────────────────────────────────────────────────────────
+        function updateRegisterBits() {
+            const cells = document.querySelectorAll('.reg-bit-cell');
+            const bits = [
+                toggleState.power ? 1 : 0,
+                toggleState.eco ? 1 : 0,
+                toggleState.cloud ? 1 : 0,
+                toggleState.gcp ? 1 : 0,
+                isBusy ? 1 : 0,
+                Math.random() > 0.5 ? 1 : 0, // TOK
+                1, // VXL
+                ws && ws.readyState === WebSocket.OPEN ? 1 : 0
+            ];
+            let byteVal = 0;
+            bits.forEach((b, idx) => {
+                if (b) {
+                    cells[idx].classList.add('on');
+                    byteVal |= (1 << (7 - idx));
+                } else {
+                    cells[idx].classList.remove('on');
+                }
+            });
+            hexReg.textContent = '0x' + byteVal.toString(16).toUpperCase().padStart(2, '0');
+        }
+
+        function pushDurationHistogram(ms) {
+            recentDurations.shift();
+            recentDurations.push(ms);
+            lastStepMs.textContent = `${ms} MS`;
+            const maxVal = Math.max(...recentDurations, 500);
+            const bars = histogramBars.children;
+            recentDurations.forEach((val, i) => {
+                if (bars[i]) {
+                    const pct = Math.max(8, Math.min(100, Math.round((val / maxVal) * 100)));
+                    bars[i].style.height = `${pct}%`;
+                }
+            });
+        }
+
+        // ──────────────────────────────────────────────────────────
+        // THEME FINISH CONTROLS
+        // ──────────────────────────────────────────────────────────
         const themeColors = {
             paper: '#ECEAE4',
-            obsidian: '#0B0C0E',
-            concrete: '#DFE0DC'
+            obsidian: '#090A0D',
+            concrete: '#D8D9D4'
         };
 
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
-            document.querySelectorAll('.theme-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.finish-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById('btn-theme-' + theme);
             if (btn) btn.classList.add('active');
             const metaTheme = document.getElementById('meta-theme-color');
@@ -1178,13 +1386,15 @@
                 metaTheme.setAttribute('content', themeColors[theme]);
             }
             localStorage.setItem('kota-theme', theme);
-            setTimeout(renderHalftoneBackground, 30);
+            updateRegisterBits();
         }
 
         const savedTheme = localStorage.getItem('kota-theme') || 'paper';
         setTheme(savedTheme);
 
-        // ── TOGGLE CONTROLS ─────────────────────────────
+        // ──────────────────────────────────────────────────────────
+        // HARDWARE ROCKER TOGGLE CONTROLS
+        // ──────────────────────────────────────────────────────────
         function toggleCmd(name, elId) {
             toggleState[name] = !toggleState[name];
             const el = document.getElementById(elId);
@@ -1197,9 +1407,13 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(`/${name} ${val}`);
             }
+            updateRegisterBits();
+            injectEntropy(4);
         }
 
-        // ── CONNECTION HANDLER ──────────────────────────
+        // ──────────────────────────────────────────────────────────
+        // WEBSOCKET CONNECTION HANDLER
+        // ──────────────────────────────────────────────────────────
         function connect() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             let token = new URLSearchParams(window.location.search).get('token') || localStorage.getItem('kota_token') || '';
@@ -1209,14 +1423,16 @@
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                pillConn.classList.add('online');
-                connText.textContent = 'ONLINE';
-                appendRule('CONNECTED');
+                lampConn.classList.add('active');
+                connState.textContent = 'ONLINE';
+                appendTearRule('SYSTEM BUS CONNECTED');
+                updateRegisterBits();
             };
 
             ws.onclose = (e) => {
-                pillConn.classList.remove('online');
-                connText.textContent = 'OFFLINE';
+                lampConn.classList.remove('active');
+                connState.textContent = 'STANDBY';
+                updateRegisterBits();
                 if (!token && (e.code === 1006 || e.code === 1008)) {
                     const entered = prompt('Kota Controller authentication required. Enter password/token:');
                     if (entered) {
@@ -1225,7 +1441,7 @@
                         return;
                     }
                 }
-                appendRule('OFFLINE · RECONNECTING');
+                appendTearRule('BUS DISCONNECTED · RETRYING');
                 setTimeout(connect, 2000);
             };
 
@@ -1235,10 +1451,12 @@
             };
         }
 
-        // ── TRANSCRIPT HELPERS ──────────────────────────
-        function appendRule(label) {
+        // ──────────────────────────────────────────────────────────
+        // TRANSCRIPT HELPERS
+        // ──────────────────────────────────────────────────────────
+        function appendTearRule(label) {
             const div = document.createElement('div');
-            div.className = 'divider-rule';
+            div.className = 'tear-rule';
             div.innerHTML = `<span>${label}</span>`;
             output.appendChild(div);
             output.scrollTop = output.scrollHeight;
@@ -1247,16 +1465,20 @@
         function setBusy(state) {
             isBusy = state;
             if (state) {
-                pillBusy.classList.add('busy');
-                busyText.textContent = 'BUSY';
+                lampBusy.classList.add('active', 'pulse');
+                busyState.textContent = 'BUSY';
+                reasoningTicker.classList.add('active');
             } else {
-                pillBusy.classList.remove('busy');
-                busyText.textContent = 'IDLE';
-                thinkingIndicator.classList.remove('visible');
+                lampBusy.classList.remove('active', 'pulse');
+                busyState.textContent = 'IDLE';
+                reasoningTicker.classList.remove('active');
             }
+            updateRegisterBits();
         }
 
-        // ── EVENT ROUTER ────────────────────────────────
+        // ──────────────────────────────────────────────────────────
+        // AGENT EVENT ROUTER
+        // ──────────────────────────────────────────────────────────
         function handleEvent(ev) {
             switch (ev.type) {
                 case 'UserMessage':
@@ -1275,22 +1497,24 @@
                         if (ev.text.includes('Power monitoring enabled')) updateToggleUI('power', true);
                         if (ev.text.includes('Power monitoring disabled')) updateToggleUI('power', false);
 
-                        const block = document.createElement('div');
-                        block.className = 'entry-block entry-system';
-                        block.innerHTML = `<div class="system-content">${DOMPurify.sanitize(content.replace(/\n/g, '<br>'))}</div>`;
-                        output.appendChild(block);
+                        const div = document.createElement('div');
+                        div.className = 'entry-system-inline';
+                        div.innerHTML = `<span>[SYS]</span><div>${DOMPurify.sanitize(content.replace(/\n/g, '<br>'))}</div>`;
+                        output.appendChild(div);
                     } else {
                         // User message entry
                         currentAssistantBlock = null;
                         const block = document.createElement('div');
-                        block.className = 'entry-block entry-user';
+                        block.className = 'tui-entry entry-user';
                         block.innerHTML = `
-                            <div class="entry-header" style="justify-content: flex-end;">
-                                <span class="entry-tag tag-user">TRANSMIT</span>
+                            <div class="entry-mast">
+                                <div><span class="entry-tag">TRANSMIT</span> [0x${(opCounter++).toString(16).padStart(2,'0').toUpperCase()}] // USER_INPUT</div>
+                                <div>HOST_TERMINAL</div>
                             </div>
-                            <div class="entry-content">${DOMPurify.sanitize(ev.text)}</div>
+                            <div class="entry-payload">${DOMPurify.sanitize(ev.text)}</div>
                         `;
                         output.appendChild(block);
+                        injectEntropy(12);
                     }
                     output.scrollTop = output.scrollHeight;
                     break;
@@ -1298,29 +1522,29 @@
                 case 'StepStarted':
                     currentAssistantBlock = null;
                     currentAssistantContentEl = null;
-                    thinkingIndicator.classList.add('visible');
                     setBusy(true);
-                    appendRule(`STEP ${ev.step}`);
+                    appendTearRule(`OP_STEP #${ev.step} // DISPATCH`);
+                    injectEntropy(16);
                     break;
 
                 case 'Thinking':
-                    // Subtle indicator active
+                    // Active ticker handles visual
                     break;
 
                 case 'Token':
-                    thinkingIndicator.classList.remove('visible');
+                    injectEntropy(2);
                     if (!currentAssistantBlock) {
                         currentAssistantBlock = document.createElement('div');
-                        currentAssistantBlock.className = 'entry-block entry-assistant';
+                        currentAssistantBlock.className = 'tui-entry entry-assistant';
                         currentAssistantBlock.innerHTML = `
-                            <div class="entry-header">
-                                <span class="entry-tag">KOTA</span>
-                                <span>SYNTHESIS</span>
+                            <div class="entry-mast">
+                                <div><span class="entry-tag">KOTA</span> [0x${(opCounter++).toString(16).padStart(2,'0').toUpperCase()}] // SYNTHESIS_STREAM</div>
+                                <div>ACTIVE_VOXEL</div>
                             </div>
-                            <div class="entry-content"></div>
+                            <div class="entry-payload"></div>
                         `;
                         output.appendChild(currentAssistantBlock);
-                        currentAssistantContentEl = currentAssistantBlock.querySelector('.entry-content');
+                        currentAssistantContentEl = currentAssistantBlock.querySelector('.entry-payload');
                         currentAssistantContentEl.rawText = '';
                     }
                     currentAssistantContentEl.rawText += ev.text;
@@ -1330,29 +1554,32 @@
 
                 case 'ToolCallStarted':
                     const toolBlock = document.createElement('div');
-                    toolBlock.className = 'entry-block entry-tool';
+                    toolBlock.className = 'tui-entry entry-tool';
                     toolBlock.innerHTML = `
-                        <div class="tool-call-banner">
-                            <div><span class="tool-meta-badge">EXEC</span> <span class="tool-name-spec">${ev.tool}</span></div>
-                            <div class="tool-meta-badge">PENDING</div>
+                        <div class="entry-mast">
+                            <div><span class="entry-tag">EXEC</span> TOOL: ${ev.tool}</div>
+                            <div>STATUS: PENDING</div>
                         </div>
                     `;
                     output.appendChild(toolBlock);
                     output.scrollTop = output.scrollHeight;
+                    injectEntropy(10);
                     break;
 
                 case 'ToolCallFinished':
                     const statusText = ev.success ? 'OK' : 'FAIL';
                     const finBlock = document.createElement('div');
-                    finBlock.className = 'entry-block entry-tool';
+                    finBlock.className = 'tui-entry entry-tool';
                     finBlock.innerHTML = `
-                        <div class="tool-call-banner" style="border-left-color: ${ev.success ? 'var(--text-primary)' : '#b91c1c'};">
-                            <div><span class="tool-meta-badge">${statusText}</span> <span class="tool-name-spec">${ev.tool}</span></div>
-                            <div class="tool-meta-badge">${ev.duration_ms}ms</div>
+                        <div class="entry-mast">
+                            <div><span class="entry-tag">${statusText}</span> TOOL: ${ev.tool}</div>
+                            <div>${ev.duration_ms}MS</div>
                         </div>
                     `;
                     output.appendChild(finBlock);
                     output.scrollTop = output.scrollHeight;
+                    pushDurationHistogram(ev.duration_ms);
+                    injectEntropy(8);
                     break;
 
                 case 'CommandFinished':
@@ -1360,20 +1587,27 @@
                     break;
 
                 case 'Done':
-                    appendRule(`DONE · ${ev.duration_ms}ms`);
+                    appendTearRule(`DONE // DURATION: ${ev.duration_ms}MS`);
+                    pushDurationHistogram(ev.duration_ms);
                     setBusy(false);
                     currentAssistantBlock = null;
                     currentAssistantContentEl = null;
+                    injectEntropy(6);
                     break;
 
                 case 'PowerUpdate':
-                    powerDisplay.textContent = `${ev.watts.toFixed(1)} W · ${ev.joules.toFixed(1)} J`;
+                    powerMetric.textContent = `${ev.watts.toFixed(1)}W · ${ev.joules.toFixed(1)}J`;
                     break;
 
                 case 'Error':
                     const errBlock = document.createElement('div');
-                    errBlock.className = 'entry-block entry-error';
-                    errBlock.textContent = `ERROR: ${ev.message}`;
+                    errBlock.className = 'tui-entry entry-error';
+                    errBlock.innerHTML = `
+                        <div class="entry-mast">
+                            <div><span class="entry-tag" style="background:var(--error-ink);">FAULT</span> RUNTIME_ERROR</div>
+                        </div>
+                        <div class="entry-payload">${ev.message}</div>
+                    `;
                     output.appendChild(errBlock);
                     setBusy(false);
                     output.scrollTop = output.scrollHeight;
@@ -1381,7 +1615,9 @@
             }
         }
 
-        // ── MODE CONTROLS ───────────────────────────────
+        // ──────────────────────────────────────────────────────────
+        // MODE CONTROLS
+        // ──────────────────────────────────────────────────────────
         function changeMode(mode) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(`/mode ${mode}`);
@@ -1389,7 +1625,7 @@
         }
 
         function updateModeUI(mode) {
-            document.querySelectorAll('.mode-item-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-key').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById(`btn-${mode}`);
             if (btn) btn.classList.add('active');
         }
@@ -1400,9 +1636,12 @@
             if (!el) return;
             if (state) el.classList.add('on');
             else el.classList.remove('on');
+            updateRegisterBits();
         }
 
-        // ── FORM SUBMISSION ─────────────────────────────
+        // ──────────────────────────────────────────────────────────
+        // COMMAND SUBMISSION & SHORTCUTS
+        // ──────────────────────────────────────────────────────────
         form.onsubmit = (e) => {
             e.preventDefault();
             const val = input.value.trim();
@@ -1412,7 +1651,6 @@
             }
         };
 
-        // ── QUICK ACTION MOBILE CONTROLS ────────────────
         function quickSend(cmd) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(cmd);
@@ -1422,23 +1660,9 @@
             }
         }
 
-        function quickToggle(name) {
-            toggleCmd(name, 'toggle-' + name);
-        }
-
         function clearOutput() {
             output.innerHTML = '';
-            appendRule('LOG CLEARED');
-        }
-
-        // ── DEVICE-AWARE RECOGNITION (Pixel 8 / Android) ──
-        const devSubtitle = document.getElementById('device-subtitle');
-        if (devSubtitle) {
-            if (/Pixel/i.test(navigator.userAgent)) {
-                devSubtitle.textContent = 'Pixel 8 · Runtime';
-            } else if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
-                devSubtitle.textContent = 'Mobile · Runtime';
-            }
+            appendTearRule('TRANSCRIPT BUFFER CLEARED');
         }
 
         // Auto-scroll when virtual keyboard toggles on mobile
