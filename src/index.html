@@ -2025,20 +2025,12 @@
                 updateRegisterBits();
             };
 
-            ws.onclose = (e) => {
+            ws.onclose = () => {
                 lampConn.classList.remove('active');
                 connState.textContent = 'connecting...';
                 if (remoteScreenConn) remoteScreenConn.textContent = 'reconnecting';
                 if (remotePwrLed) remotePwrLed.classList.remove('active');
                 updateRegisterBits();
-                if (!token && (e.code === 1006 || e.code === 1008)) {
-                    const entered = prompt('kota controller authentication required. enter password/token:');
-                    if (entered) {
-                        localStorage.setItem('kota_token', entered.trim());
-                        setTimeout(connect, 300);
-                        return;
-                    }
-                }
                 appendTearRule('reconnecting to companion controller...');
                 setTimeout(connect, 2000);
             };
