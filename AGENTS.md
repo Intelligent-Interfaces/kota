@@ -19,11 +19,11 @@ This repository has been indexed for agent consumption. Use this map to quickly 
   - test_tui_md.rs
   - go/
     - go.mod
+    - coordinator/
+      - coordinator.go
     - search_wiki/
       - search_wiki.go
       - search_wiki_test.go
-    - coordinator/
-      - coordinator.go
     - watchdog/
       - watchdog.go
       - watchdog_test.go
