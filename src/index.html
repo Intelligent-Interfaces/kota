@@ -1662,45 +1662,80 @@
         const miniCanvas = document.getElementById('mini-scope-canvas');
         const miniCtx = miniCanvas ? miniCanvas.getContext('2d') : null;
         let scopePhase = 0;
+        let lastScopeTime = 0;
 
-        function drawMiniScope() {
+        function drawMiniScope(timestamp) {
             if (!miniCtx || !miniCanvas) return;
-            const rect = miniCanvas.getBoundingClientRect();
-            if (rect.width > 0 && Math.round(miniCanvas.width) !== Math.round(rect.width)) {
-                miniCanvas.width = Math.round(rect.width);
-                miniCanvas.height = Math.round(rect.height);
-            }
-            const w = miniCanvas.width;
-            const h = miniCanvas.height;
-            miniCtx.clearRect(0, 0, w, h);
 
-            // Baseline
-            miniCtx.strokeStyle = 'rgba(128, 128, 128, 0.18)';
-            miniCtx.lineWidth = 1;
+            // Accurate Delta Time for butter-smooth 60Hz/120Hz animation
+            const now = timestamp || performance.now();
+            if (!lastScopeTime) lastScopeTime = now;
+            const dt = Math.min(0.05, (now - lastScopeTime) / 1000);
+            lastScopeTime = now;
+
+            // High-DPI / Retina device pixel ratio scaling
+            const rect = miniCanvas.getBoundingClientRect();
+            const dpr = Math.max(1, window.devicePixelRatio || 1);
+            const cssW = rect.width > 0 ? rect.width : 168;
+            const cssH = rect.height > 0 ? rect.height : 22;
+            const targetPixelW = Math.round(cssW * dpr);
+            const targetPixelH = Math.round(cssH * dpr);
+
+            if (miniCanvas.width !== targetPixelW || miniCanvas.height !== targetPixelH) {
+                miniCanvas.width = targetPixelW;
+                miniCanvas.height = targetPixelH;
+            }
+
+            miniCtx.save();
+            miniCtx.scale(dpr, dpr);
+            miniCtx.clearRect(0, 0, cssW, cssH);
+
+            const midY = cssH / 2;
+            const theme = document.documentElement.getAttribute('data-theme');
+
+            // Faint hairline center baseline
+            miniCtx.strokeStyle = theme === 'obsidian' ? 'rgba(234, 235, 240, 0.12)' : 'rgba(17, 18, 20, 0.10)';
+            miniCtx.lineWidth = 0.75;
             miniCtx.beginPath();
-            miniCtx.moveTo(0, h / 2);
-            miniCtx.lineTo(w, h / 2);
+            miniCtx.moveTo(0, midY);
+            miniCtx.lineTo(cssW, midY);
             miniCtx.stroke();
 
-            // Waveform
-            const theme = document.documentElement.getAttribute('data-theme');
-            miniCtx.strokeStyle = isBusy ? '#D13438' : (theme === 'obsidian' ? '#EAEBF0' : '#111214');
-            miniCtx.lineWidth = 1.5;
+            // Waveform parameters
+            const freq = isBusy ? 0.075 : 0.034;
+            const amp = isBusy ? cssH * 0.35 : cssH * 0.22;
+            const speed = isBusy ? 3.6 : 1.35;
+            scopePhase += speed * dt;
+
+            // Phosphor bloom for obsidian/dark theme, clean crisp vector for light themes
+            if (theme === 'obsidian') {
+                miniCtx.shadowColor = isBusy ? 'rgba(255, 107, 107, 0.4)' : 'rgba(234, 235, 240, 0.32)';
+                miniCtx.shadowBlur = 2.0;
+                miniCtx.strokeStyle = isBusy ? '#FF6B6B' : '#F2F3F8';
+            } else {
+                miniCtx.shadowColor = 'transparent';
+                miniCtx.shadowBlur = 0;
+                miniCtx.strokeStyle = isBusy ? '#D13438' : '#111214';
+            }
+
+            miniCtx.lineWidth = 1.15;
+            miniCtx.lineCap = 'round';
+            miniCtx.lineJoin = 'round';
             miniCtx.beginPath();
 
-            const freq = isBusy ? 0.08 : 0.035;
-            const amp = isBusy ? h * 0.38 : h * 0.22;
-            scopePhase += isBusy ? 0.12 : 0.035;
-
-            for (let x = 0; x < w; x += 2) {
-                let y = (h / 2) + Math.sin(x * freq + scopePhase) * amp;
+            // Sub-pixel sampling (0.5px step) for flawless, grain-free curves
+            const step = 0.5;
+            for (let x = 0; x <= cssW; x += step) {
+                let y = midY + Math.sin(x * freq + scopePhase) * amp;
                 if (isBusy) {
-                    y += (Math.random() - 0.5) * 4;
+                    y += Math.sin(x * 0.15 + scopePhase * 2.2) * (amp * 0.26);
                 }
                 if (x === 0) miniCtx.moveTo(x, y);
                 else miniCtx.lineTo(x, y);
             }
             miniCtx.stroke();
+            miniCtx.restore();
+
             requestAnimationFrame(drawMiniScope);
         }
         requestAnimationFrame(drawMiniScope);
