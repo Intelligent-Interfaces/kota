@@ -94,7 +94,7 @@ The agent loop:
 
 All events flow through a typed broadcast channel (`tokio::broadcast`). Both the terminal TUI and remote web controller subscribe and render them in real time.
 
-## Hardware & Inference Guide
+## Hardware Inference Guide
 
 To achieve the best latency and context stability with Kota, you must align your model selection and backend with your hardware constraints.
 
